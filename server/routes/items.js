@@ -6,13 +6,14 @@ import {
   getItems,
   updateItem,
 } from '../controllers/items.js';
+import { validatorCreateItem, validatorGetItem } from '../validators/items.js';
 
 const router = express.Router();
 
 router.get('/', getItems);
-router.get('/:id', getItem);
-router.post('/', createItem);
-router.put('/:id', updateItem);
-router.delete('/:id', deleteItem);
+router.get('/:id', validatorGetItem, getItem);
+router.post('/', validatorCreateItem, createItem);
+router.put('/:id', validatorGetItem, updateItem);
+router.delete('/:id', validatorGetItem, deleteItem);
 
 export { router as itemRouter };

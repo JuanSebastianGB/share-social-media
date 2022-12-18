@@ -1,3 +1,4 @@
+import { matchedData } from 'express-validator';
 import Item from '../models/item.js';
 
 export const getItems = async (req, res) => {
@@ -5,14 +6,24 @@ export const getItems = async (req, res) => {
   return res.json(items);
 };
 export const getItem = async (req, res) => {
-  const { id } = req.params;
-  const item = await Item.findById(id);
-  return res.json(item);
+  try {
+    const { id } = req.params;
+    const item = await Item.findById(id);
+    return res.json(item);
+  } catch (error) {
+    res.status(500);
+    return res.json(error);
+  }
 };
 export const createItem = async (req, res) => {
-  const { body } = req;
-  const newItem = await Item.create(body);
-  return res.json({ newItem });
+  try {
+    const body = matchedData(req);
+    console.log(body);
+    const newItem = await Item.create(body);
+    return res.json({ newItem });
+  } catch (error) {
+    return res.json(error);
+  }
 };
 export const updateItem = async (req, res) => {
   const {
@@ -23,7 +34,11 @@ export const updateItem = async (req, res) => {
   return res.json(response);
 };
 export const deleteItem = async (req, res) => {
-  const { id } = req.params;
-  const response = await Item.deleteOne({ _id: id });
-  return res.json(response);
+  try {
+    const { id } = req.params;
+    const response = await Item.deleteOne({ _id: id });
+    return res.json(response);
+  } catch (error) {
+    res.json(error);
+  }
 };

@@ -3,10 +3,17 @@ import { names } from './modelsNames.js';
 
 const name = {
   type: String,
+  required: true,
+  unique: true,
+};
+const active = {
+  type: Boolean,
+  default: true,
 };
 
 const params = {
   name,
+  active,
 };
 
 const UserSchema = new mongoose.Schema(params, {
