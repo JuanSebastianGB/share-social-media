@@ -1,9 +1,11 @@
 import cors from 'cors';
+import express from 'express';
 import morgan from 'morgan';
 import { app } from './app.js';
-import { itemRouter } from './routes/item.js';
+import { itemRouter } from './routes/items.js';
 
 app.use(morgan('dev'));
 app.use(cors());
+app.use(express.json());
 
-app.use('/item', itemRouter);
+app.use('/items', itemRouter);
