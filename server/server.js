@@ -1,6 +1,8 @@
-import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import { app } from './app.js';
 
-const app = express();
+app.use(morgan('dev'));
+app.use(cors());
 
-const PORT = 3000;
-app.listen(PORT, () => console.log(`Listening on port: ${PORT}`));
+app.get('/', (req, res) => res.json({ response: 'Hello World!' }));
