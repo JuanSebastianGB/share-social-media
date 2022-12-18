@@ -1,9 +1,14 @@
 import { matchedData } from 'express-validator';
 import Item from '../models/item.js';
+import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
 export const getItems = async (req, res) => {
-  const items = await Item.find({});
-  return res.json(items);
+  try {
+    const items = await Item.find({});
+    return res.json(items);
+  } catch (error) {
+    handleHttpErrors(res, 'ERROR_CREATE_ITEM');
+  }
 };
 export const getItem = async (req, res) => {
   try {
@@ -11,8 +16,7 @@ export const getItem = async (req, res) => {
     const item = await Item.findById(id);
     return res.json(item);
   } catch (error) {
-    res.status(500);
-    return res.json(error);
+    handleHttpErrors(res, 'ERROR_GET_ITEM');
   }
 };
 export const createItem = async (req, res) => {
@@ -22,16 +26,20 @@ export const createItem = async (req, res) => {
     const newItem = await Item.create(body);
     return res.json({ newItem });
   } catch (error) {
-    return res.json(error);
+    handleHttpErrors(res, 'ERROR_CREATE_ITEM');
   }
 };
 export const updateItem = async (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
-  const response = await Item.updateOne({ _id: id }, body);
-  return res.json(response);
+  try {
+    const {
+      body,
+      params: { id },
+    } = req;
+    const response = await Item.updateOne({ _id: id }, body);
+    return res.json(response);
+  } catch (error) {
+    handleHttpErrors(res, 'ERROR_UPDATE_ITEM');
+  }
 };
 export const deleteItem = async (req, res) => {
   try {
@@ -39,6 +47,6 @@ export const deleteItem = async (req, res) => {
     const response = await Item.deleteOne({ _id: id });
     return res.json(response);
   } catch (error) {
-    res.json(error);
+    handleHttpErrors(res, 'ERROR_DELETE_ITEM');
   }
 };
