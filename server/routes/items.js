@@ -16,4 +16,4 @@ router.post('/', validatorCreateItem, createItem);
 router.put('/:id', validatorGetItem, updateItem);
 router.delete('/:id', validatorGetItem, deleteItem);
 
-export { router as itemRouter };
+export default router;

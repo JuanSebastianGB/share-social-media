@@ -14,4 +14,4 @@ router.get('/:id', validatorGetItem, getItem);
 router.post('/', uploadMiddleware.single('myFile'), createItem);
 router.delete('/:id', validatorGetItem, deleteItem);
 
-export { router as storageRouter };
+export default router;
