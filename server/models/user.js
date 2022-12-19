@@ -17,9 +17,9 @@ const params = {
   role,
 };
 
-const UserSchema = new mongoose.Schema(
-  { params },
-  { timestamps: true, versionKey: false }
-);
+const UserSchema = new mongoose.Schema(params, {
+  timestamps: true,
+  versionKey: false,
+});
 
 export default mongoose.model(names.USERS, UserSchema);
