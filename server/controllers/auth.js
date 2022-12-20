@@ -1,5 +1,6 @@
 import { matchedData } from 'express-validator';
 import User from '../models/user.js';
+import { registerService } from '../services/auth.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
@@ -17,15 +18,10 @@ const register = async (req, res) => {
       ...body,
       password: await encrypt(body.password),
     };
-    const response = await User.create(processedIncomingData);
-    response.set('password', undefined, { strict: false });
-
-    const { _id, role } = response;
-    return res.json({
-      userFound: response,
-      token: generateToken({ _id, role }),
-    });
+    const response = await registerService(processedIncomingData);
+    return res.json(response);
   } catch (error) {
+    console.log(error);
     handleHttpErrors(res, 'ERROR_REGISTER');
   }
 };
