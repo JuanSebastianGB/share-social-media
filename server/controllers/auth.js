@@ -1,6 +1,7 @@
 import { matchedData } from 'express-validator';
 import User from '../models/user.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
+import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
 
 /**
@@ -18,7 +19,12 @@ const register = async (req, res) => {
     };
     const response = await User.create(processedIncomingData);
     response.set('password', undefined, { strict: false });
-    return res.json(response);
+
+    const { _id, role } = response;
+    return res.json({
+      userFound: response,
+      token: generateToken({ _id, role }),
+    });
   } catch (error) {
     handleHttpErrors(res, 'ERROR_REGISTER');
   }
@@ -42,9 +48,9 @@ const login = async (req, res) => {
     const verifiedMatch = await compare(password, userFound.password);
     if (!verifiedMatch) return handleHttpErrors(res, 'ERROR_PASSWORD');
     userFound.set('password', undefined, { strict: false });
-    return res.json(userFound);
+    const { _id, role } = userFound;
+    return res.json({ userFound, token: generateToken({ _id, role }) });
   } catch (error) {
-    console.log(error);
     handleHttpErrors(res, 'ERROR_LOGIN');
   }
 };
