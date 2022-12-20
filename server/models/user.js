@@ -4,7 +4,7 @@ import { names } from './modelsNames.js';
 const name = { type: String };
 const username = { type: String };
 const password = { type: String };
-const email = { type: String };
+const email = { type: String, required: true, unique: true };
 const age = { type: Number };
 const role = { type: ['user', 'admin'], default: 'user' };
 
