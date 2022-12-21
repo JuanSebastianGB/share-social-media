@@ -17,6 +17,9 @@ const register = async (req, res) => {
     const processedIncomingData = {
       ...body,
       password: await encrypt(body.password),
+      viewedProfile: Math.floor(Math.random() * 1000),
+      impressions: Math.floor(Math.random() * 1000),
+      picturePath: 'https://i.imgur.com/3ZQZ7Z0.jpg',
     };
     const response = await registerService(processedIncomingData);
     return res.json(response);
