@@ -1,15 +1,17 @@
 import { matchedData } from 'express-validator';
-import User from '../models/user.js';
+import {
+  getUserFriendsService,
+  getUserService,
+  getUsersService,
+  toggleRelationFriendService
+} from '../services/users.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
 const getUsers = async (req, res) => {
   try {
-    const items = await User.find({}).select(
-      'firstName lastName age email role friends location occupation picturePath viewedProfile impressions'
-    );
-    return res.json(items);
+    const users = await getUsersService();
+    return res.json(users);
   } catch (error) {
-    console.log(error);
     handleHttpErrors(res, 'ERROR_GET_USERS');
   }
 };
@@ -17,10 +19,8 @@ const getUsers = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const { id } = matchedData(req);
-    const item = await User.findById(id).select(
-      'firstName lastName age email role friends location occupation picturePath viewedProfile impressions'
-    );
-    return res.json(item);
+    const user = await getUserService(id);
+    return res.json(user);
   } catch (error) {
     handleHttpErrors(res, 'ERROR_GET_USER');
   }
@@ -29,20 +29,24 @@ const getUser = async (req, res) => {
 const getUserFriends = async (req, res) => {
   try {
     const { id } = matchedData(req);
-    const user = await User.findById(id);
-
-    const userFriends = await Promise.all(
-      user.friends.map(async (id) =>
-        User.findById(id).select(
-          'firstName lastName  location occupation picturePath'
-        )
-      )
-    );
-
-    return res.json(userFriends);
+    const friends = await getUserFriendsService(id);
+    return res.json(friends);
   } catch (error) {
     handleHttpErrors(res, 'ERROR_GET_USERS');
   }
 };
 
-export { getUsers, getUser, getUserFriends };
+const toggleRelationFriend = async (req, res) => {
+  const { id, friendId } = matchedData(req);
+
+  try {
+    const userFriends = await toggleRelationFriendService(id, friendId);
+    return res.json(userFriends);
+  } catch (error) {
+    console.log(error);
+    handleHttpErrors(res, 'ERROR_TOGGLE_FRIEND', 404);
+  }
+};
+
+export { getUsers, getUser, getUserFriends, toggleRelationFriend };
+

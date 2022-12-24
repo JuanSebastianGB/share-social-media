@@ -6,4 +6,10 @@ const validatorGetItem = [
   (req, res, next) => validateResults(req, res, next),
 ];
 
-export { validatorGetItem };
+const validatorToggleFriend = [
+  check('id').exists().isMongoId(),
+  check('friendId').exists().isMongoId(),
+  (req, res, next) => validateResults(req, res, next),
+];
+
+export { validatorGetItem, validatorToggleFriend };
