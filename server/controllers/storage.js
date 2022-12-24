@@ -1,43 +1,45 @@
 import { matchedData } from 'express-validator';
 import Storage from '../models/storage.js';
+import {
+  createFileUploadedRegisterService,
+  getFileService,
+  getFilesService,
+} from '../services/storage.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
-const getItems = async (req, res) => {
+const getFiles = async (req, res) => {
   try {
-    const items = await Storage.find({});
-    return res.json(items);
+    const files = await getFilesService();
+    return res.json(files);
   } catch (error) {
     handleHttpErrors(res, 'ERROR_GET_FILES');
   }
 };
 
-const getItem = async (req, res) => {
+const getFile = async (req, res) => {
   try {
     const { id } = matchedData(req);
-    const item = await Storage.findById(id);
-    return res.json(item);
+    const file = await getFileService(id);
+    return res.json(file);
   } catch (error) {
     handleHttpErrors(res, 'ERROR_GET_FILE');
   }
 };
 
-const createItem = async (req, res) => {
+const createFileUploadedRegister = async (req, res) => {
   try {
     const {
       file: { filename },
     } = req;
-    const fileInfo = {
-      filename,
-      url: `${process.env.PUBLIC_URL}/${filename}`,
-    };
-    const response = await Storage.create(fileInfo);
+    const response = await createFileUploadedRegisterService(filename);
     return res.json(response);
   } catch (error) {
+    console.log(error);
     handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
   }
 };
 
-const deleteItem = async (req, res) => {
+const deleteFile = async (req, res) => {
   try {
     const { id } = matchedData(req);
     const response = await Storage.delete({ _id: id });
@@ -47,4 +49,4 @@ const deleteItem = async (req, res) => {
   }
 };
 
-export { getItems, createItem, getItem, deleteItem };
+export { getFiles, createFileUploadedRegister, getFile, deleteFile };

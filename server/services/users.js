@@ -1,25 +1,51 @@
 import User from '../models/user.js';
+import { getFileService } from './storage.js';
 
 /**
- * This function gets all users from the database and returns them.
+ * It gets all users and their profile images.
  * @returns An array of objects.
  */
-const getUsersService = async () =>
-  await User.find({}).select(
-    'firstName lastName age email role friends location occupation picturePath viewedProfile impressions'
-  );
+const getUsersService = async () => {
+  const result = await User.aggregate([
+    {
+      $lookup: {
+        from: 'storages',
+        localField: 'profileImageId',
+        foreignField: '_id',
+        as: 'profileImage',
+      },
+    },
+    { $unwind: '$profileImage' },
+    {
+      $project: {
+        firstName: 1,
+        lastName: 1,
+        profileImage: 1,
+        role: 1,
+        friends: 1,
+        location: 1,
+        occupation: 1,
+        viewedProfile: 1,
+        impressions: 1,
+      },
+    },
+  ]);
+  return result;
+};
 
 /**
- * This function returns a user object from the database, but only returns the firstName, lastName,
- * age, email, role, friends, location, occupation, picturePath, viewedProfile, and impressions
- * properties of the user object.
+ * Get a user by id, then get the file info for the user's profile image, then return the user with the
+ * file info url.
  * @param id - the id of the user
- * @returns The user object with the specified id.
+ * @returns The user object with the picturePath property added.
  */
-const getUserService = async (id) =>
-  await User.findById(id).select(
-    'firstName lastName age email role friends location occupation picturePath viewedProfile impressions'
+const getUserService = async (id) => {
+  const user = await User.findById(id).select(
+    'firstName lastName age email role friends location occupation picturePath viewedProfile impressions profileImageId'
   );
+  const fileInfo = await getFileService(user.profileImageId);
+  return { ...user._doc, picturePath: fileInfo.url };
+};
 
 /**
  * Get the user's friends by id, then return the user's friends' firstName, lastName, location,

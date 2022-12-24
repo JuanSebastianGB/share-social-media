@@ -3,7 +3,7 @@ import {
   getUserFriendsService,
   getUserService,
   getUsersService,
-  toggleRelationFriendService
+  toggleRelationFriendService,
 } from '../services/users.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
@@ -12,6 +12,7 @@ const getUsers = async (req, res) => {
     const users = await getUsersService();
     return res.json(users);
   } catch (error) {
+    console.log(error);
     handleHttpErrors(res, 'ERROR_GET_USERS');
   }
 };
@@ -49,4 +50,3 @@ const toggleRelationFriend = async (req, res) => {
 };
 
 export { getUsers, getUser, getUserFriends, toggleRelationFriend };
-

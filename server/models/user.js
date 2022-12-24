@@ -13,7 +13,7 @@ const location = String;
 const occupation = String;
 const viewedProfile = Number;
 const impressions = Number;
-const picturePath = String;
+const profileImageId = { type: mongoose.Types.ObjectId };
 
 const params = {
   firstName,
@@ -28,7 +28,7 @@ const params = {
   occupation,
   viewedProfile,
   impressions,
-  picturePath,
+  profileImageId,
 };
 
 const UserSchema = new mongoose.Schema(params, {

@@ -1,6 +1,7 @@
 import { matchedData } from 'express-validator';
 import User from '../models/user.js';
 import { registerService } from '../services/auth.js';
+import { createFileUploadedRegisterService } from '../services/storage.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
@@ -12,14 +13,21 @@ import { compare, encrypt } from '../utilities/handlePassword.js';
  * @returns The response is being returned.
  */
 const register = async (req, res) => {
+  const body = matchedData(req);
+  let savedFileRegister;
+
+  const {
+    file: { filename },
+  } = req;
+  savedFileRegister = await createFileUploadedRegisterService(filename);
+
   try {
-    const body = matchedData(req);
     const processedIncomingData = {
       ...body,
       password: await encrypt(body.password),
       viewedProfile: Math.floor(Math.random() * 1000),
       impressions: Math.floor(Math.random() * 1000),
-      picturePath: 'https://i.imgur.com/3ZQZ7Z0.jpg',
+      profileImageId: savedFileRegister._id || '',
     };
     const response = await registerService(processedIncomingData);
     return res.json(response);
