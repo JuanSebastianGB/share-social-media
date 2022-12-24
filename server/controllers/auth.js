@@ -1,10 +1,10 @@
 import { matchedData } from 'express-validator';
-import User from '../models/user.js';
 import { registerService } from '../services/auth.js';
 import {
   createFileUploadedRegisterService,
   deleteHardFileService,
 } from '../services/storage.js';
+import { getUserFromEmailService } from '../services/users.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
@@ -53,14 +53,15 @@ const login = async (req, res) => {
   try {
     const body = matchedData(req);
     const { email, password } = body;
-    const userFound = await User.findOne({ email });
+    const userFound = await getUserFromEmailService(email);
     if (!userFound) return handleHttpErrors(res, 'ERROR_USER_NOT_FOUND');
     const verifiedMatch = await compare(password, userFound.password);
     if (!verifiedMatch) return handleHttpErrors(res, 'ERROR_PASSWORD');
-    userFound.set('password', undefined, { strict: false });
+    delete userFound.password;
     const { _id, role } = userFound;
     return res.json({ userFound, token: generateToken({ _id, role }) });
   } catch (error) {
+    console.log(error);
     handleHttpErrors(res, 'ERROR_LOGIN');
   }
 };

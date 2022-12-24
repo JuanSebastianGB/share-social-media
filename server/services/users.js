@@ -48,6 +48,21 @@ const getUserService = async (id) => {
 };
 
 /**
+ * Get a user from the database by email, then get the file from the database by the user's
+ * profileImageId, then return the user with the file's url.
+ * @param email - String
+ * @returns The user object with the picturePath property added.
+ */
+const getUserFromEmailService = async (email) => {
+  const user = await User.findOne({ email }).select(
+    'email role profileImageId password'
+  );
+  if (!user) return null;
+  const fileInfo = await getFileService(user.profileImageId);
+  return { ...user._doc, picturePath: fileInfo.url };
+};
+
+/**
  * Get the user's friends by id, then return the user's friends' firstName, lastName, location,
  * occupation, and picturePath.
  * @param id - the id of the user whose friends you want to get
@@ -93,4 +108,5 @@ export {
   getUserService,
   getUserFriendsService,
   toggleRelationFriendService,
+  getUserFromEmailService,
 };
