@@ -12,7 +12,7 @@ import { validatorCreateItem, validatorGetItem } from '../validators/items.js';
 
 const router = express.Router();
 
-router.get('/', checkValidJwt, cache, getItems);
+router.get('/', cache, getItems);
 router.get('/:id', checkValidJwt, validatorGetItem, getItem);
 router.post(
   '/',
