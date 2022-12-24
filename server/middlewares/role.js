@@ -19,4 +19,4 @@ const checkRol = (roles) => (req, res, next) => {
   }
 };
 
-export { checkRol };
+export default checkRol;
