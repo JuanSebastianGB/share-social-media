@@ -22,7 +22,6 @@ export const getItem = async (req, res) => {
 export const createItem = async (req, res) => {
   try {
     const body = matchedData(req);
-    console.log(body);
     const newItem = await Item.create(body);
     return res.json({ newItem });
   } catch (error) {

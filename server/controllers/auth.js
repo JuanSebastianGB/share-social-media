@@ -1,7 +1,10 @@
 import { matchedData } from 'express-validator';
 import User from '../models/user.js';
 import { registerService } from '../services/auth.js';
-import { createFileUploadedRegisterService } from '../services/storage.js';
+import {
+  createFileUploadedRegisterService,
+  deleteHardFileService,
+} from '../services/storage.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
@@ -32,7 +35,7 @@ const register = async (req, res) => {
     const response = await registerService(processedIncomingData);
     return res.json(response);
   } catch (error) {
-    console.log(error);
+    await deleteHardFileService(savedFileRegister._id);
     handleHttpErrors(res, 'ERROR_REGISTER');
   }
 };

@@ -1,7 +1,7 @@
 import { matchedData } from 'express-validator';
-import Storage from '../models/storage.js';
 import {
   createFileUploadedRegisterService,
+  deleteSoftFileService,
   getFileService,
   getFilesService,
 } from '../services/storage.js';
@@ -34,7 +34,6 @@ const createFileUploadedRegister = async (req, res) => {
     const response = await createFileUploadedRegisterService(filename);
     return res.json(response);
   } catch (error) {
-    console.log(error);
     handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
   }
 };
@@ -42,7 +41,7 @@ const createFileUploadedRegister = async (req, res) => {
 const deleteFile = async (req, res) => {
   try {
     const { id } = matchedData(req);
-    const response = await Storage.delete({ _id: id });
+    const response = await deleteSoftFileService(id);
     return res.json(response);
   } catch (error) {
     handleHttpErrors(res, 'ERROR_DELETE_FILE');
