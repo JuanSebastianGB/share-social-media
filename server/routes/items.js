@@ -6,18 +6,18 @@ import {
   getItems,
   updateItem,
 } from '../controllers/items.js';
-import { checkRol } from '../middlewares/role.js';
+import { cache, role } from '../middlewares/index.js';
 import { checkValidJwt } from '../middlewares/session.js';
 import { validatorCreateItem, validatorGetItem } from '../validators/items.js';
 
 const router = express.Router();
 
-router.get('/', checkValidJwt, getItems);
+router.get('/', checkValidJwt, cache, getItems);
 router.get('/:id', checkValidJwt, validatorGetItem, getItem);
 router.post(
   '/',
   checkValidJwt,
-  checkRol(['admin']),
+  role(['admin']),
   validatorCreateItem,
   createItem
 );
