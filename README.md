@@ -1,6 +1,5 @@
 # SOCIAL MEDIA SHARE
 
-
 ## Run production
 
 - pnpm start
@@ -12,3 +11,7 @@
 ## Run Tests
 
 - pnpm test
+
+# Documentation
+
+- After running the app, open endpoint '/documentation'
