@@ -1,4 +1,5 @@
 import express from 'express';
+import { getUserPosts } from '../controllers/posts.js';
 import {
   getUser,
   getUserFriends,
@@ -95,6 +96,7 @@ router.get('/:id', validatorGetItem, getUser);
  *        - bearerAuth: []
  */
 router.get('/:id/friends', validatorGetItem, getUserFriends);
+router.get('/:id/posts', validatorGetItem, getUserPosts);
 router.patch('/:id/:friendId', validatorToggleFriend, toggleRelationFriend);
 
 export default router;
