@@ -5,6 +5,7 @@ import {
   getPostService,
   getPostsService,
   getUserPostsService,
+  toggleLikePostService,
 } from '../services/posts.js';
 import { createFileUploadedRegisterService } from '../services/storage.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
@@ -66,5 +67,16 @@ export const deletePost = async (req, res) => {
   } catch (error) {
     console.log(error);
     handleHttpErrors(res, 'ERROR_DELETE_POST');
+  }
+};
+
+export const toggleLikePost = async (req, res) => {
+  try {
+    const { id, userId } = matchedData(req);
+    const response = await toggleLikePostService(id, userId);
+    return res.json(response);
+  } catch (error) {
+    console.log(error);
+    handleHttpErrors(res, 'ERROR_TOGGLE_LIKE_POST');
   }
 };

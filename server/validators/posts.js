@@ -13,4 +13,9 @@ const validatorGetPost = [
   (req, res, next) => validateResults(req, res, next),
 ];
 
-export { validatorCreatePost, validatorGetPost };
+const validatorToggleLikePost = [
+  check('userId').exists().isMongoId().notEmpty(),
+  (req, res, next) => validateResults(req, res, next),
+];
+
+export { validatorCreatePost, validatorGetPost, validatorToggleLikePost };

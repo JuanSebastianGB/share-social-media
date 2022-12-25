@@ -203,10 +203,26 @@ const deletePostService = async (id) => {
   return await Post.deleteOne({ _id: id });
 };
 
+/**
+ * It finds a post by id, then it checks if the user has liked the post, if so it deletes the like, if
+ * not it adds the like.
+ * @param id - the id of the post
+ * @param userId - the id of the user who is liking the post
+ * @returns The post object with the updated likes.
+ */
+const toggleLikePostService = async (id, userId) => {
+  const post = await Post.findById(id);
+  const isLikedPost = post.likes.get(userId);
+  if (isLikedPost) post.likes.delete(userId);
+  else post.likes.set(userId, true);
+  return await post.save();
+};
+
 export {
   getPostsService,
   getPostService,
   getUserPostsService,
   createPostService,
   deletePostService,
+  toggleLikePostService,
 };

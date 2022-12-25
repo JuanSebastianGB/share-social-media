@@ -4,9 +4,14 @@ import {
   deletePost,
   getPost,
   getPosts,
+  toggleLikePost,
 } from '../controllers/posts.js';
 import uploadMiddleware from '../utilities/handleUploadFile.js';
-import { validatorCreatePost, validatorGetPost } from '../validators/posts.js';
+import {
+  validatorCreatePost,
+  validatorGetPost,
+  validatorToggleLikePost,
+} from '../validators/posts.js';
 
 const router = express.Router();
 
@@ -18,6 +23,7 @@ router.post(
   validatorCreatePost,
   createUserPost
 );
+router.put('/:id', validatorGetPost, validatorToggleLikePost, toggleLikePost);
 
 router.delete('/:id', validatorGetPost, deletePost);
 
