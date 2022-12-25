@@ -16,13 +16,13 @@ import { compare, encrypt } from '../utilities/handlePassword.js';
  * @returns The response is being returned.
  */
 const register = async (req, res) => {
+  if (!req.file) return handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
   const body = matchedData(req);
-  let savedFileRegister;
 
   const {
     file: { filename },
   } = req;
-  savedFileRegister = await createFileUploadedRegisterService(filename);
+  const savedFileRegister = await createFileUploadedRegisterService(filename);
 
   try {
     const processedIncomingData = {
