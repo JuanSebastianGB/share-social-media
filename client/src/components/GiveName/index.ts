@@ -1,1 +1,0 @@
-export { default as GiveName } from './GiveName';
