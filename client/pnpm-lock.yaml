@@ -11,6 +11,8 @@ specifiers:
   react-dom: ^18.2.0
   react-redux: ^8.0.5
   react-router-dom: ^6.6.1
+  redux: ^4.2.0
+  redux-persist: ^6.0.0
   typescript: ^4.9.3
   vite: ^4.0.0
 
@@ -19,8 +21,10 @@ dependencies:
   axios: 1.2.1
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
-  react-redux: 8.0.5_yqqa5ithnjtlkxisuaub7c4kpa
+  react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
   react-router-dom: 6.6.1_biqbaboplfbrettd7655fr4n2y
+  redux: 4.2.0
+  redux-persist: 6.0.0_react@18.2.0+redux@4.2.0
 
 devDependencies:
   '@types/node': 18.11.18
@@ -514,7 +518,7 @@ packages:
     dependencies:
       immer: 9.0.16
       react: 18.2.0
-      react-redux: 8.0.5_yqqa5ithnjtlkxisuaub7c4kpa
+      react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
       redux: 4.2.0
       redux-thunk: 2.4.2_redux@4.2.0
       reselect: 4.1.7
@@ -867,7 +871,7 @@ packages:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
     dev: false
 
-  /react-redux/8.0.5_yqqa5ithnjtlkxisuaub7c4kpa:
+  /react-redux/8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq:
     resolution: {integrity: sha512-Q2f6fCKxPFpkXt1qNRZdEDLlScsDWyrgSj0mliK59qU6W5gvBiKkdMEG2lJzhd1rCctf0hb6EtePPLZ2e0m1uw==}
     peerDependencies:
       '@types/react': ^16.8 || ^17.0 || ^18.0
@@ -897,6 +901,7 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-is: 18.2.0
+      redux: 4.2.0
       use-sync-external-store: 1.2.0_react@18.2.0
     dev: false
 
@@ -933,6 +938,19 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: false
+
+  /redux-persist/6.0.0_react@18.2.0+redux@4.2.0:
+    resolution: {integrity: sha512-71LLMbUq2r02ng2We9S215LtPu3fY0KgaGE0k8WRgl6RkqxtGfl7HUozz1Dftwsb0D/5mZ8dwAaPbtnzfvbEwQ==}
+    peerDependencies:
+      react: '>=16'
+      redux: '>4.0.0'
+    peerDependenciesMeta:
+      react:
+        optional: true
+    dependencies:
+      react: 18.2.0
+      redux: 4.2.0
     dev: false
 
   /redux-thunk/2.4.2_redux@4.2.0:
