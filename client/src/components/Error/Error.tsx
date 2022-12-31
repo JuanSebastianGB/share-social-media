@@ -24,7 +24,7 @@ const Error: React.FC<ErrorInterface> = ({ errorString, errorList }) => {
       <div className={styles.error}>
         <ul className={styles.ul}>
           {errorList.map((single: Error, index: number) => (
-            <ErrorRow message={single.msg} param={single.param} />
+            <ErrorRow key={index} message={single.msg} param={single.param} />
           ))}
         </ul>
       </div>

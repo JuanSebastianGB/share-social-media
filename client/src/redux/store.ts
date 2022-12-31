@@ -1,10 +1,35 @@
-import { AppStore } from '@/models/store.model';
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  persistReducer,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 import { authSlice, userSlice } from './states';
 
-export default configureStore<AppStore>({
-  reducer: {
-    user: userSlice,
-    auth: authSlice,
-  },
+const persistConfig = {
+  key: 'root',
+  storage,
+  version: 1,
+};
+
+const rootReducer = combineReducers({
+  user: userSlice,
+  auth: authSlice,
+});
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
 });
