@@ -1,3 +1,4 @@
+import { Error } from '@/components/Error';
 import { makeLogin } from '@/redux/states/authSlice';
 import { fetchLogin } from '@/services/login';
 import {
@@ -11,6 +12,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 export interface LoginInterface {}
 
 const StyledForm = styled(Grid)<GridProps>(({ theme }) => ({
@@ -27,6 +29,7 @@ const StyledForm = styled(Grid)<GridProps>(({ theme }) => ({
 const Login: React.FC<LoginInterface> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState({ data: '', status: 0, statusText: '' });
 
   const dispatch = useDispatch();
 
@@ -35,10 +38,34 @@ const Login: React.FC<LoginInterface> = () => {
     try {
       const response = await fetchLogin({ email, password });
       const { userFound: user, token } = response.data;
-      console.log(data);
+      console.log(user);
+      toast.success(`(●'◡'●) Logged in!`, {
+        position: 'top-center',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
       dispatch(makeLogin({ user, token }));
-    } catch (error) {
-      console.log(error.response.data);
+    } catch (error: any) {
+      const { data, status, statusText } = error.response;
+      setError({ data, status, statusText });
+      toast.error('😑😑 Something went wrong!', {
+        position: 'top-center',
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      });
+      setTimeout(() => {
+        setError({ data: '', status: 0, statusText: '' });
+      }, 3000);
     }
   };
   return (
@@ -60,6 +87,15 @@ const Login: React.FC<LoginInterface> = () => {
           }}
           elevation={3}
         >
+          {error?.data && (
+            <ul>
+              {error?.data?.errors ? (
+                <Error errorList={error?.data?.errors} />
+              ) : (
+                <Error errorString={error.data} />
+              )}
+            </ul>
+          )}
           <StyledForm>
             <form className="form" onSubmit={handleSubmit}>
               <TextField
