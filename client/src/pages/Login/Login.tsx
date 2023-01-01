@@ -1,6 +1,10 @@
 import { Error } from '@/components/Error';
-import { makeLogin } from '@/redux/states/authSlice';
+import { makeLogin, makeLogout } from '@/redux/states/authSlice';
 import { fetchLogin } from '@/services/login';
+import {
+  errorToastMessageConfig,
+  successToastMessageConfig,
+} from '@/utilities';
 import {
   Box,
   Button,
@@ -38,34 +42,16 @@ const Login: React.FC<LoginInterface> = () => {
     try {
       const response = await fetchLogin({ email, password });
       const { userFound: user, token } = response.data;
-      console.log(user);
-      toast.success(`(●'◡'●) Logged in!`, {
-        position: 'top-center',
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      });
+      toast.success(`(●'◡'●) Logged in!`, successToastMessageConfig);
       dispatch(makeLogin({ user, token }));
     } catch (error: any) {
       const { data, status, statusText } = error.response;
       setError({ data, status, statusText });
-      toast.error('😑😑 Something went wrong!', {
-        position: 'top-center',
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: 'light',
-      });
+      toast.error('😑😑 Something went wrong!', errorToastMessageConfig);
+      dispatch(makeLogout({}));
       setTimeout(() => {
         setError({ data: '', status: 0, statusText: '' });
-      }, 3000);
+      }, 2000);
     }
   };
   return (
@@ -118,7 +104,7 @@ const Login: React.FC<LoginInterface> = () => {
                 type="submit"
                 variant="contained"
               >
-                Send
+                Login
               </Button>
             </form>
           </StyledForm>
