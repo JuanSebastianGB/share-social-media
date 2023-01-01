@@ -14,3 +14,31 @@ export const authEmptyState: Auth = {
   mode: '',
   posts: [],
 };
+
+export interface LoginModel {
+  email: string;
+  password: string;
+}
+
+export const loginInitialValues: LoginModel = {
+  email: '',
+  password: '',
+};
+
+export interface RegisterModel extends LoginModel {
+  firstName: string;
+  lastName: string;
+  location: string;
+  occupation: string;
+  picture: string;
+}
+
+export const RegisterInitialValues: RegisterModel = {
+  firstName: '',
+  lastName: '',
+  location: '',
+  occupation: '',
+  picture: '',
+  email: '',
+  password: '',
+};

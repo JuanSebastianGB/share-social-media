@@ -1,16 +1,22 @@
+import { CssBaseline } from '@mui/material';
 import { lazy, Suspense } from 'react';
+import { useSelector } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Navbar } from './components';
+import { Auth } from './pages';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
 const Login = lazy(() => import('@/pages/Login/Login'));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
 function App() {
+  const state = useSelector((store) => store);
+
   return (
     <div>
+      <CssBaseline />
       <Suspense fallback={<div> Loading...</div>}>
         <div className="app">
           <BrowserRouter>
@@ -18,6 +24,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/auth" element={<Auth />} />
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/*" element={<NotFound />} />
             </Routes>
