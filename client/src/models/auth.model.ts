@@ -11,7 +11,7 @@ export interface Auth {
 export const authEmptyState: Auth = {
   user: userEmptyState,
   token: '',
-  mode: '',
+  mode: 'light',
   posts: [],
 };
 
@@ -25,12 +25,21 @@ export const loginInitialValues: LoginModel = {
   password: '',
 };
 
+interface Picture {
+  name: string;
+}
+
+const PictureEmptyState = {
+  name: '',
+};
+
 export interface RegisterModel extends LoginModel {
   firstName: string;
   lastName: string;
   location: string;
   occupation: string;
-  picture: string;
+  picturePath?: string;
+  myFile?: Picture;
 }
 
 export const RegisterInitialValues: RegisterModel = {
@@ -38,7 +47,8 @@ export const RegisterInitialValues: RegisterModel = {
   lastName: '',
   location: '',
   occupation: '',
-  picture: '',
+  picturePath: '',
+  myFile: PictureEmptyState,
   email: '',
   password: '',
 };

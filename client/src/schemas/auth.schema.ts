@@ -13,11 +13,11 @@ export const registerSchema = yup.object().shape({
   password: yup
     .string()
     .required('Password required')
-    .min(3, 'Too short')
-    .max(20, 'Too large'),
-  firstName: yup.string().required(),
-  lastName: yup.string().required(),
+    .min(5, 'Too short')
+    .max(30, 'Too large'),
+  firstName: yup.string().required().min(5).max(30),
+  lastName: yup.string().required().min(5).max(30),
   location: yup.string().required(),
   occupation: yup.string().required(),
-  picture: yup.string().required(),
+  myFile: yup.string().required(),
 });

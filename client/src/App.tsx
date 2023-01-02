@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Navbar } from './components';
+import { AppStore } from './models';
 import { Auth } from './pages';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -12,7 +13,8 @@ const Login = lazy(() => import('@/pages/Login/Login'));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
 function App() {
-  const state = useSelector((store) => store);
+  const mode = useSelector((store: AppStore) => store.auth.mode);
+  console.log(mode);
 
   return (
     <div>

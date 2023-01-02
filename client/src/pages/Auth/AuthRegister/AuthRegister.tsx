@@ -1,16 +1,61 @@
-import { RegisterInitialValues, RegisterModel } from '@/models';
+import { Error } from '@/components';
+import { Dropzone } from '@/components/Dropzone';
+import {
+  errorInitialState,
+  RegisterInitialValues,
+  RegisterModel,
+} from '@/models';
 import { registerSchema } from '@/schemas';
+import {
+  errorToastMessageConfig,
+  successToastMessageConfig,
+} from '@/utilities';
 import { Button, TextField } from '@mui/material';
+import axios from 'axios';
 import { useFormik } from 'formik';
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 export interface Props {}
 
-const onSubmit = (values: RegisterModel, onSubmitProps: any) => {
-  console.log(values);
+const registerService = async (formData: FormData) => {
+  const url = 'http://localhost:5000/auth/register';
+  const response = await axios.post(url, formData);
+  return response.data;
 };
 
 const AuthRegister: React.FC<Props> = () => {
+  const [error, setError] = useState(errorInitialState);
+  const navigate = useNavigate();
+
+  const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
+    const form = new FormData();
+    for (let value in values) form.append(value, values[value]);
+
+    form.append('picturePath', !!values.myFile ? values.myFile.name : '');
+    console.log(form);
+    try {
+      const response = await registerService(form);
+      console.log(response);
+      onSubmitProps.resetForm();
+      toast.success(
+        `(●'◡'●) Registered successfully!`,
+        successToastMessageConfig
+      );
+      navigate('/login');
+    } catch (error: any) {
+      console.log(error);
+      const { data, status, statusText } = error.response;
+      setError({ data, status, statusText });
+      toast.error('😑😑 Something went wrong!', errorToastMessageConfig);
+      setTimeout(() => {
+        setError(errorInitialState);
+      }, 2000);
+    }
+  };
   const {
+    values: valuesForm,
+    setFieldValue,
     handleSubmit,
     getFieldProps,
     errors,
@@ -24,23 +69,11 @@ const AuthRegister: React.FC<Props> = () => {
     initialValues: RegisterInitialValues,
     validationSchema: registerSchema,
   });
+
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <TextField
-          {...getFieldProps('email')}
-          label="Email"
-          helperText={errors.email && touched.email && errors.email}
-          error={!!errors.email && touched.email}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('password')}
-          label="Password"
-          helperText={errors.password && touched.password && errors.password}
-          error={!!errors.password && touched.password}
-          onBlur={handleBlur}
-        />
+        <Dropzone setFieldValue={setFieldValue} />
         <TextField
           {...getFieldProps('firstName')}
           label="first name"
@@ -55,6 +88,21 @@ const AuthRegister: React.FC<Props> = () => {
           error={!!errors.lastName && touched.lastName}
           onBlur={handleBlur}
         />
+        <TextField
+          {...getFieldProps('email')}
+          label="Email"
+          helperText={errors.email && touched.email && errors.email}
+          error={!!errors.email && touched.email}
+          onBlur={handleBlur}
+        />
+        <TextField
+          {...getFieldProps('password')}
+          label="Password"
+          helperText={errors.password && touched.password && errors.password}
+          error={!!errors.password && touched.password}
+          onBlur={handleBlur}
+        />
+
         <TextField
           {...getFieldProps('location')}
           label="location"
@@ -71,16 +119,18 @@ const AuthRegister: React.FC<Props> = () => {
           error={!!errors.occupation && touched.occupation}
           onBlur={handleBlur}
         />
-        <TextField
-          {...getFieldProps('picture')}
-          label="picture"
-          helperText={errors.picture && touched.picture && errors.picture}
-          error={!!errors.picture && touched.picture}
-          onBlur={handleBlur}
-        />
 
         <Button type="submit">Register</Button>
       </form>
+      {error?.data && (
+        <ul>
+          {error?.data?.errors ? (
+            <Error errorList={error?.data?.errors} />
+          ) : (
+            <Error errorString={error.data} />
+          )}
+        </ul>
+      )}
     </>
   );
 };
