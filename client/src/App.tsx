@@ -1,10 +1,9 @@
 import { CssBaseline } from '@mui/material';
 import { lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Navbar } from './components';
 import { AppStore } from './models';
 import { Auth } from './pages';
 
@@ -14,7 +13,8 @@ const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
 function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
-  console.log(mode);
+  const token = useSelector((store: AppStore) => store.auth.token);
+  const isAuth = !!token;
 
   return (
     <div>
@@ -22,12 +22,19 @@ function App() {
       <Suspense fallback={<div> Loading...</div>}>
         <div className="app">
           <BrowserRouter>
-            <Navbar />
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/profile/:id" element={<Profile />} />
+              <Route
+                path="/"
+                element={isAuth ? <Navigate to="/home" /> : <Auth />}
+              />
+              <Route
+                path="/home"
+                element={isAuth ? <Home /> : <Navigate to="/" />}
+              />
+              <Route
+                path="/profile/:id"
+                element={isAuth ? <Profile /> : <Navigate to="/" />}
+              />
               <Route path="/*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
