@@ -6,23 +6,17 @@ import {
   RegisterModel,
 } from '@/models';
 import { registerSchema } from '@/schemas';
+import { registerService } from '@/services';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
 } from '@/utilities';
 import { Button, TextField } from '@mui/material';
-import axios from 'axios';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 export interface Props {}
-
-const registerService = async (formData: FormData) => {
-  const url = 'http://localhost:5000/auth/register';
-  const response = await axios.post(url, formData);
-  return response.data;
-};
 
 const AuthRegister: React.FC<Props> = () => {
   const [error, setError] = useState(errorInitialState);

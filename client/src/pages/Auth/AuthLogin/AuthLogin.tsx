@@ -1,13 +1,8 @@
-import { loginInitialValues, LoginModel } from '@/models';
-import { loginSchema } from '@/schemas';
-import { Button, TextField } from '@mui/material';
-import { useFormik } from 'formik';
+import { Error } from '@/components';
+import { useLogin } from '@/hooks';
 import React from 'react';
+import { AuthLoginForm } from './AuthLoginForm';
 export interface Props {}
-
-const onSubmit = (values: LoginModel, onSubmitProps: any) => {
-  console.log(values);
-};
 
 const AuthLogin: React.FC<Props> = () => {
   const {
@@ -19,31 +14,26 @@ const AuthLogin: React.FC<Props> = () => {
     isValid,
     resetForm,
     handleBlur,
-  } = useFormik({
-    onSubmit,
-    initialValues: loginInitialValues,
-    validationSchema: loginSchema,
-  });
+    error,
+  } = useLogin();
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          {...getFieldProps('email')}
-          label="Email"
-          helperText={errors.email && touched.email && errors.email}
-          error={!!errors.email && touched.email}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('password')}
-          label="Password"
-          helperText={errors.password && touched.password && errors.password}
-          error={!!errors.password && touched.password}
-          onBlur={handleBlur}
-        />
-
-        <Button type="submit">Login</Button>
-      </form>
+      <AuthLoginForm
+        getFieldProps={getFieldProps}
+        errors={errors}
+        handleBlur={handleBlur}
+        touched={touched}
+        handleSubmit={handleSubmit}
+      />
+      {error?.data && (
+        <ul>
+          {error?.data?.errors ? (
+            <Error errorList={error?.data?.errors} />
+          ) : (
+            <Error errorString={error.data} />
+          )}
+        </ul>
+      )}
     </>
   );
 };
