@@ -1,23 +1,7 @@
-import { Button, Paper, styled, TextField, Typography } from '@mui/material';
+import { Button, TextField, Typography } from '@mui/material';
 import { FieldInputProps } from 'formik';
 import React from 'react';
-
-const StyledAuthLogin = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
-  width: '70%',
-  height: '80vh',
-  margin: '0 auto',
-  '& .form': {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  '& .input': {
-    width: '100%',
-    margin: theme.spacing(1),
-  },
-}));
+import { StyledAuthLogin } from './styles';
 
 export interface Props {
   getFieldProps: (nameOrOptions: any) => FieldInputProps<any>;
@@ -35,8 +19,8 @@ const AuthLoginForm: React.FC<Props> = ({
   handleSubmit,
 }) => {
   return (
-    <StyledAuthLogin elevation={5}>
-      <Typography variant="h4" gutterBottom my={6} align="center">
+    <StyledAuthLogin elevation={7}>
+      <Typography variant="h4" gutterBottom align="center">
         Login
       </Typography>
       <form onSubmit={handleSubmit} className="form">
@@ -56,7 +40,7 @@ const AuthLoginForm: React.FC<Props> = ({
           error={!!errors.password && touched.password}
           onBlur={handleBlur}
         />
-        <Button type="submit" variant="contained" fullWidth>
+        <Button type="submit" variant="contained" className="login-button">
           Login
         </Button>
       </form>
