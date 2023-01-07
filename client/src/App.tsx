@@ -1,4 +1,4 @@
-import { CssBaseline } from '@mui/material';
+import { createTheme, CssBaseline, ThemeProvider } from '@mui/material';
 import { lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -11,13 +11,19 @@ const Home = lazy(() => import('@/pages/Home/Home'));
 const Login = lazy(() => import('@/pages/Login/Login'));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
+
+const theme = createTheme({
+  typography: {
+    fontFamily: ['"Rubik"', '"Montserrat"', 'sans-serif'].join(','),
+  },
+});
 function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Suspense fallback={<div> Loading...</div>}>
         <div className="app">
@@ -53,7 +59,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-    </div>
+    </ThemeProvider>
   );
 }
 
