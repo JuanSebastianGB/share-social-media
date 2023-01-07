@@ -17,13 +17,22 @@ const theme = createTheme({
     fontFamily: ['"Rubik"', '"Montserrat"', 'sans-serif'].join(','),
   },
 });
+
+const makeTheme = (mode: string) => {
+  return createTheme({
+    typography: {
+      fontFamily: ['"Rubik"', '"Montserrat"', 'sans-serif'].join(','),
+    },
+    ...(mode === 'dark' && { palette: { mode: 'dark' } }),
+  });
+};
 function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={makeTheme(mode)}>
       <CssBaseline />
       <Suspense fallback={<div> Loading...</div>}>
         <div className="app">
