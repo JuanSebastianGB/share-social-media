@@ -1,6 +1,7 @@
-import { Button, TextField, Typography } from '@mui/material';
+import { Button, TextField, Typography, useMediaQuery } from '@mui/material';
 import { FieldInputProps } from 'formik';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { StyledAuthLogin } from './styles';
 
 export interface Props {
@@ -18,8 +19,14 @@ const AuthLoginForm: React.FC<Props> = ({
   touched,
   handleSubmit,
 }) => {
+  const isMobileScreen = useMediaQuery('(max-width: 800px)');
   return (
-    <StyledAuthLogin elevation={7}>
+    <StyledAuthLogin
+      elevation={7}
+      sx={{
+        width: isMobileScreen ? '93%' : '50%',
+      }}
+    >
       <Typography variant="h4" gutterBottom align="center">
         Login
       </Typography>
@@ -43,6 +50,9 @@ const AuthLoginForm: React.FC<Props> = ({
         <Button type="submit" variant="contained" className="login-button">
           Login
         </Button>
+        <Link to="/register" className="link">
+          Don't have an account? Sign Up here.
+        </Link>
       </form>
     </StyledAuthLogin>
   );

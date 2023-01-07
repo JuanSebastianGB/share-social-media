@@ -1,4 +1,3 @@
-import { Error } from '@/components';
 import { Dropzone } from '@/components/Dropzone';
 import {
   errorInitialState,
@@ -11,11 +10,12 @@ import {
   errorToastMessageConfig,
   successToastMessageConfig,
 } from '@/utilities';
-import { Button, TextField } from '@mui/material';
+import { Box, Button, TextField, useMediaQuery } from '@mui/material';
 import { useFormik } from 'formik';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { StyledRegisterAuth } from './styles';
 export interface Props {}
 
 const AuthRegister: React.FC<Props> = () => {
@@ -25,7 +25,6 @@ const AuthRegister: React.FC<Props> = () => {
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
     const form = new FormData();
     for (let value in values) form.append(value, values[value]);
-
     form.append('picturePath', !!values.myFile ? values.myFile.name : '');
     console.log(form);
     try {
@@ -36,6 +35,7 @@ const AuthRegister: React.FC<Props> = () => {
         `(●'◡'●) Registered successfully!`,
         successToastMessageConfig
       );
+      onSubmitProps.resetForm();
       navigate('/login');
     } catch (error: any) {
       console.log(error);
@@ -54,8 +54,6 @@ const AuthRegister: React.FC<Props> = () => {
     getFieldProps,
     errors,
     touched,
-    dirty,
-    isValid,
     resetForm,
     handleBlur,
   } = useFormik({
@@ -63,60 +61,99 @@ const AuthRegister: React.FC<Props> = () => {
     initialValues: RegisterInitialValues,
     validationSchema: registerSchema,
   });
+  const isMobileScreen = useMediaQuery('(max-width: 800px)');
 
   return (
-    <>
+    <StyledRegisterAuth
+      elevation={7}
+      sx={{
+        width: isMobileScreen ? '93%' : '50%',
+      }}
+    >
       <form onSubmit={handleSubmit}>
-        <Dropzone setFieldValue={setFieldValue} />
-        <TextField
-          {...getFieldProps('firstName')}
-          label="first name"
-          helperText={errors.firstName && touched.firstName && errors.firstName}
-          error={!!errors.firstName && touched.firstName}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('lastName')}
-          label="last name"
-          helperText={errors.lastName && touched.lastName && errors.lastName}
-          error={!!errors.lastName && touched.lastName}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('email')}
-          label="Email"
-          helperText={errors.email && touched.email && errors.email}
-          error={!!errors.email && touched.email}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('password')}
-          label="Password"
-          helperText={errors.password && touched.password && errors.password}
-          error={!!errors.password && touched.password}
-          onBlur={handleBlur}
-        />
-
-        <TextField
-          {...getFieldProps('location')}
-          label="location"
-          helperText={errors.location && touched.location && errors.location}
-          error={!!errors.location && touched.location}
-          onBlur={handleBlur}
-        />
-        <TextField
-          {...getFieldProps('occupation')}
-          label="occupation"
-          helperText={
-            errors.occupation && touched.occupation && errors.occupation
-          }
-          error={!!errors.occupation && touched.occupation}
-          onBlur={handleBlur}
-        />
-
-        <Button type="submit">Register</Button>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            '& > div': {
+              gridColumn: isMobileScreen ? 'span 4' : undefined,
+            },
+            gap: '1.5rem',
+          }}
+        >
+          <Dropzone
+            sx={{
+              gridColumn: 'span 4',
+              textAlign: 'center',
+            }}
+            setFieldValue={setFieldValue}
+          />
+          <TextField
+            {...getFieldProps('firstName')}
+            label="first name"
+            helperText={
+              errors.firstName && touched.firstName && errors.firstName
+            }
+            error={!!errors.firstName && touched.firstName}
+            onBlur={handleBlur}
+            sx={{ gridColumn: '1/3' }}
+          />
+          <TextField
+            {...getFieldProps('lastName')}
+            label="last name"
+            helperText={errors.lastName && touched.lastName && errors.lastName}
+            error={!!errors.lastName && touched.lastName}
+            onBlur={handleBlur}
+            sx={{ gridColumn: '3/5' }}
+          />
+          <TextField
+            {...getFieldProps('email')}
+            label="Email"
+            helperText={errors.email && touched.email && errors.email}
+            error={!!errors.email && touched.email}
+            onBlur={handleBlur}
+            sx={{ gridColumn: 'span 4' }}
+          />
+          <TextField
+            {...getFieldProps('password')}
+            label="Password"
+            helperText={errors.password && touched.password && errors.password}
+            error={!!errors.password && touched.password}
+            onBlur={handleBlur}
+            sx={{ gridColumn: 'span 4' }}
+          />
+          <TextField
+            {...getFieldProps('location')}
+            label="location"
+            helperText={errors.location && touched.location && errors.location}
+            error={!!errors.location && touched.location}
+            onBlur={handleBlur}
+            sx={{ gridColumn: 'span 4' }}
+          />
+          <TextField
+            {...getFieldProps('occupation')}
+            label="occupation"
+            helperText={
+              errors.occupation && touched.occupation && errors.occupation
+            }
+            error={!!errors.occupation && touched.occupation}
+            onBlur={handleBlur}
+            sx={{ gridColumn: 'span 4' }}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ gridColumn: 'span 4' }}
+          >
+            Register
+          </Button>
+          <Link className="link" to="/">
+            Already have an account? Login here.
+          </Link>
+        </Box>
       </form>
-      {error?.data && (
+      {/* {error?.data && (
         <ul>
           {error?.data?.errors ? (
             <Error errorList={error?.data?.errors} />
@@ -124,8 +161,8 @@ const AuthRegister: React.FC<Props> = () => {
             <Error errorString={error.data} />
           )}
         </ul>
-      )}
-    </>
+      )} */}
+    </StyledRegisterAuth>
   );
 };
 

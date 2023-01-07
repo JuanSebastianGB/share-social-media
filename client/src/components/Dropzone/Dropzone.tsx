@@ -5,13 +5,14 @@ import { FileWithPath, useDropzone } from 'react-dropzone';
 import { Thumb } from '../Thumb';
 export interface Props {
   setFieldValue: any;
+  sx?: any;
 }
 
 interface CustomFile extends FileWithPath {
   preview?: string;
 }
 
-const Dropzone: React.FC<Props> = ({ setFieldValue }) => {
+const Dropzone: React.FC<Props> = ({ setFieldValue, sx }) => {
   const [files, setFiles] = useState([]);
 
   const onDrop = useCallback(
@@ -34,7 +35,7 @@ const Dropzone: React.FC<Props> = ({ setFieldValue }) => {
     onDrop,
   });
   return (
-    <>
+    <Box sx={sx}>
       <Box
         {...getRootProps()}
         sx={{
@@ -46,7 +47,7 @@ const Dropzone: React.FC<Props> = ({ setFieldValue }) => {
         {!isDragActive ? <>Insert picture Here !</> : <>picture selected</>}
       </Box>
       {!!files.length && <Thumb src={files[0]['preview']} />}
-    </>
+    </Box>
   );
 };
 

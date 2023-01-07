@@ -1,10 +1,11 @@
 import { Paper, styled } from '@mui/material';
 
 export const StyledAuthLogin = styled(Paper)(({ theme }) => ({
-  width: '400px',
-  height: '370px',
+  width: '50%',
   margin: '0 auto',
   padding: '2rem',
+  marginTop: '3rem',
+
   '.form': {
     display: 'flex',
     flexDirection: 'column',
@@ -19,5 +20,11 @@ export const StyledAuthLogin = styled(Paper)(({ theme }) => ({
   '.login-button': {
     width: '90%',
     margin: theme.spacing(1),
+  },
+  '.link': {
+    textDecoration: 'none',
+    color: theme.palette.primary.light,
+    margin: '1rem 0',
+    textAlign: 'center',
   },
 }));
