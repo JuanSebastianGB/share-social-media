@@ -1,52 +1,17 @@
+import { Error } from '@/components';
 import { Dropzone } from '@/components/Dropzone';
-import {
-  errorInitialState,
-  RegisterInitialValues,
-  RegisterModel,
-} from '@/models';
+import { useRegister } from '@/hooks';
+import { RegisterInitialValues } from '@/models';
 import { registerSchema } from '@/schemas';
-import { registerService } from '@/services';
-import {
-  errorToastMessageConfig,
-  successToastMessageConfig,
-} from '@/utilities';
 import { Box, Button, TextField, useMediaQuery } from '@mui/material';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { StyledRegisterAuth } from './styles';
 export interface Props {}
 
 const AuthRegister: React.FC<Props> = () => {
-  const [error, setError] = useState(errorInitialState);
-  const navigate = useNavigate();
-
-  const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
-    const form = new FormData();
-    for (let value in values) form.append(value, values[value]);
-    form.append('picturePath', !!values.myFile ? values.myFile.name : '');
-    console.log(form);
-    try {
-      const response = await registerService(form);
-      console.log(response);
-      onSubmitProps.resetForm();
-      toast.success(
-        `(●'◡'●) Registered successfully!`,
-        successToastMessageConfig
-      );
-      onSubmitProps.resetForm();
-      navigate('/login');
-    } catch (error: any) {
-      console.log(error);
-      const { data, status, statusText } = error.response;
-      setError({ data, status, statusText });
-      toast.error('😑😑 Something went wrong!', errorToastMessageConfig);
-      setTimeout(() => {
-        setError(errorInitialState);
-      }, 2000);
-    }
-  };
+  const { onSubmit, error, displayButton } = useRegister();
   const {
     values: valuesForm,
     setFieldValue,
@@ -62,6 +27,8 @@ const AuthRegister: React.FC<Props> = () => {
     validationSchema: registerSchema,
   });
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
+  console.log({ errors });
+  console.log({ error });
 
   return (
     <StyledRegisterAuth
@@ -140,20 +107,23 @@ const AuthRegister: React.FC<Props> = () => {
             onBlur={handleBlur}
             sx={{ gridColumn: 'span 4' }}
           />
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            sx={{ gridColumn: 'span 4' }}
-          >
-            Register
-          </Button>
+          {displayButton && (
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              sx={{ gridColumn: 'span 4' }}
+            >
+              Register
+            </Button>
+          )}
+
           <Link className="link" to="/">
             Already have an account? Login here.
           </Link>
         </Box>
       </form>
-      {/* {error?.data && (
+      {error?.data && (
         <ul>
           {error?.data?.errors ? (
             <Error errorList={error?.data?.errors} />
@@ -161,7 +131,7 @@ const AuthRegister: React.FC<Props> = () => {
             <Error errorString={error.data} />
           )}
         </ul>
-      )} */}
+      )}
     </StyledRegisterAuth>
   );
 };

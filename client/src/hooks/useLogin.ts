@@ -15,16 +15,20 @@ import { toast } from 'react-toastify';
 
 export const useLogin = () => {
   const navigate = useNavigate();
+  const [displayButton, setDisplayButton] = useState(true);
 
   const [error, setError] = useState(errorInitialState);
   const dispatch = useDispatch();
   const onSubmit = async (values: LoginModel, onSubmitProps: any) => {
     try {
+      setDisplayButton(false);
       const { data } = await loginService(values);
       toast.success(`(～￣▽￣)～ Logged in!`, successToastMessageConfig);
       dispatch(makeLogin(loginAdapter(data)));
+      setDisplayButton(true);
       navigate('/home');
     } catch (error: any) {
+      setDisplayButton(true);
       const { data, status, statusText } = error.response;
       setError({ data, status, statusText });
       toast.error('＞︿＜ You cant access', errorToastMessageConfig);
@@ -49,6 +53,7 @@ export const useLogin = () => {
   });
 
   return {
+    displayButton,
     handleSubmit,
     getFieldProps,
     errors,

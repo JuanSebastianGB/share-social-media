@@ -10,6 +10,7 @@ export interface Props {
   handleBlur: any;
   touched: any;
   handleSubmit: any;
+  displayButton: boolean;
 }
 
 const AuthLoginForm: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const AuthLoginForm: React.FC<Props> = ({
   handleBlur,
   touched,
   handleSubmit,
+  displayButton,
 }) => {
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
   return (
@@ -47,9 +49,12 @@ const AuthLoginForm: React.FC<Props> = ({
           error={!!errors.password && touched.password}
           onBlur={handleBlur}
         />
-        <Button type="submit" variant="contained" className="login-button">
-          Login
-        </Button>
+        {displayButton && (
+          <Button type="submit" variant="contained" className="login-button">
+            Login
+          </Button>
+        )}
+
         <Link to="/register" className="link">
           Don't have an account? Sign Up here.
         </Link>
