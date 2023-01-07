@@ -10,11 +10,9 @@ const AuthLogin: React.FC<Props> = () => {
     getFieldProps,
     errors,
     touched,
-    dirty,
-    isValid,
-    resetForm,
     handleBlur,
     error,
+    displayButton,
   } = useLogin();
   return (
     <>
@@ -24,6 +22,7 @@ const AuthLogin: React.FC<Props> = () => {
         handleBlur={handleBlur}
         touched={touched}
         handleSubmit={handleSubmit}
+        displayButton={displayButton}
       />
       {error?.data && (
         <ul>
