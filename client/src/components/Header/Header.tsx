@@ -13,11 +13,13 @@ const Header: FC<Props> = ({ title }) => {
         justifyContent: 'center',
         alignItems: 'center',
         height: 70,
-        backgroundColor: 'primary.light',
-        color: 'primary.contrastText',
+        backgroundColor: 'background.paper',
+        color: 'primary.dark',
       }}
     >
-      <Typography>{title.toUpperCase()}</Typography>
+      <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+        {title.toUpperCase()}
+      </Typography>
     </Box>
   );
 };

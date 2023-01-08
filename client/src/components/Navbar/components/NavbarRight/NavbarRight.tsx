@@ -15,6 +15,7 @@ import {
   MenuItem,
   Select,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import React, { Dispatch, Fragment, SetStateAction } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,6 +36,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
+  const theme = useTheme();
 
   if (isMobileScreen)
     return (
@@ -53,7 +55,9 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
         {mode === 'dark' ? (
           <DarkMode sx={{ fontSize: '25px' }} />
         ) : (
-          <LightMode sx={{ color: 'lightcyan', fontSize: '25px' }} />
+          <LightMode
+            sx={{ color: theme.palette.neutral.dark, fontSize: '25px' }}
+          />
         )}
       </IconButton>
       <Message className="icon" />
@@ -64,7 +68,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
           value={user.name}
           displayEmpty
           sx={{
-            backgroundColor: '#2e2d2e',
+            backgroundColor: theme.palette.neutral.light,
             width: '150px',
             borderRadius: '0.25rem',
             p: '0.25rem 1rem',
@@ -72,11 +76,11 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
               pr: '0.25rem',
               width: '3rem',
             },
-            '$ .MuiMenuItem-root': {
-              backgroundColor: '#2e2d2e',
+            '& .MuiMenuItem-root': {
+              backgroundColor: theme.palette.neutral.light,
             },
             '& .MuiSelect-select:focus': {
-              backgroundColor: '#2e2d2e',
+              backgroundColor: theme.palette.neutral.light,
             },
           }}
           input={<InputBase />}
