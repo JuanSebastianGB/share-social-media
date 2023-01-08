@@ -4,6 +4,7 @@ import {
   InputBase,
   Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ export interface Props {}
 
 const NavbarLeft: React.FC<Props> = () => {
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
+  const theme = useTheme();
 
   const navigate = useNavigate();
   return (
@@ -20,11 +22,11 @@ const NavbarLeft: React.FC<Props> = () => {
       <Typography
         fontWeight="bold"
         fontSize="clamp(1rem, 2rem, 2.25rem)"
-        color="whitesmoke"
+        color={theme.palette.primary.dark}
         onClick={() => navigate('/home')}
         sx={{
           '&:hover': {
-            color: 'lightblue',
+            color: theme.palette.primary.light,
             cursor: 'pointer',
           },
         }}
@@ -36,14 +38,14 @@ const NavbarLeft: React.FC<Props> = () => {
           <InputBase
             placeholder="search..."
             sx={{
-              color: '#818081',
-              backgroundColor: '#2e2d2e',
+              color: theme.palette.neutral.dark,
+              backgroundColor: theme.palette.background.default,
               p: '0 0.5rem',
               borderRadius: '0.5rem',
             }}
           />
           <IconButton>
-            <Search sx={{ color: '#818081' }} />
+            <Search sx={{ color: theme.palette.neutral.dark }} />
           </IconButton>
         </StyledFlexBetween>
       )}

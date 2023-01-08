@@ -1,10 +1,11 @@
+import { PaletteMode } from '@mui/material';
 import { Post } from './post.model';
 import { User, userEmptyState } from './user.model';
 
 export interface Auth {
   user: User;
   token: string;
-  mode: string;
+  mode: PaletteMode | undefined;
   posts: Post[];
 }
 

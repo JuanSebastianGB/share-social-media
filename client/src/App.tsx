@@ -1,4 +1,4 @@
-import { Box, createTheme, CssBaseline, ThemeProvider } from '@mui/material';
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
@@ -7,26 +7,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Header } from './components';
 import { AppStore } from './models';
 import { AuthLogin, AuthRegister } from './pages';
+import { makeTheme } from './utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
-const Login = lazy(() => import('@/pages/Login/Login'));
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
 
-const theme = createTheme({
-  typography: {
-    fontFamily: ['"Rubik"', '"Montserrat"', 'sans-serif'].join(','),
-  },
-});
-
-const makeTheme = (mode: string) => {
-  return createTheme({
-    typography: {
-      fontFamily: ['"Rubik"', '"Montserrat"', 'sans-serif'].join(','),
-    },
-    ...(mode === 'dark' && { palette: { mode: 'dark' } }),
-  });
-};
 function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
