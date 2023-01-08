@@ -61,7 +61,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
       <Notifications className="icon" />
       <FormControl>
         <Select
-          value={user.email}
+          value={user.name}
           displayEmpty
           sx={{
             backgroundColor: '#2e2d2e',
@@ -81,8 +81,8 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
           }}
           input={<InputBase />}
         >
-          <MenuItem value={user.email}>
-            <small>{user.email}</small>
+          <MenuItem value={user.name}>
+            <small>{user.name}</small>
           </MenuItem>
           <MenuItem onClick={handleLogout}>
             <small>Log Out</small>

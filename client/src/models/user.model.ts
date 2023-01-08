@@ -11,3 +11,23 @@ export const userEmptyState: User = {
   email: '',
   password: '',
 };
+
+export interface ProfileImage {
+  _id: string;
+  url: string;
+  deleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserApiModel {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  role: string[];
+  friends: string[];
+  viewedProfile: number;
+  impressions: number;
+  profileImage: ProfileImage;
+  email: string;
+}

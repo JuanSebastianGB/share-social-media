@@ -55,7 +55,7 @@ const getUserService = async (id) => {
  */
 const getUserFromEmailService = async (email) => {
   const user = await User.findOne({ email }).select(
-    'email role profileImageId password'
+    'email role profileImageId password firstName lastName friends location occupation picturePath viewedProfile impressions'
   );
   if (!user) return null;
   const fileInfo = await getFileService(user.profileImageId);
