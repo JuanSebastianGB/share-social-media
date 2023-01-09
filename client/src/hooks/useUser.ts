@@ -12,7 +12,7 @@ export const useUser = () => {
   const { token } = useSelector((store: AppStore) => store.auth);
   const fetcher = async () => await fetchUserService({ id, token });
   const response = useSWR(`users/${id}`, fetcher, {
-    suspense: true,
+    suspense: false,
   });
   return response;
 };

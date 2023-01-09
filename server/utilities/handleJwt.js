@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
  */
 const generateToken = ({ _id, role }) =>
   jwt.sign({ _id, role }, process.env.JWT_SECRET, { expiresIn: '2h' });
+// jwt.sign({ _id, role }, process.env.JWT_SECRET, { expiresIn: '10s' });
 
 /**
  * If the token is valid, return the decoded token, otherwise return null.

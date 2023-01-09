@@ -6,4 +6,8 @@ export const fetchFriendsService = async (id: string, token: string) =>
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-  }).then((data) => data.data);
+  })
+    .then((data) => data.data)
+    .catch((error) => {
+      throw error;
+    });

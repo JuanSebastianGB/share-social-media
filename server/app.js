@@ -23,6 +23,8 @@ app.use('/users', checkValidJwt, users);
 app.use('/auth', auth);
 app.use('/posts', checkValidJwt, posts);
 
+app.use('/checktoken', checkValidJwt, (req, res) => res.send('ok'));
+
 app.use('/documentation', swaggerUi.serve, swaggerUi.setup(swaggerSetup));
 
 export { app };
