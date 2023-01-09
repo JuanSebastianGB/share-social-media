@@ -1,4 +1,4 @@
-import { Navbar, UserInfo } from '@/components';
+import { AddPost, Friends, Navbar, Posts, UserInfo } from '@/components';
 import { Box, styled } from '@mui/material';
 import React, { Fragment } from 'react';
 export interface Props {}
@@ -46,12 +46,12 @@ const Home: React.FC<Props> = () => {
             <UserInfo />
           </StyledSection>
           <StyledSection>
-            <div>element2</div>
-            <div>element3</div>
+            <AddPost />
+            <Posts />
           </StyledSection>
           <StyledSection>
-            <div>element4</div>
-            <div>element5</div>
+            <div>Publicity</div>
+            <Friends />
           </StyledSection>
         </section>
       </StyledHome>

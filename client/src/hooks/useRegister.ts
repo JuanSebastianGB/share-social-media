@@ -8,6 +8,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+/**
+ * It takes in a form, sends it to the server, and then returns the response
+ * @returns An object with the onSubmit function, error state and displayButton state.
+ */
 export const useRegister = () => {
   const [error, setError] = useState(errorInitialState);
   const [displayButton, setDisplayButton] = useState(true);

@@ -13,6 +13,21 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+/**
+ * It's a custom hook that handles the login form and it's validation.
+ * </code>
+ * @returns An object with the following properties:
+ * displayButton,
+ * handleSubmit,
+ * getFieldProps,
+ * errors,
+ * touched,
+ * dirty,
+ * isValid,
+ * resetForm,
+ * handleBlur,
+ * error,
+ */
 export const useLogin = () => {
   const navigate = useNavigate();
   const [displayButton, setDisplayButton] = useState(true);

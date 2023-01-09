@@ -14,8 +14,9 @@ const UserInfo: React.FC<Props> = () => {
   return (
     <StyledUserInfo>
       <div>avatar</div>
+      <h1> User Info</h1>
       {error && <div>error</div>}
-      {user && JSON.stringify(user)}
+      {user && JSON.stringify(user, null, 2)}
     </StyledUserInfo>
   );
 };
