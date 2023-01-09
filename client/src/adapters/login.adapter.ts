@@ -1,6 +1,6 @@
-import { userAdapter } from './user.adapter';
+import { userLoginAdapter } from './user.adapter';
 
 export const loginAdapter = (data: any) => ({
   token: data.token,
-  user: userAdapter(data.userFound),
+  user: userLoginAdapter(data.userFound),
 });

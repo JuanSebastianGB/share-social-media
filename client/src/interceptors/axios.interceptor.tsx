@@ -14,9 +14,17 @@ const updateHeader = (request: AxiosRequestConfig) => {
   request.headers = { ...request.headers, ...newHeaders };
   return request;
 };
-export const AxiosInterceptor = () => {
-  axios.interceptors.request.use((request: any) => {
+
+export const Api = axios.create({
+  baseURL: import.meta.env.VITE_APP_BASE_URL,
+});
+
+Api.interceptors.request.use(
+  (request: any) => {
     if (request.url?.includes('assets')) return request;
     return updateHeader(request);
-  });
-};
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);

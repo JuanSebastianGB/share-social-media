@@ -1,12 +1,12 @@
 export interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   password: string;
 }
 
 export const userEmptyState: User = {
-  id: 0,
+  id: '',
   name: '',
   email: '',
   password: '',
@@ -31,3 +31,21 @@ export interface UserApiModel {
   profileImage: ProfileImage;
   email: string;
 }
+
+export interface userModel {
+  id: string;
+  name: string;
+  email: string;
+  role: string[];
+  friends: string[];
+  viewedProfile: number;
+}
+
+export const userInitialState = {
+  id: '',
+  name: '',
+  email: '',
+  role: [],
+  friends: [],
+  viewedProfile: 0,
+};

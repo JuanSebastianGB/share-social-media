@@ -8,3 +8,8 @@ export const userAdapter = (userApi: UserApiModel) => ({
   friends: userApi.friends,
   viewedProfile: userApi.viewedProfile,
 });
+
+export const userLoginAdapter = (userApi: UserApiModel) => ({
+  id: userApi._id,
+  name: `${userApi.firstName} ${userApi.lastName}`,
+});

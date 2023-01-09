@@ -5,8 +5,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Header } from './components';
+import { useCheckToken } from './hooks';
 import { AppStore } from './models';
-import { AuthLogin, AuthRegister } from './pages';
+import { AuthLogin, AuthRegister, SessionExpired } from './pages';
 import { makeTheme } from './utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -17,7 +18,9 @@ function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
+  const { error } = useCheckToken();
 
+  if (error) return <SessionExpired />;
   return (
     <ThemeProvider theme={makeTheme(mode)}>
       <CssBaseline />

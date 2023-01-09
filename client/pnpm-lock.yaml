@@ -10,6 +10,7 @@ specifiers:
   '@types/node': ^18.11.18
   '@types/react': ^18.0.26
   '@types/react-dom': ^18.0.9
+  '@uiball/loaders': ^1.2.6
   '@vitejs/plugin-react': ^3.0.0
   axios: ^1.2.1
   formik: ^2.2.9
@@ -21,6 +22,7 @@ specifiers:
   react-toastify: ^9.1.1
   redux: ^4.2.0
   redux-persist: ^6.0.0
+  swr: ^2.0.0
   typescript: ^4.9.3
   vite: ^4.0.0
   yup: ^0.32.11
@@ -32,6 +34,7 @@ dependencies:
   '@mui/icons-material': 5.11.0_iq6n432hogcf75rdfmlkzd4zne
   '@mui/material': 5.11.2_lskpmcsdi7ipu6qpuapyu56ihm
   '@reduxjs/toolkit': 1.9.1_k4ae6lp43ej6mezo3ztvx6pykq
+  '@uiball/loaders': 1.2.6_biqbaboplfbrettd7655fr4n2y
   axios: 1.2.1
   formik: 2.2.9_react@18.2.0
   react: 18.2.0
@@ -42,6 +45,7 @@ dependencies:
   react-toastify: 9.1.1_biqbaboplfbrettd7655fr4n2y
   redux: 4.2.0
   redux-persist: 6.0.0_react@18.2.0+redux@4.2.0
+  swr: 2.0.0_react@18.2.0
   yup: 0.32.11
 
 devDependencies:
@@ -889,6 +893,16 @@ packages:
     resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
     dev: false
 
+  /@uiball/loaders/1.2.6_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-Db3be5pG9ciZa1Rxr6Iwv8bIwVP+g00m3GYQFsu3j7B9T16MpHhnGXLksuNtKlePdP3FCTFGpFrXbJz4GG/OOg==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
   /@vitejs/plugin-react/3.0.0_vite@4.0.2:
     resolution: {integrity: sha512-1mvyPc0xYW5G8CHQvJIJXLoMjl5Ct3q2g5Y2s6Ccfgwm45y48LBvsla7az+GkkAtYikWQ4Lxqcsq5RHLcZgtNQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -1534,6 +1548,16 @@ packages:
   /supports-preserve-symlinks-flag/1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  /swr/2.0.0_react@18.2.0:
+    resolution: {integrity: sha512-IhUx5yPkX+Fut3h0SqZycnaNLXLXsb2ECFq0Y29cxnK7d8r7auY2JWNbCW3IX+EqXUg3rwNJFlhrw5Ye/b6k7w==}
+    engines: {pnpm: '7'}
+    peerDependencies:
+      react: ^16.11.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+      use-sync-external-store: 1.2.0_react@18.2.0
+    dev: false
 
   /tiny-warning/1.0.3:
     resolution: {integrity: sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==}
