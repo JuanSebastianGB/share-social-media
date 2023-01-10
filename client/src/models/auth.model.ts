@@ -7,6 +7,7 @@ export interface Auth {
   token: string;
   mode: PaletteMode | undefined;
   posts: Post[];
+  friends: User[];
 }
 
 export const authEmptyState: Auth = {
@@ -14,6 +15,7 @@ export const authEmptyState: Auth = {
   token: '',
   mode: 'light',
   posts: [],
+  friends: [],
 };
 
 export interface LoginModel {

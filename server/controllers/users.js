@@ -43,6 +43,7 @@ const toggleRelationFriend = async (req, res) => {
     const userFriends = await toggleRelationFriendService(id, friendId);
     return res.json(userFriends);
   } catch (error) {
+    console.log(error);
     handleHttpErrors(res, 'ERROR_TOGGLE_FRIEND', 404);
   }
 };

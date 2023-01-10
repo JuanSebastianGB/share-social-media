@@ -1,12 +1,13 @@
-import { useFriends } from '@/hooks';
+import { useHomeContext } from '@/pages/Home/context';
 import { ErrorBoundary } from '@/utilities';
 import React from 'react';
 export interface Props {}
 
 const Friends: React.FC<Props> = () => {
-  const { data: friends, error } = useFriends();
+  const {
+    friendsState: { friends },
+  } = useHomeContext();
 
-  console.log({ error });
   return (
     <ErrorBoundary
       fallBackComponent={<>Error in Friends</>}

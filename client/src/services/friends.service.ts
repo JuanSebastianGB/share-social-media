@@ -11,3 +11,6 @@ export const fetchFriendsService = async (id: string, token: string) =>
     .catch((error) => {
       throw error;
     });
+
+export const fetchToggleFriendUserService = async <T>(userId: T, friendId: T) =>
+  await Api.patch(`/users/${userId}/${friendId}`).then((data) => data.data);
