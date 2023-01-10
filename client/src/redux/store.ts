@@ -9,7 +9,7 @@ import {
   REHYDRATE,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { authSlice, userSlice } from './states';
+import { authSlice } from './states';
 
 const persistConfig = {
   key: 'root',
@@ -18,7 +18,6 @@ const persistConfig = {
 };
 
 const rootReducer = combineReducers({
-  user: userSlice,
   auth: authSlice,
 });
 

@@ -1,6 +1,7 @@
 import { AddPost, Friends, Navbar, Posts, UserInfo } from '@/components';
 import { Box, styled } from '@mui/material';
-import React, { Fragment } from 'react';
+import React from 'react';
+import { HomeProvider } from './context';
 export interface Props {}
 
 const StyledHome = styled(Box)(({ theme }) => ({
@@ -38,7 +39,7 @@ const StyledSection = styled(Box)(({ theme }) => ({
 
 const Home: React.FC<Props> = () => {
   return (
-    <Fragment>
+    <HomeProvider>
       <Navbar />
       <StyledHome>
         <section>
@@ -55,7 +56,7 @@ const Home: React.FC<Props> = () => {
           </StyledSection>
         </section>
       </StyledHome>
-    </Fragment>
+    </HomeProvider>
   );
 };
 
