@@ -22,7 +22,8 @@ export const useRegister = () => {
     const form = new FormData();
     for (let value in values) form.append(value, values[value]);
     form.append('picturePath', !!values.myFile ? values.myFile.name : '');
-    console.log(form);
+
+    console.log([...form]);
     try {
       setDisplayButton(false);
       const response = await registerService(form);
@@ -37,7 +38,7 @@ export const useRegister = () => {
       navigate('/');
     } catch (error: any) {
       setDisplayButton(true);
-      console.log(error);
+      console.log({ error });
       const { data, status, statusText } = error.response;
       setError({ data, status, statusText });
       toast.error('😑😑 Something went wrong!', errorToastMessageConfig);

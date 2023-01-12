@@ -4,6 +4,7 @@ specifiers:
   '@babel/core': ^7.20.7
   '@emotion/react': ^11.10.5
   '@emotion/styled': ^11.10.5
+  '@hookform/resolvers': ^2.9.10
   '@mui/icons-material': ^5.11.0
   '@mui/material': ^5.11.2
   '@reduxjs/toolkit': ^1.9.1
@@ -17,6 +18,7 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   react-dropzone: ^14.2.3
+  react-hook-form: ^7.41.5
   react-redux: ^8.0.5
   react-router-dom: ^6.6.1
   react-toastify: ^9.1.1
@@ -31,6 +33,7 @@ dependencies:
   '@babel/core': 7.20.7
   '@emotion/react': 11.10.5_3grbeiqrb6djg67fiejiqngkdi
   '@emotion/styled': 11.10.5_pwtpayi7py7ecifctvjbac33ee
+  '@hookform/resolvers': 2.9.10_react-hook-form@7.41.5
   '@mui/icons-material': 5.11.0_iq6n432hogcf75rdfmlkzd4zne
   '@mui/material': 5.11.2_lskpmcsdi7ipu6qpuapyu56ihm
   '@reduxjs/toolkit': 1.9.1_k4ae6lp43ej6mezo3ztvx6pykq
@@ -40,6 +43,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-dropzone: 14.2.3_react@18.2.0
+  react-hook-form: 7.41.5_react@18.2.0
   react-redux: 8.0.5_6fpxtwwxc52cyvwzdgczt4jvpq
   react-router-dom: 6.6.1_biqbaboplfbrettd7655fr4n2y
   react-toastify: 9.1.1_biqbaboplfbrettd7655fr4n2y
@@ -604,6 +608,14 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@hookform/resolvers/2.9.10_react-hook-form@7.41.5:
+    resolution: {integrity: sha512-JIL1DgJIlH9yuxcNGtyhsWX/PgNltz+5Gr6+8SX9fhXc/hPbEIk6wPI82nhgvp3uUb6ZfAM5mqg/x7KR7NAb+A==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
+    dependencies:
+      react-hook-form: 7.41.5_react@18.2.0
+    dev: false
 
   /@jridgewell/gen-mapping/0.1.1:
     resolution: {integrity: sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w==}
@@ -1355,6 +1367,15 @@ packages:
 
   /react-fast-compare/2.0.4:
     resolution: {integrity: sha512-suNP+J1VU1MWFKcyt7RtjiSWUjvidmQSlqu+eHslq+342xCbGTYmC0mEhPCOHxlW0CywylOC1u2DFAT+bv4dBw==}
+    dev: false
+
+  /react-hook-form/7.41.5_react@18.2.0:
+    resolution: {integrity: sha512-DAKjSJ7X9f16oQrP3TW2/eD9N6HOgrmIahP4LOdFphEWVfGZ2LulFd6f6AQ/YS/0cx/5oc4j8a1PXxuaurWp/Q==}
+    engines: {node: '>=12.22.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:

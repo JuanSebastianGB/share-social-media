@@ -21,7 +21,7 @@ app.use('/items', items);
 app.use('/storage', checkValidJwt, storage);
 app.use('/users', checkValidJwt, users);
 app.use('/auth', auth);
-app.use('/posts', checkValidJwt, posts);
+app.use('/posts', posts);
 
 app.use('/checktoken', checkValidJwt, (req, res) => res.send('ok'));
 

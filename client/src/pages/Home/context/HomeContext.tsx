@@ -1,4 +1,4 @@
-import { useFriends } from '@/hooks';
+import { useFriends, usePosts } from '@/hooks';
 import { createContext, FC, ReactNode, useContext } from 'react';
 
 interface Props {
@@ -9,11 +9,16 @@ export const HomeContext = createContext({} as any);
 
 export const HomeProvider: FC<Props> = ({ children }) => {
   const { data: friends, mutate: mutateFriends } = useFriends();
+  const { data: posts, mutate: mutatePosts } = usePosts();
 
   const state = {
     friendsState: {
       friends,
       mutateFriends,
+    },
+    postsState: {
+      posts,
+      mutatePosts,
     },
   };
 
