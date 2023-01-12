@@ -27,8 +27,6 @@ const AuthRegister: React.FC<Props> = () => {
     validationSchema: registerSchema,
   });
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
-  console.log({ errors });
-  console.log({ error });
 
   return (
     <StyledRegisterAuth

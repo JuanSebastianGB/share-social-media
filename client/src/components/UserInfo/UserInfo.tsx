@@ -1,12 +1,11 @@
 import { useUser } from '@/hooks';
 import { ErrorBoundary } from '@/utilities';
-import { Box, styled } from '@mui/material';
+import { Avatar, Box, styled } from '@mui/material';
 import React from 'react';
 export interface Props {}
 
 const StyledUserInfo = styled(Box)(({ theme }) => ({
   width: '100%',
-  background: 'blue',
 }));
 
 const UserInfo: React.FC<Props> = () => {
@@ -18,7 +17,16 @@ const UserInfo: React.FC<Props> = () => {
       resetCondition={user}
     >
       <StyledUserInfo>
-        <div>avatar</div>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}
+        >
+          <Avatar
+            sx={{ width: 60, height: 60 }}
+            alt="Remy Sharp"
+            sizes=""
+            src={user?.picturePath}
+          />
+        </Box>
         <h1> User Info</h1>
         {error && <div>Error</div>}
         {user && JSON.stringify(user, null, 2)}

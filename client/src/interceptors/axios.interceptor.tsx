@@ -9,7 +9,8 @@ const updateHeader = (request: AxiosRequestConfig) => {
   if (!!!token) return request;
   const newHeaders = {
     Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
+    // 'Content-Type': 'application/json',
+    'Content-Type': 'multipart/form-data',
   };
   request.headers = { ...request.headers, ...newHeaders };
   return request;

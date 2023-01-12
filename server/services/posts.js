@@ -10,6 +10,11 @@ import { deleteHardFileService } from './storage.js';
 const getPostsService = async () =>
   await Post.aggregate([
     {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
       $lookup: {
         from: 'storages',
         localField: 'fileId',

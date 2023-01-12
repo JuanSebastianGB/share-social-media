@@ -30,6 +30,7 @@ export const getPost = async (req, res) => {
   }
 };
 export const createUserPost = async (req, res) => {
+  console.log({ file: req.file });
   if (!req.file) return handleHttpErrors(res, 'ERROR_MISSING_FILE');
   const {
     file: { filename },

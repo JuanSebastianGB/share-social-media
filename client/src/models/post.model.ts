@@ -24,3 +24,9 @@ export interface PostApiModel {
   file: File;
   user: UserApiModel;
 }
+
+export interface PostFormInterface {
+  userId: string;
+  body: string;
+  myFile: File;
+}

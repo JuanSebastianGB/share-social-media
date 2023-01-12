@@ -6,6 +6,7 @@ import {
   getPosts,
   toggleLikePost,
 } from '../controllers/posts.js';
+import { checkValidJwt } from '../middlewares/session.js';
 import uploadMiddleware from '../utilities/handleUploadFile.js';
 import {
   validatorCreatePost,
@@ -20,6 +21,7 @@ router.get('/:id', validatorGetPost, getPost);
 router.post(
   '/',
   uploadMiddleware.single('myFile'),
+  checkValidJwt,
   validatorCreatePost,
   createUserPost
 );

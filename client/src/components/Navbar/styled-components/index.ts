@@ -1,1 +1,1 @@
-export * from './StyledSpaceBetween';
+export * from '../../../styled-components/StyledSpaceBetween';

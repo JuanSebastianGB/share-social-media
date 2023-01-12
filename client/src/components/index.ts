@@ -1,4 +1,4 @@
-export * from './AddPost';
+export * from '../styled-components/StyledSpaceBetween';
 export * from './Dropzone';
 export * from './Error';
 export * from './Error/ErrorRow';
@@ -10,7 +10,7 @@ export * from './Navbar/components/NavbarLeft';
 export * from './Navbar/components/NavbarMenu';
 export * from './Navbar/components/NavbarRight';
 export * from './Navbar/styled-components';
-export * from './Navbar/styled-components/StyledSpaceBetween';
 export * from './Posts';
+export * from './Posts/AddPost';
 export * from './Thumb';
 export * from './UserInfo';
