@@ -32,6 +32,7 @@ export interface UserApiModel {
   email: string;
   location: string;
   occupation: string;
+  picturePath: string;
 }
 
 export interface userModel {
@@ -43,6 +44,7 @@ export interface userModel {
   viewedProfile: number;
   location: string;
   occupation: string;
+  picturePath: string;
 }
 
 export const userInitialState = {
@@ -54,4 +56,5 @@ export const userInitialState = {
   viewedProfile: 0,
   location: '',
   occupation: '',
+  picturePath: '',
 };

@@ -91,7 +91,11 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
         </IconButton>
         <SpaceBetween gap="10px">
           <SpaceBetween>
-            <IconButton aria-label="likes" onClick={handleLike}>
+            <IconButton
+              aria-label="likes"
+              onClick={handleLike}
+              disabled={isOwn}
+            >
               <ThumbUpOffAltIcon
                 sx={{
                   fontSize: '18px',

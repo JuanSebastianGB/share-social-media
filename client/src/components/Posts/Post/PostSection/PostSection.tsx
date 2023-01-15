@@ -1,7 +1,8 @@
+import { AvatarWithTitles } from '@/components/AvatarWithTitles';
 import { UserApiModel } from '@/models';
 import { SpaceBetween } from '@/styled-components';
 import { PersonAdd, PersonRemove } from '@mui/icons-material';
-import { Avatar, Box, IconButton, Typography, useTheme } from '@mui/material';
+import { IconButton, Typography, useTheme } from '@mui/material';
 import React, { Fragment } from 'react';
 export interface Props {
   userPost: UserApiModel;
@@ -20,26 +21,11 @@ const PostSection: React.FC<Props> = ({
   return (
     <Fragment>
       <SpaceBetween>
-        <SpaceBetween
-          gap="1rem"
-          sx={{
-            flex: 1,
-            justifyContent: 'flex-start',
-          }}
-        >
-          <Avatar src={userPost?.profileImage.url} />
-          <Box>
-            <Typography variant="subtitle1" color={theme.palette.neutral.dark}>
-              Title
-            </Typography>
-            <Typography
-              color={theme.palette.neutral.mediumMain}
-              sx={{ fontSize: '12px' }}
-            >
-              {userPost?.occupation}
-            </Typography>
-          </Box>
-        </SpaceBetween>
+        <AvatarWithTitles
+          profileImage={userPost?.profileImage.url}
+          title={`${userPost.firstName} ${userPost.lastName}`}
+          subTitle={userPost.occupation}
+        />
         {!isOwn && (
           <Fragment>
             {isFriend ? (

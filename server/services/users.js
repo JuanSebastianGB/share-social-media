@@ -71,10 +71,12 @@ const getUserFromEmailService = async (email) => {
 const getUserFriendsService = async (id) => {
   const user = await User.findById(id);
   return await Promise.all(
-    user.friends.map(async (id) =>
-      User.findById(id).select(
-        'firstName lastName  location occupation picturePath'
-      )
+    user.friends.map(
+      async (id) =>
+        // User.findById(id).select(
+        //   'firstName lastName  location occupation picturePath'
+        // )
+        await getUserService(id)
     )
   );
 };
