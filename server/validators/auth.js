@@ -7,6 +7,8 @@ const validatorRegister = [
   check('email').exists().isEmail().isLength({ min: 5, max: 30 }).notEmpty(),
   check('password').exists().isLength({ min: 5, max: 15 }).isAlphanumeric(),
   (req, res, next) => validateResults(req, res, next),
+  check('location').exists().isLength({ min: 5, max: 100 }),
+  check('occupation').exists().isLength({ min: 5, max: 100 }),
 ];
 
 const validatorLogin = [

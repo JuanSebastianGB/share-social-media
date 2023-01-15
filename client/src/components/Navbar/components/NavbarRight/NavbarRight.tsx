@@ -35,7 +35,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   const mode = useSelector((store: AppStore) => store.auth?.mode);
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
-  const isMobileScreen = useMediaQuery('(max-width: 800px)');
+  const isMobileScreen = useMediaQuery('(max-width: 1000px)');
   const theme = useTheme();
 
   if (isMobileScreen)

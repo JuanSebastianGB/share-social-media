@@ -30,6 +30,8 @@ export interface UserApiModel {
   impressions: number;
   profileImage: ProfileImage;
   email: string;
+  location: string;
+  occupation: string;
 }
 
 export interface userModel {
@@ -39,6 +41,8 @@ export interface userModel {
   role: string[];
   friends: string[];
   viewedProfile: number;
+  location: string;
+  occupation: string;
 }
 
 export const userInitialState = {
@@ -48,4 +52,6 @@ export const userInitialState = {
   role: [],
   friends: [],
   viewedProfile: 0,
+  location: '',
+  occupation: '',
 };

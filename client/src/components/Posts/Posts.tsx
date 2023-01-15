@@ -18,18 +18,15 @@ const Posts: React.FC<Props> = ({ isProfile }) => {
       fallBackComponent={<>Error in Posts</>}
       resetCondition={posts}
     >
-      <div>
-        <h1>Posts</h1>
-        {posts &&
-          friends &&
-          posts.map((post: PostApiModel) => {
-            const idPostUser = post.user._id;
-            const isFriend = !!friends.find(
-              (friend: UserApiModel) => friend._id === idPostUser
-            );
-            return <Post key={post._id} isFriend={isFriend} {...post} />;
-          })}
-      </div>
+      {posts &&
+        friends &&
+        posts.map((post: PostApiModel) => {
+          const idPostUser = post.user._id;
+          const isFriend = !!friends.find(
+            (friend: UserApiModel) => friend._id === idPostUser
+          );
+          return <Post key={post._id} isFriend={isFriend} {...post} />;
+        })}
     </ErrorBoundary>
   );
 };
