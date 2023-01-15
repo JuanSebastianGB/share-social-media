@@ -7,7 +7,7 @@ export interface Props {}
 
 const StyledSection = styled(Box)(({ theme }) => ({
   borderRadius: '10px',
-  padding: '1rem',
+  padding: '0.2rem',
   width: '100%',
   // background: theme.palette.background.paper,
 }));
@@ -18,10 +18,10 @@ const Home: React.FC<Props> = () => {
       <Navbar />
       <HomeContainer>
         <section>
-          <StyledSection sx={{ flex: 0.5 }}>
+          <StyledSection sx={{ flex: 0.6 }}>
             <UserInfo />
           </StyledSection>
-          <StyledSection sx={{ flex: 1.1 }}>
+          <StyledSection sx={{ flex: 1 }}>
             <AddPost />
             <Posts />
           </StyledSection>

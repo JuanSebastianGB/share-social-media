@@ -1,13 +1,14 @@
 import { Api, ApiJson } from '@/interceptors';
 
-interface Props {
-  token: string;
-}
+export const fetchPostsService = async () =>
+  await Api.get(`posts`)
+    .then((data) => data.data)
+    .catch((error) => {
+      throw error;
+    });
 
-export const fetchPostsService = async ({ token }: Props) =>
-  await Api.get(`posts`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export const fetchUserPostsService = async (id: string) =>
+  await Api.get(`/users/${id}/posts`)
     .then((data) => data.data)
     .catch((error) => {
       throw error;

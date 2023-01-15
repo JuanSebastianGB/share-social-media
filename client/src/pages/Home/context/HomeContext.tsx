@@ -1,4 +1,4 @@
-import { useFriends, usePosts } from '@/hooks';
+import { useFriends, useOwnPosts, usePosts } from '@/hooks';
 import { createContext, FC, ReactNode, useContext } from 'react';
 
 interface Props {
@@ -10,6 +10,7 @@ export const HomeContext = createContext({} as any);
 export const HomeProvider: FC<Props> = ({ children }) => {
   const { data: friends, mutate: mutateFriends } = useFriends();
   const { data: posts, mutate: mutatePosts } = usePosts();
+  const { data: ownPosts, mutate: mutateOwnPosts } = useOwnPosts();
 
   const state = {
     friendsState: {
@@ -20,7 +21,12 @@ export const HomeProvider: FC<Props> = ({ children }) => {
       posts,
       mutatePosts,
     },
+    ownPostsState: {
+      ownPosts,
+      mutateOwnPosts,
+    },
   };
+  console.log({ state });
 
   return <HomeContext.Provider value={state}>{children}</HomeContext.Provider>;
 };

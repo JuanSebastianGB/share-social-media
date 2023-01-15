@@ -14,7 +14,7 @@ const Navbar: React.FC<NavbarInterface> = () => {
     <StyledFlexBetween
       sx={{
         bgcolor: theme.palette.background.paper,
-        padding: '1rem',
+        padding: '0.2rem',
       }}
     >
       <NavbarLeft />

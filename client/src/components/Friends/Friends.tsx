@@ -3,8 +3,8 @@ import { useHomeContext } from '@/pages/Home/context';
 import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';
-import { Box, Divider, IconButton, useTheme } from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Divider, IconButton, Typography, useTheme } from '@mui/material';
+import React from 'react';
 import { useSelector } from 'react-redux';
 import { AvatarWithTitles } from '../AvatarWithTitles';
 import { SpaceBetween } from '../Navbar';
@@ -16,20 +16,8 @@ const Friends: React.FC<Props> = () => {
   } = useHomeContext();
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const theme = useTheme();
-  const [selectedFriend, setSelectedFriend] = useState<string>('');
 
-  const handleClick = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    // e.preventDefault();
-    // try {
-    //   const friendId = userPost._id;
-    //   const response = await fetchToggleFriendUserService<string>(id, friendId);
-    //   mutateFriends();
-    // } catch (error) {
-    //   console.log({ error });
-    // }
-  };
+  if (friends?.length === 0) return <>Not friends Found</>;
 
   return (
     <ErrorBoundary
@@ -41,12 +29,16 @@ const Friends: React.FC<Props> = () => {
           backgroundColor: theme.palette.background.paper,
           padding: ' 0.3rem 1rem',
           pb: '10px',
+          borderRadius: '10px',
         }}
       >
-        <h1>Friends</h1>
+        <Typography variant="h5" color={theme.palette.primary.main}>
+          Friends
+        </Typography>
+        <Divider />
         {friends &&
           friends.map((friend: UserApiModel, index: number) => (
-            <Box>
+            <Box key={friend._id}>
               <Box sx={{ m: '1rem 0 0.5rem' }}>
                 <SpaceBetween>
                   <AvatarWithTitles
