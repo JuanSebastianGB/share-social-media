@@ -70,6 +70,7 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
         isOwn={isOwn}
         isFriend={isFriend}
         handleClick={handleClick}
+        body={adaptedPost.body}
       />
       <Box
         component="img"

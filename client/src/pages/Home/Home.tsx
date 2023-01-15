@@ -1,6 +1,8 @@
 import { AddPost, Friends, Navbar, Posts, UserInfo } from '@/components';
+import { AppStore } from '@/models';
 import { Box, styled } from '@mui/material';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { HomeProvider } from './context';
 import HomeContainer from './Homelayout';
 export interface Props {}
@@ -13,6 +15,7 @@ const StyledSection = styled(Box)(({ theme }) => ({
 }));
 
 const Home: React.FC<Props> = () => {
+  const { id } = useSelector((store: AppStore) => store.auth.user);
   return (
     <HomeProvider>
       <Navbar />
@@ -27,7 +30,7 @@ const Home: React.FC<Props> = () => {
           </StyledSection>
           <StyledSection sx={{ flex: 0.4 }}>
             <div>Publicity</div>
-            <Friends />
+            <Friends id={id} />
           </StyledSection>
         </section>
       </HomeContainer>

@@ -26,7 +26,6 @@ export const HomeProvider: FC<Props> = ({ children }) => {
       mutateOwnPosts,
     },
   };
-  console.log({ state });
 
   return <HomeContext.Provider value={state}>{children}</HomeContext.Provider>;
 };

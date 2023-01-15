@@ -1,20 +1,21 @@
-import { AppStore, UserApiModel } from '@/models';
+import { UserApiModel } from '@/models';
 import { useHomeContext } from '@/pages/Home/context';
 import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';
 import { Box, Divider, IconButton, Typography, useTheme } from '@mui/material';
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { AvatarWithTitles } from '../AvatarWithTitles';
 import { SpaceBetween } from '../Navbar';
-export interface Props {}
+export interface Props {
+  id: string;
+}
 
-const Friends: React.FC<Props> = () => {
+const Friends: React.FC<Props> = ({ id }) => {
   const {
     friendsState: { friends, mutateFriends },
   } = useHomeContext();
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+
   const theme = useTheme();
 
   if (friends?.length === 0) return <>Not friends Found</>;
@@ -46,6 +47,7 @@ const Friends: React.FC<Props> = () => {
                     profileImage={friend?.picturePath}
                     title={`${friend?.firstName} ${friend?.lastName}`}
                     subTitle={friend?.location}
+                    userId={friend._id}
                   />
                   <IconButton
                     aria-label="remove-friend"

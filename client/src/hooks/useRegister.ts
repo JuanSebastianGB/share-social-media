@@ -23,7 +23,6 @@ export const useRegister = () => {
     for (let value in values) form.append(value, values[value]);
     form.append('picturePath', !!values.myFile ? values.myFile.name : '');
 
-    console.log([...form]);
     try {
       setDisplayButton(false);
       const response = await registerService(form);

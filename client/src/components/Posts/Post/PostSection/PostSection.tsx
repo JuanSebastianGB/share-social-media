@@ -9,6 +9,7 @@ export interface Props {
   isOwn: boolean;
   isFriend: boolean;
   handleClick: any;
+  body: string;
 }
 
 const PostSection: React.FC<Props> = ({
@@ -16,8 +17,10 @@ const PostSection: React.FC<Props> = ({
   isOwn,
   isFriend,
   handleClick,
+  body,
 }) => {
   const theme = useTheme();
+
   return (
     <Fragment>
       <SpaceBetween>
@@ -25,6 +28,7 @@ const PostSection: React.FC<Props> = ({
           profileImage={userPost?.profileImage.url}
           title={`${userPost.firstName} ${userPost.lastName}`}
           subTitle={userPost.occupation}
+          userId={userPost._id}
         />
         {!isOwn && (
           <Fragment>
@@ -49,9 +53,7 @@ const PostSection: React.FC<Props> = ({
         )}
       </SpaceBetween>
       <Typography variant="body2" sx={{ color: theme.palette.neutral.dark }}>
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem repellat
-        esse reiciendis odit adipisci velit iste soluta, earum quam praesentium
-        veniam nesciunt
+        {body}
       </Typography>
     </Fragment>
   );
