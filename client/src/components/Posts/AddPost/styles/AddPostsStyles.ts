@@ -1,6 +1,8 @@
 import { Box, styled } from '@mui/material';
 
 export const AddPostsStyles = styled(Box)(({ theme }) => ({
+  background: theme.palette.background.paper,
+  borderRadius: '7px',
   form: {
     '& img': {
       width: '100%',

@@ -22,7 +22,7 @@ const UserInfo: React.FC<Props> = () => {
         >
           <Avatar
             sx={{ width: 60, height: 60 }}
-            alt="Remy Sharp"
+            alt="profile"
             sizes=""
             src={user?.picturePath}
           />

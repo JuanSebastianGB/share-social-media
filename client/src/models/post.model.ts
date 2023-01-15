@@ -25,6 +25,15 @@ export interface PostApiModel {
   user: UserApiModel;
 }
 
+export interface PostModel {
+  id: string;
+  body: string;
+  likes: Likes;
+  comments: any[];
+  file: File;
+  user: UserApiModel;
+}
+
 export interface PostFormInterface {
   userId: string;
   body: string;

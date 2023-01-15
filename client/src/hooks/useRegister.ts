@@ -33,7 +33,6 @@ export const useRegister = () => {
         `(●'◡'●) Registered successfully!`,
         successToastMessageConfig
       );
-      onSubmitProps.resetForm();
       setDisplayButton(true);
       navigate('/');
     } catch (error: any) {

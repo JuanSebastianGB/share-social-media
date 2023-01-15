@@ -16,7 +16,7 @@ const StyledHome = styled(Box)(({ theme }) => ({
     margin: '0 auto',
     gap: '1rem',
   },
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('md')]: {
     '& section': {
       display: 'flex',
       justifyContent: 'space-between',
@@ -34,7 +34,7 @@ const StyledSection = styled(Box)(({ theme }) => ({
   padding: '1rem',
   margin: '1rem 0',
   width: '100%',
-  background: theme.palette.background.paper,
+  // background: theme.palette.background.paper,
 }));
 
 const Home: React.FC<Props> = () => {
