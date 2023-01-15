@@ -10,7 +10,7 @@ import {
   InputBase,
   Typography,
 } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -29,6 +29,10 @@ const validationSchema = yup.object().shape({
 });
 
 const initialValues = { body: '', myFile: File };
+
+const StyledForm = styled('form')(({ theme }) => ({
+  padding: '2rem',
+}));
 
 export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
@@ -76,8 +80,8 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
           Create Post
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          <form onSubmit={handleSubmit}>
-            <Box>
+          <StyledForm onSubmit={handleSubmit}>
+            <Box sx={{ padding: '2rem' }}>
               <Box
                 gap="0.8rem"
                 sx={{
@@ -108,7 +112,7 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
                 Publish
               </Button>
             )}
-          </form>
+          </StyledForm>
         </DialogContent>
       </BootstrapDialog>
     </Box>

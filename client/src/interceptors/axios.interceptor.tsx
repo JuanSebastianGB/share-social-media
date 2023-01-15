@@ -1,6 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
-const updateHeader = (request: AxiosRequestConfig) => {
+const updateHeader = (
+  request: AxiosRequestConfig,
+  isJsonData: boolean = false
+) => {
   const persistLocalStorage = localStorage.getItem('persist:root');
   if (!persistLocalStorage) return request;
   const persist = JSON.parse(persistLocalStorage);
@@ -9,8 +12,7 @@ const updateHeader = (request: AxiosRequestConfig) => {
   if (!!!token) return request;
   const newHeaders = {
     Authorization: `Bearer ${token}`,
-    // 'Content-Type': 'application/json',
-    'Content-Type': 'multipart/form-data',
+    'Content-Type': !isJsonData ? 'multipart/form-data' : 'application/json',
   };
   request.headers = { ...request.headers, ...newHeaders };
   return request;
@@ -24,6 +26,19 @@ Api.interceptors.request.use(
   (request: any) => {
     if (request.url?.includes('assets')) return request;
     return updateHeader(request);
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+export const ApiJson = axios.create({
+  baseURL: import.meta.env.VITE_APP_BASE_URL,
+});
+
+ApiJson.interceptors.request.use(
+  (request: any) => {
+    if (request.url?.includes('assets')) return request;
+    return updateHeader(request, true);
   },
   (error) => {
     return Promise.reject(error);
