@@ -7,7 +7,7 @@ export const fetchPostsService = async () =>
       throw error;
     });
 
-export const fetchUserPostsService = async (id: string) =>
+export const fetchUserPostsService = async (id: string | undefined) =>
   await Api.get(`/users/${id}/posts`)
     .then((data) => data.data)
     .catch((error) => {

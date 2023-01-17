@@ -1,17 +1,17 @@
 import { usePosts } from '@/hooks';
-import { AppStore, PostApiModel, UserApiModel } from '@/models';
+import { PostApiModel, UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import React from 'react';
-import { useSelector } from 'react-redux';
 import Post from './Post/Post';
 export interface Props {
   isProfile?: boolean;
+  id?: string;
 }
 
-const Posts: React.FC<Props> = ({ isProfile }) => {
-  usePosts();
-  const { posts, friends } = useSelector((store: AppStore) => store.auth);
+const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
+  const { friends, posts } = usePosts(isProfile, id);
 
+  if (!!!posts) return <>Loading</>;
   return (
     <ErrorBoundary
       fallBackComponent={<>Error in Posts</>}

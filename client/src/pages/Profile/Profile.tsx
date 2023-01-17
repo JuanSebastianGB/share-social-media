@@ -1,6 +1,5 @@
 import { Friends, Navbar, Posts, UserInfo } from '@/components';
 import { StyledSection } from '@/styled-components';
-import { Skeleton, Stack } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProfileLayout from './Profilelayout';
@@ -23,7 +22,7 @@ const Profile: React.FC<ProfileInterface> = () => {
         <ProfileLayout>
           <section>
             <StyledSection sx={{ flex: 1 }}>
-              <Posts />
+              <Posts id={id} isProfile />
             </StyledSection>
             <StyledSection sx={{ flex: 0.6, '& > *': { my: '10px' } }}>
               <UserInfo id={id} />
@@ -33,14 +32,7 @@ const Profile: React.FC<ProfileInterface> = () => {
         </ProfileLayout>
       </>
     );
-  return (
-    <Stack spacing={1}>
-      <Skeleton variant="text" sx={{ fontSize: '1rem' }} />
-      <Skeleton variant="circular" width={40} height={40} />
-      <Skeleton variant="rectangular" width="100%" height={120} />
-      <Skeleton variant="rounded" width="100%" height={120} />
-    </Stack>
-  );
+  return null;
 };
 
 export default Profile;
