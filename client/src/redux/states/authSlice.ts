@@ -14,6 +14,12 @@ const authSlice = createSlice({
       });
       return { ...state, posts };
     },
+    createPost: (state, action) => {
+      return {
+        ...state,
+        posts: [action.payload, ...state.posts],
+      };
+    },
     makeLogin: (state, action) => ({
       ...state,
       user: action.payload.user,
@@ -22,6 +28,8 @@ const authSlice = createSlice({
     makeLogout: (state, action) => ({
       ...state,
       user: userEmptyState,
+      posts: [],
+      friends: [],
       token: '',
     }),
     toggleMode: (state, action) => ({
@@ -29,12 +37,34 @@ const authSlice = createSlice({
       mode: action.payload.mode === 'dark' ? 'light' : 'dark',
     }),
     setFriends: (state, action) => {
-      if (!!state.user.email)
-        return {
-          ...state,
-          user: { ...state.user, friends: action.payload.friends },
-        };
-      return state;
+      return {
+        ...state,
+        friends: action.payload.friends,
+      };
+    },
+    removeFriend: (state, action) => {
+      return {
+        ...state,
+        friends: state.friends.filter(
+          (friend) => friend._id !== action.payload
+        ),
+      };
+    },
+    toggleFriend: (state, action) => {
+      return {
+        ...state,
+        friends: action.payload,
+      };
+    },
+    togglePostLikes: (state, action) => {
+      return {
+        ...state,
+        posts: state.posts.map((post) => {
+          if (post._id === action.payload._id)
+            return { ...post, likes: action.payload.likes };
+          return post;
+        }),
+      };
     },
   },
 });
@@ -46,6 +76,10 @@ export const {
   makeLogin,
   makeLogout,
   toggleMode,
+  removeFriend,
+  toggleFriend,
+  togglePostLikes,
+  createPost,
 } = authSlice.actions;
 
 export default authSlice.reducer;

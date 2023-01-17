@@ -35,6 +35,21 @@ export interface UserApiModel {
   picturePath: string;
 }
 
+export const userApiEmptyState = {
+  _id: '',
+  firstName: '',
+  lastName: '',
+  role: [],
+  friends: [],
+  viewedProfile: 0,
+  impressions: 0,
+  profileImage: File,
+  email: '',
+  location: '',
+  occupation: '',
+  picturePath: '',
+};
+
 export interface userModel {
   id: string;
   name: string;

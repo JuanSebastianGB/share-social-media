@@ -1,4 +1,6 @@
 import { useUser } from '@/hooks';
+import { SpaceBetween, SpaceBetweenColumn } from '@/styled-components';
+import { AttachFile } from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -9,15 +11,14 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { Fragment } from 'react';
-import { AddPostsStyles } from './styles';
-export interface Props {}
-
-import { SpaceBetween, SpaceBetweenColumn } from '@/styled-components';
-import { AttachFile } from '@mui/icons-material';
 import { Modal } from './Modal';
+import { AddPostsStyles } from './styles';
+export interface Props {
+  id: string;
+}
 
-const AddPost: React.FC<Props> = () => {
-  const { data: user } = useUser();
+const AddPost: React.FC<Props> = ({ id }) => {
+  const { user } = useUser(id);
   const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
   const handleClickOpen = () => {

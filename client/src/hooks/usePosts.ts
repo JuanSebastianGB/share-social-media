@@ -1,6 +1,8 @@
 import { AppStore } from '@/models';
+import { setPosts } from '@/redux/states/authSlice';
 import { fetchPostsService, fetchUserPostsService } from '@/services';
-import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import useSWR from 'swr';
 
 /**
@@ -8,9 +10,21 @@ import useSWR from 'swr';
  * @returns The response object is being returned.
  */
 export const usePosts = () => {
-  const fetcher = async () => await fetchPostsService();
-  const response = useSWR('posts', fetcher);
-  return response;
+  const dispatch = useDispatch();
+  const getPosts = async () => {
+    try {
+      const response = await fetchPostsService();
+      dispatch(setPosts({ posts: response }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getPosts();
+  }, []);
+
+  return {};
 };
 
 /**

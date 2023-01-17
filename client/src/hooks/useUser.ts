@@ -1,18 +1,26 @@
-import { AppStore } from '@/models';
+import { UserApiModel } from '@/models';
 import { fetchUserService } from '@/services/user.service';
-import { useSelector } from 'react-redux';
-import useSWR from 'swr';
+import { useEffect, useState } from 'react';
 
 /**
  * It fetches the user from the API and returns the response.
  * @returns The response object is being returned.
  */
-export const useUser = () => {
-  const { id } = useSelector((store: AppStore) => store.auth.user);
-  const { token } = useSelector((store: AppStore) => store.auth);
-  const fetcher = async () => await fetchUserService({ id, token });
-  const response = useSWR(`users/${id}`, fetcher, {
-    suspense: false,
-  });
-  return response;
+export const useUser = (id: string) => {
+  const [user, setUser] = useState<UserApiModel>();
+
+  const getUser = async () => {
+    const response = await fetchUserService(id);
+    setUser(response);
+  };
+
+  useEffect(() => {
+    try {
+      getUser();
+    } catch (error) {
+      console.log({ error });
+    }
+  }, [id]);
+
+  return { user };
 };

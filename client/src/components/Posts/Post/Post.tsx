@@ -1,6 +1,6 @@
 import { postAdapter } from '@/adapters';
 import { AppStore, PostApiModel } from '@/models';
-import { useHomeContext } from '@/pages/Home/context';
+import { toggleFriend, togglePostLikes } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
 import { SpaceBetween } from '@/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -8,7 +8,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { PostSection } from './PostSection';
 export interface Props extends PostApiModel {
   isFriend: boolean;
@@ -16,11 +16,6 @@ export interface Props extends PostApiModel {
 
 const Post: React.FC<Props> = ({ isFriend, ...post }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
-
-  const {
-    friendsState: { mutateFriends },
-    postsState: { mutatePosts },
-  } = useHomeContext();
   const isOwn = id === post.user._id;
   const theme = useTheme();
   const adaptedPost = postAdapter(post);
@@ -29,6 +24,7 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
     Object.keys(likes).some((row) => {
       return row === userId;
     });
+  const dispatch = useDispatch();
 
   const isLikedOwn = checkIsLikedOwn(adaptedPost.likes, id);
 
@@ -38,8 +34,8 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
     e.preventDefault();
     try {
       const friendId = userPost._id;
-      const response = await fetchToggleFriendUserService<string>(id, friendId);
-      mutateFriends();
+      const friends = await fetchToggleFriendUserService<string>(id, friendId);
+      dispatch(toggleFriend(friends));
     } catch (error) {
       console.log({ error });
     }
@@ -48,8 +44,9 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     try {
-      await likePostService(adaptedPost.id, { userId: id });
-      mutatePosts();
+      const response = await likePostService(adaptedPost.id, { userId: id });
+      console.log({ response });
+      dispatch(togglePostLikes(response));
     } catch (error) {
       console.log(error);
     }

@@ -1,10 +1,12 @@
-import { UserApiModel } from '@/models';
-import { useHomeContext } from '@/pages/Home/context';
+import { useFriends } from '@/hooks';
+import { AppStore } from '@/models';
+import { removeFriend } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';
 import { Box, Divider, IconButton, Typography, useTheme } from '@mui/material';
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { AvatarWithTitles } from '../AvatarWithTitles';
 import { SpaceBetween } from '../Navbar';
 export interface Props {
@@ -12,11 +14,10 @@ export interface Props {
 }
 
 const Friends: React.FC<Props> = ({ id }) => {
-  const {
-    friendsState: { friends, mutateFriends },
-  } = useHomeContext();
-
   const theme = useTheme();
+  useFriends(id);
+  const { friends } = useSelector((store: AppStore) => store.auth);
+  const dispatch = useDispatch();
 
   if (friends?.length === 0) return <>Not friends Found</>;
 
@@ -38,7 +39,7 @@ const Friends: React.FC<Props> = ({ id }) => {
         </Typography>
         <Divider />
         {friends &&
-          friends.map((friend: UserApiModel, index: number) => (
+          friends.map((friend, index: number) => (
             <Box key={friend._id}>
               <Box sx={{ m: '1rem 0 0.5rem' }}>
                 <SpaceBetween>
@@ -59,7 +60,7 @@ const Friends: React.FC<Props> = ({ id }) => {
                           id,
                           friendId
                         );
-                        mutateFriends();
+                        dispatch(removeFriend(friendId));
                       } catch (error) {
                         console.log({ error });
                       }

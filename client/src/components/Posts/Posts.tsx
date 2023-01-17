@@ -1,17 +1,16 @@
-import { PostApiModel, UserApiModel } from '@/models';
-import { useHomeContext } from '@/pages/Home/context';
+import { usePosts } from '@/hooks';
+import { AppStore, PostApiModel, UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import Post from './Post/Post';
 export interface Props {
   isProfile?: boolean;
 }
 
 const Posts: React.FC<Props> = ({ isProfile }) => {
-  const {
-    friendsState: { friends },
-    postsState: { posts },
-  } = useHomeContext();
+  usePosts();
+  const { posts, friends } = useSelector((store: AppStore) => store.auth);
 
   return (
     <ErrorBoundary

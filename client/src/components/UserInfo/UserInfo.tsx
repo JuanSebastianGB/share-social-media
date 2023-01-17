@@ -1,5 +1,5 @@
 import { useUser } from '@/hooks';
-import { useHomeContext } from '@/pages/Home/context';
+import { AppStore } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import { Groups2, LocationOn, WorkOutline } from '@mui/icons-material';
 import {
@@ -11,8 +11,11 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { SpaceBetween } from '../Navbar';
-export interface Props {}
+export interface Props {
+  id: string;
+}
 
 const StyledUserInfo = styled(Box)(({ theme }) => ({
   width: '100%',
@@ -21,13 +24,12 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
   borderRadius: '10px',
 }));
 
-const UserInfo: React.FC<Props> = () => {
-  const { data: user, error } = useUser();
-  const {
-    friendsState: { friends },
-    ownPostsState: { ownPosts },
-  } = useHomeContext();
+const UserInfo: React.FC<Props> = ({ id }) => {
+  const { user } = useUser(id);
+  const { friends, posts } = useSelector((store: AppStore) => store.auth);
   const theme = useTheme();
+
+  const ownPosts = posts.filter((post) => post.user._id === id);
 
   return (
     <ErrorBoundary

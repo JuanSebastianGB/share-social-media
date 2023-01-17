@@ -1,6 +1,6 @@
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
-import { useHomeContext } from '@/pages/Home/context';
+import { createPost } from '@/redux/states/authSlice';
 import { makePostService } from '@/services';
 import {
   Avatar,
@@ -13,7 +13,7 @@ import {
 import { styled, useTheme } from '@mui/material/styles';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { DropzoneAddPost } from '../DropzoneAddPost';
 import { BootstrapDialogTitle } from './BootstrapDialogTitle';
@@ -36,12 +36,10 @@ const StyledForm = styled('form')(({ theme }) => ({
 
 export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
-  const { data: user } = useUser();
+  const { user } = useUser(id);
   const theme = useTheme();
-  const {
-    postsState: { mutatePosts },
-  } = useHomeContext();
   const [showButton, setShowButton] = useState(true);
+  const dispatch = useDispatch();
 
   const onSubmit = async ({ body, myFile }: any, { resetForm }: any) => {
     setShowButton(false);
@@ -50,9 +48,9 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
     form.append('userId', id);
     form.append('myFile', myFile);
     try {
-      await makePostService(form);
+      const newPost = await makePostService(form);
       setShowButton(true);
-      mutatePosts();
+      dispatch(createPost(newPost));
       handleClose();
       resetForm();
     } catch (error) {

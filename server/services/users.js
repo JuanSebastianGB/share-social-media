@@ -92,7 +92,6 @@ const toggleRelationFriendService = async (id, friendId) => {
   const user = await User.findById(id);
   const friend = await User.findById(friendId);
 
-  console.log({ user, friend });
   if (user.friends.includes(friendId)) {
     user.friends = user.friends.filter((_id) => _id !== friendId);
     friend.friends = friend.friends.filter((_id) => _id !== id);

@@ -7,7 +7,10 @@ import {
   getUserPostsService,
   toggleLikePostService,
 } from '../services/posts.js';
-import { createFileUploadedRegisterService } from '../services/storage.js';
+import {
+  createFileUploadedRegisterService,
+  deleteHardFileService,
+} from '../services/storage.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
 export const getPosts = async (req, res) => {
@@ -21,7 +24,6 @@ export const getPosts = async (req, res) => {
 export const getPost = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log({ id });
     const post = await getPostService(id);
     return res.json(post);
   } catch (error) {
@@ -30,7 +32,6 @@ export const getPost = async (req, res) => {
   }
 };
 export const createUserPost = async (req, res) => {
-  console.log({ file: req.file });
   if (!req.file) return handleHttpErrors(res, 'ERROR_MISSING_FILE');
   const {
     file: { filename },
@@ -42,7 +43,8 @@ export const createUserPost = async (req, res) => {
       ...body,
       fileId: savedFileRegister._id,
     });
-    return res.json({ newPost });
+    const newData = await getPostService(newPost._id);
+    return res.json(newData[0]);
   } catch (error) {
     await deleteHardFileService(savedFileRegister._id);
     handleHttpErrors(res, 'ERROR_CREATE_POST');
