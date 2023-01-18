@@ -45,7 +45,6 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
   ) => {
     try {
       const response = await likePostService(adaptedPost.id, { userId: id });
-      console.log({ response });
       dispatch(togglePostLikes(response));
     } catch (error) {
       console.log(error);

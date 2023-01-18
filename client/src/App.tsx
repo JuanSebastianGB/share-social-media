@@ -7,10 +7,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Header } from './components';
 import { useCheckToken } from './hooks';
 import { AppStore } from './models';
-import { AuthLogin, AuthRegister, SessionExpired } from './pages';
+import { SessionExpired } from './pages';
 import { makeTheme } from './utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
+const AuthLogin = lazy(() => import('@/pages/Auth/AuthLogin/AuthLogin'));
+const AuthRegister = lazy(
+  () => import('@/pages/Auth/AuthRegister/AuthRegister')
+);
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));
 
