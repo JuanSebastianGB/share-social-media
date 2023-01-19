@@ -1,8 +1,10 @@
 import { matchedData } from 'express-validator';
+import Post from '../models/post.js';
 import {
   createPostService,
   deletePostService,
   getPostService,
+  getPostsPaginationService,
   getPostsService,
   getUserPostsService,
   toggleLikePostService,
@@ -21,6 +23,19 @@ export const getPosts = async (req, res) => {
     handleHttpErrors(res, 'ERROR_GET_POSTS');
   }
 };
+
+export const getPostsPagination = async (req, res) => {
+  const limit = 2;
+  const total = await Post.find({}).count();
+  const pages = Math.ceil(total / limit);
+  const page = !req.query.page ? 1 : req.query.page;
+  let start = (page - 1) * limit;
+
+  const posts = await getPostsPaginationService(start, limit);
+
+  return res.json(posts);
+};
+
 export const getPost = async (req, res) => {
   try {
     const { id } = req.params;

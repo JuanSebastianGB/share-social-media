@@ -7,14 +7,14 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PostSection } from './PostSection';
 export interface Props extends PostApiModel {
   isFriend: boolean;
 }
 
-const Post: React.FC<Props> = ({ isFriend, ...post }) => {
+const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const isOwn = id === post.user._id;
   const theme = useTheme();
@@ -51,16 +51,8 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
     }
   };
 
-  return (
-    <Box
-      key={adaptedPost.id}
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: '10px',
-        padding: '1rem',
-        mb: '10px',
-      }}
-    >
+  const postBody = (
+    <>
       <PostSection
         userPost={userPost}
         isOwn={isOwn}
@@ -116,8 +108,37 @@ const Post: React.FC<Props> = ({ isFriend, ...post }) => {
           </SpaceBetween>
         </SpaceBetween>
       </SpaceBetween>
+    </>
+  );
+
+  const content = ref ? (
+    <Box
+      ref={ref}
+      key={adaptedPost.id}
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: '10px',
+        padding: '1rem',
+        mb: '10px',
+      }}
+    >
+      {postBody}
+    </Box>
+  ) : (
+    <Box
+      key={adaptedPost.id}
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+        borderRadius: '10px',
+        padding: '1rem',
+        mb: '10px',
+      }}
+    >
+      {postBody}
     </Box>
   );
-};
+
+  return content;
+});
 
 export default Post;

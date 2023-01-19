@@ -1,11 +1,16 @@
 import { Api, ApiJson } from '@/interceptors';
 
-export const fetchPostsService = async () =>
-  await Api.get(`posts`)
+export const fetchPostsService = async (page: number, options: object) => {
+  return await Api.get(`posts?page=${page}`, options)
     .then((data) => data.data)
     .catch((error) => {
+      console.log(
+        '🚀 ~ file: posts.service.ts:8 ~ fetchPostsService ~ error',
+        error
+      );
       throw error;
     });
+};
 
 export const fetchUserPostsService = async (id: string | undefined) =>
   await Api.get(`/users/${id}/posts`)
