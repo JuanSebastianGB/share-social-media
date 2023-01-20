@@ -7,6 +7,11 @@ const authSlice = createSlice({
   initialState: authEmptyState,
   reducers: {
     setPosts: (state, action) => ({ ...state, posts: action.payload.posts }),
+    growPostList: (state, action) => ({
+      ...state,
+      posts: [...state.posts, ...action.payload],
+    }),
+    incrementPage: (state, action) => ({ ...state, page: state.page + 1 }),
     setPost: (state, action) => {
       const posts = state.posts.map((post: Post) => {
         if (post._id === action.payload.post._id) return action.payload.post;
@@ -31,6 +36,7 @@ const authSlice = createSlice({
       posts: [],
       friends: [],
       token: '',
+      page: 1,
     }),
     toggleMode: (state, action) => ({
       ...state,
@@ -80,6 +86,8 @@ export const {
   toggleFriend,
   togglePostLikes,
   createPost,
+  growPostList,
+  incrementPage,
 } = authSlice.actions;
 
 export default authSlice.reducer;

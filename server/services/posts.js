@@ -68,6 +68,74 @@ const getPostsService = async () =>
   ]);
 
 /**
+ * It gets all posts, sorts them by date, gets the file and user data for each post, and then returns
+ * the posts with the specified start and limit
+ * @param start - The starting index of the posts to be returned.
+ * @param limit - The number of documents to return.
+ */
+const getPostsPaginationService = async (start, limit) =>
+  await Post.aggregate([
+    {
+      $sort: {
+        createdAt: -1,
+      },
+    },
+    {
+      $lookup: {
+        from: 'storages',
+        localField: 'fileId',
+        foreignField: '_id',
+        as: 'file',
+      },
+    },
+    { $unwind: '$file' },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
+      $unwind: '$user',
+    },
+    {
+      $lookup: {
+        from: 'storages',
+        localField: 'user.profileImageId',
+        foreignField: '_id',
+        as: 'user.profileImage',
+      },
+    },
+    {
+      $unwind: '$user.profileImage',
+    },
+    {
+      $project: {
+        _id: 1,
+        body: 1,
+        likes: 1,
+        comments: 1,
+        'file._id': 1,
+        'file.url': 1,
+        'user._id': 1,
+        'user.firstName': 1,
+        'user.lastName': 1,
+        'user.friends': 1,
+        'user.location': 1,
+        'user.occupation': 1,
+        'user.viewedProfile': 1,
+        'user.impressions': 1,
+        'user.profileImage._id': 1,
+        'user.profileImage.url': 1,
+      },
+    },
+  ])
+    .skip(start)
+    .limit(limit);
+
+/**
  * It takes a post id, finds the post, finds the file associated with the post, finds the user
  * associated with the post, finds the profile image associated with the user, and returns the post
  * with the file and user and profile image.
@@ -226,6 +294,7 @@ const toggleLikePostService = async (id, userId) => {
 export {
   getPostsService,
   getPostService,
+  getPostsPaginationService,
   getUserPostsService,
   createPostService,
   deletePostService,

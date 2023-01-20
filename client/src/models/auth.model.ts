@@ -8,6 +8,7 @@ export interface Auth {
   mode: PaletteMode | undefined;
   posts: PostApiModel[];
   friends: UserApiModel[];
+  page: number;
 }
 
 export const authEmptyState: Auth = {
@@ -16,6 +17,7 @@ export const authEmptyState: Auth = {
   mode: 'light',
   posts: [],
   friends: [],
+  page: 1,
 };
 
 export interface LoginModel {

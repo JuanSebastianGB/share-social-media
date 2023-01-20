@@ -3,7 +3,8 @@ import {
   createUserPost,
   deletePost,
   getPost,
-  getPosts,
+  getPostsPagination,
+  // getPosts,
   toggleLikePost,
 } from '../controllers/posts.js';
 import { checkValidJwt } from '../middlewares/session.js';
@@ -16,7 +17,8 @@ import {
 
 const router = express.Router();
 
-router.get('/', getPosts);
+// router.get('/', getPosts);
+router.get('/', getPostsPagination);
 router.get('/:id', validatorGetPost, getPost);
 router.post(
   '/',

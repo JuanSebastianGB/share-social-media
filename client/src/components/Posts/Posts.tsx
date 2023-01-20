@@ -1,7 +1,9 @@
 import { usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
+import { incrementPage } from '@/redux/states/authSlice';
 import { ErrorBoundary } from '@/utilities';
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import Post from './Post/Post';
 export interface Props {
   isProfile?: boolean;
@@ -9,7 +11,50 @@ export interface Props {
 }
 
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
-  const { friends, posts } = usePosts(isProfile, id);
+  const [pageNum, setPageNum] = useState(1);
+  const dispatch = useDispatch();
+
+  const { friends, posts, error, hasNextPage, isError, isLoading } = usePosts(
+    isProfile,
+    id,
+    pageNum
+  );
+
+  const intObserver = useRef<any>();
+  const lastPostRef = useCallback(
+    (post: PostApiModel) => {
+      if (isLoading) return;
+      if (intObserver.current) intObserver.current.disconnect();
+      intObserver.current = new IntersectionObserver((posts) => {
+        console.log({ aaa: posts[0].isIntersecting });
+        if (posts[0].isIntersecting && hasNextPage) {
+          console.log('Almost there...');
+          dispatch(incrementPage({}));
+        }
+      });
+      if (post) intObserver.current.observe(post);
+    },
+    [isLoading, hasNextPage]
+  );
+
+  if (isError) return <p> {JSON.stringify(error)}</p>;
+
+  const content = posts.map((post, index) => {
+    const idPostUser = post.user._id;
+    const isFriend = !!friends.find(
+      (friend: UserApiModel) => friend._id === idPostUser
+    );
+    if (posts.length === index + 1)
+      return (
+        <Post
+          ref={lastPostRef}
+          key={`${index}a`}
+          isFriend={isFriend}
+          {...post}
+        />
+      );
+    return <Post key={`${index}a`} isFriend={isFriend} {...post} />;
+  });
 
   if (!!!posts) return <>Loading</>;
   return (
@@ -19,13 +64,15 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
     >
       {posts &&
         friends &&
-        posts.map((post: PostApiModel) => {
+        posts.map((post: PostApiModel, index) => {
           const idPostUser = post.user._id;
           const isFriend = !!friends.find(
             (friend: UserApiModel) => friend._id === idPostUser
           );
-          return <Post key={post._id} isFriend={isFriend} {...post} />;
+          return <Post key={index} isFriend={isFriend} {...post} />;
         })}
+      {content}
+      {isLoading && <div>Loading more posts</div>}
     </ErrorBoundary>
   );
 };
