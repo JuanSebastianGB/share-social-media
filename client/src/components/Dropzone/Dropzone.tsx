@@ -18,6 +18,7 @@ const Dropzone: React.FC<Props> = ({ setFieldValue, sx }) => {
   const onDrop = useCallback(
     (acceptedFiles: CustomFile[]) => {
       setFiles(
+        // @ts-ignore
         acceptedFiles.map((file: CustomFile) => ({
           ...file,
           preview: URL.createObjectURL(file),

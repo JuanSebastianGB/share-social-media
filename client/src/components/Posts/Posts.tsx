@@ -2,7 +2,7 @@ import { usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
 import { incrementPage } from '@/redux/states/authSlice';
 import { ErrorBoundary } from '@/utilities';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import Post from './Post/Post';
 export interface Props {
@@ -11,13 +11,11 @@ export interface Props {
 }
 
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
-  const [pageNum, setPageNum] = useState(1);
   const dispatch = useDispatch();
 
   const { friends, posts, error, hasNextPage, isError, isLoading } = usePosts(
     isProfile,
-    id,
-    pageNum
+    id
   );
 
   const intObserver = useRef<any>();
@@ -49,10 +47,12 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
         <Post
           ref={lastPostRef}
           key={`${index}a`}
+          // @ts-ignore
           isFriend={isFriend}
           {...post}
         />
       );
+    // @ts-ignore
     return <Post key={`${index}a`} isFriend={isFriend} {...post} />;
   });
 
@@ -69,6 +69,7 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
           const isFriend = !!friends.find(
             (friend: UserApiModel) => friend._id === idPostUser
           );
+          // @ts-ignore
           return <Post key={index} isFriend={isFriend} {...post} />;
         })}
       {content}

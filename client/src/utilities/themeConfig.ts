@@ -30,6 +30,7 @@ const colorsPalette = {
 declare module '@mui/material/styles' {
   interface Theme {
     palette: {
+      grey: any;
       primary: {
         light: string;
         main: string;

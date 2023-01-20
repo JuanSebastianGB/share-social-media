@@ -1,5 +1,5 @@
-import { Error } from '@/components';
 import { useLogin } from '@/hooks';
+import Typography from '@mui/material/Typography';
 import React from 'react';
 import { AuthLoginForm } from './AuthLoginForm';
 export interface Props {}
@@ -25,13 +25,9 @@ const AuthLogin: React.FC<Props> = () => {
         displayButton={displayButton}
       />
       {error?.data && (
-        <ul>
-          {error?.data?.errors ? (
-            <Error errorList={error?.data?.errors} />
-          ) : (
-            <Error errorString={error.data} />
-          )}
-        </ul>
+        <Typography variant="body1" color="initial">
+          something went wrong
+        </Typography>
       )}
     </>
   );

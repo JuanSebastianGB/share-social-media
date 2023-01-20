@@ -1,3 +1,4 @@
+import { File } from './file.model';
 import { UserApiModel } from './user.model';
 
 export interface Post {
@@ -10,11 +11,6 @@ export interface Post {
 }
 
 export interface Likes {}
-
-export interface File {
-  _id: string;
-  url: string;
-}
 
 export interface PostApiModel {
   _id: string;

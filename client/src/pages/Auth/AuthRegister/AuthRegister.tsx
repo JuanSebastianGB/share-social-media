@@ -1,9 +1,14 @@
-import { Error } from '@/components';
 import { Dropzone } from '@/components/Dropzone';
 import { useRegister } from '@/hooks';
 import { RegisterInitialValues } from '@/models';
 import { registerSchema } from '@/schemas';
-import { Box, Button, TextField, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  useMediaQuery,
+} from '@mui/material';
 import { useFormik } from 'formik';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -122,13 +127,9 @@ const AuthRegister: React.FC<Props> = () => {
         </Box>
       </form>
       {error?.data && (
-        <ul>
-          {error?.data?.errors ? (
-            <Error errorList={error?.data?.errors} />
-          ) : (
-            <Error errorString={error.data} />
-          )}
-        </ul>
+        <Typography variant="body1" color="initial">
+          Something went wrong
+        </Typography>
       )}
     </StyledRegisterAuth>
   );

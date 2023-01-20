@@ -14,10 +14,13 @@ export interface Props extends PostApiModel {
   isFriend: boolean;
 }
 
+// @ts-ignore
 const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
+  // @ts-ignore
   const isOwn = id === post.user._id;
   const theme = useTheme();
+  // @ts-ignore
   const adaptedPost = postAdapter(post);
   const { user: userPost } = adaptedPost;
   const checkIsLikedOwn = (likes: {}, userId: string): boolean =>
@@ -69,6 +72,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
           minHeight: '450px',
           borderRadius: '10px',
         }}
+        // @ts-ignore
         src={adaptedPost.file.url}
         alt="idea"
       />

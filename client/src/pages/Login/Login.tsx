@@ -1,4 +1,3 @@
-import { Error } from '@/components/Error';
 import { makeLogin, makeLogout } from '@/redux/states/authSlice';
 import { fetchLogin } from '@/services/login';
 import {
@@ -13,6 +12,7 @@ import {
   Paper,
   styled,
   TextField,
+  Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -74,13 +74,9 @@ const Login: React.FC<LoginInterface> = () => {
           elevation={3}
         >
           {error?.data && (
-            <ul>
-              {error?.data?.errors ? (
-                <Error errorList={error?.data?.errors} />
-              ) : (
-                <Error errorString={error.data} />
-              )}
-            </ul>
+            <Typography variant="body1" color="initial">
+              Something went wrong
+            </Typography>
           )}
           <StyledForm>
             <form className="form" onSubmit={handleSubmit}>

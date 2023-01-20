@@ -20,6 +20,7 @@ export const useRegister = () => {
 
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
     const form = new FormData();
+    // @ts-ignore
     for (let value in values) form.append(value, values[value]);
     form.append('picturePath', !!values.myFile ? values.myFile.name : '');
 
