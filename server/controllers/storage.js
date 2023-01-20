@@ -34,6 +34,10 @@ const createFileUploadedRegister = async (req, res) => {
     const response = await createFileUploadedRegisterService(filename);
     return res.json(response);
   } catch (error) {
+    console.log(
+      '🚀 ~ file: storage.js:37 ~ createFileUploadedRegister ~ error',
+      error
+    );
     handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
   }
 };
