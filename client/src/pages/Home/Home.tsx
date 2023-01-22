@@ -1,8 +1,10 @@
 import {
   AddPost,
+  ErrorContent,
   Friends,
   Navbar,
   Posts,
+  SkeletonDefault,
   Spinner,
   UserInfo,
 } from '@/components';
@@ -21,14 +23,16 @@ const Home: React.FC<Props> = () => {
 
   if (isError)
     return (
-      <>
-        something went wrong
-        {JSON.stringify(error)}
-      </>
+      <ErrorContent
+        // @ts-ignore
+        message={error?.error?.message}
+        // @ts-ignore
+        data={error?.error?.response.data}
+      />
     );
   if (loading) return <Spinner />;
 
-  if (user?._id)
+  if (user)
     return (
       <HomeProvider>
         <Navbar />
@@ -49,7 +53,7 @@ const Home: React.FC<Props> = () => {
         </HomeContainer>
       </HomeProvider>
     );
-  return null;
+  return <SkeletonDefault />;
 };
 
 export default Home;

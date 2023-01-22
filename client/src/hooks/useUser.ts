@@ -30,6 +30,8 @@ export const useUser = (id: string) => {
       setError({ message: error });
       console.log({ error });
     }
+
+    return () => controller.abort();
   }, [id]);
 
   return { user, error, isError, loading };

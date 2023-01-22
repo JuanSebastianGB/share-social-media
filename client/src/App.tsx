@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header, Spinner } from './components';
+import { Header, SkeletonDefault, Spinner } from './components';
 import { AppStore } from './models';
 import { makeTheme } from './utilities';
 
@@ -52,6 +52,7 @@ function App() {
                 path="/profile/:id"
                 element={isAuth ? <Profile /> : <Navigate to="/" />}
               />
+              <Route path="/skeleton" element={<SkeletonDefault />} />
               <Route path="/*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

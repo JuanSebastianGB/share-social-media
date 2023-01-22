@@ -19,6 +19,7 @@ export * from './Posts/AddPost/Modal/styles';
 export * from './Posts/AddPost/styles';
 export * from './Posts/Post';
 export * from './Posts/Post/PostSection';
+export * from './SkeletonDefault';
 export * from './Spinner';
 export * from './Thumb';
 export * from './UserInfo';

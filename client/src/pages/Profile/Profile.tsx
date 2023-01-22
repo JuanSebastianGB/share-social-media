@@ -3,6 +3,7 @@ import {
   Friends,
   Navbar,
   Posts,
+  SkeletonDefault,
   Spinner,
   UserInfo,
 } from '@/components';
@@ -31,7 +32,7 @@ const Profile: React.FC<ProfileInterface> = () => {
 
   if (loading) return <Spinner />;
 
-  if (user?._id)
+  if (user)
     return (
       <>
         <Navbar />
@@ -48,7 +49,7 @@ const Profile: React.FC<ProfileInterface> = () => {
         </ProfileLayout>
       </>
     );
-  return null;
+  return <SkeletonDefault isProfile />;
 };
 
 export default Profile;

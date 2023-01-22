@@ -2,7 +2,7 @@ import { ToastOptions } from 'react-toastify';
 
 export const successToastMessageConfig: ToastOptions<{}> = {
   position: 'top-center',
-  autoClose: 1000,
+  autoClose: 500,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: false,
@@ -12,7 +12,7 @@ export const successToastMessageConfig: ToastOptions<{}> = {
 };
 export const errorToastMessageConfig: ToastOptions<{}> = {
   position: 'top-center',
-  autoClose: 1000,
+  autoClose: 500,
   hideProgressBar: false,
   closeOnClick: true,
   pauseOnHover: false,

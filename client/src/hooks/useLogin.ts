@@ -8,7 +8,7 @@ import {
   successToastMessageConfig,
 } from '@/utilities';
 import { useFormik } from 'formik';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -21,13 +21,15 @@ export const useLogin = () => {
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
+  const controller = new AbortController();
+  const { signal } = controller;
   const onSubmit = async (values: LoginModel) => {
     try {
       setDisplayButton(false);
       setIsLoading(true);
       setIsError(false);
       setError({});
-      const { data } = await loginService(values);
+      const { data } = await loginService(values, { signal });
       setIsLoading(false);
       toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
       dispatch(makeLogin(loginAdapter(data)));
@@ -35,6 +37,7 @@ export const useLogin = () => {
       navigate('/home');
     } catch (error) {
       setIsLoading(false);
+      if (signal.aborted) return;
       setIsError(true);
       setError({ error });
       setDisplayButton(true);
@@ -60,6 +63,10 @@ export const useLogin = () => {
     initialValues: loginInitialValues,
     validationSchema: loginSchema,
   });
+
+  useEffect(() => {
+    return controller.abort();
+  }, []);
 
   return {
     displayButton,
