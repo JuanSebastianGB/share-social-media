@@ -1,4 +1,4 @@
-import { useUser } from '@/hooks';
+import { UserApiModel } from '@/models';
 import { SpaceBetween, SpaceBetweenColumn } from '@/styled-components';
 import { AttachFile } from '@mui/icons-material';
 import {
@@ -14,11 +14,10 @@ import React, { Fragment } from 'react';
 import { Modal } from './Modal';
 import { AddPostsStyles } from './styles';
 export interface Props {
-  id: string;
+  user: UserApiModel;
 }
 
-const AddPost: React.FC<Props> = ({ id }) => {
-  const { user } = useUser(id);
+const AddPost: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
   const handleClickOpen = () => {

@@ -37,16 +37,13 @@ export const usePosts = (
     if (!isProfile) {
       fetchPostsService(page, {})
         .then((data) => {
-          console.log('🚀 ~ file: usePosts.ts:45 ~ .then ~ data', data);
-
-          console.log({ data });
           dispatch(growPostList(data));
           setHasNextPage(!!data.length);
           setIsLoading(false);
         })
         .catch((error) => {
           setIsLoading(false);
-          // if (signal.aborted) return;
+          if (signal.aborted) return;
           setError({ error });
           setIsError(true);
         });

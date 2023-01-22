@@ -1,21 +1,37 @@
-import { Friends, Navbar, Posts, UserInfo } from '@/components';
+import {
+  ErrorContent,
+  Friends,
+  Navbar,
+  Posts,
+  Spinner,
+  UserInfo,
+} from '@/components';
+import { useUser } from '@/hooks';
 import { StyledSection } from '@/styled-components';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import ProfileLayout from './Profilelayout';
 export interface ProfileInterface {}
 
 const Profile: React.FC<ProfileInterface> = () => {
   const { id } = useParams();
-  const [userId, setUserId] = useState<string | undefined>('');
+  if (!id) return <></>;
 
-  useEffect(() => {
-    (() => {
-      setUserId(id);
-    })();
-  }, [userId, id]);
+  const { error, isError, loading, user } = useUser(`${id}`);
 
-  if (!!id)
+  if (isError)
+    return (
+      <ErrorContent
+        // @ts-ignore
+        data={error?.error?.response.data}
+        // @ts-ignore
+        message={error?.error?.message}
+      />
+    );
+
+  if (loading) return <Spinner />;
+
+  if (user?._id)
     return (
       <>
         <Navbar />
@@ -25,8 +41,8 @@ const Profile: React.FC<ProfileInterface> = () => {
               <Posts id={id} isProfile />
             </StyledSection>
             <StyledSection sx={{ flex: 0.6, '& > *': { my: '10px' } }}>
-              <UserInfo id={id} />
-              <Friends id={id} />
+              <UserInfo user={user} />
+              <Friends user={user} />
             </StyledSection>
           </section>
         </ProfileLayout>

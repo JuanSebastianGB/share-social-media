@@ -1,5 +1,4 @@
-import { useUser } from '@/hooks';
-import { AppStore } from '@/models';
+import { AppStore, UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import { Groups2, LocationOn, WorkOutline } from '@mui/icons-material';
 import {
@@ -14,7 +13,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { SpaceBetween } from '../Navbar';
 export interface Props {
-  id: string;
+  user: UserApiModel;
 }
 
 const StyledUserInfo = styled(Box)(({ theme }) => ({
@@ -24,12 +23,11 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
   borderRadius: '10px',
 }));
 
-const UserInfo: React.FC<Props> = ({ id }) => {
-  const { user } = useUser(id);
+const UserInfo: React.FC<Props> = ({ user }) => {
   const { friends, posts } = useSelector((store: AppStore) => store.auth);
   const theme = useTheme();
 
-  const ownPosts = posts.filter((post) => post.user._id === id);
+  const ownPosts = posts.filter((post) => post.user._id === user._id);
 
   return (
     <ErrorBoundary
@@ -47,8 +45,6 @@ const UserInfo: React.FC<Props> = ({ id }) => {
         </Typography>
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'center',
             padding: '1rem',
             position: 'relative',
           }}
@@ -57,7 +53,8 @@ const UserInfo: React.FC<Props> = ({ id }) => {
             sx={{
               width: 100,
               height: 100,
-              zIndex: 100,
+              zIndex: 1,
+              margin: '0 auto',
             }}
             alt="profile"
             sizes=""
@@ -65,10 +62,8 @@ const UserInfo: React.FC<Props> = ({ id }) => {
           />
           <Box
             sx={{
-              position: 'absolute',
-              top: '2.3rem',
-              left: '0',
               width: '100%',
+              transform: 'translate(0, -55px) scale(1)',
             }}
           >
             <SpaceBetween sx={{ gap: '0.5rem' }}>
@@ -78,7 +73,7 @@ const UserInfo: React.FC<Props> = ({ id }) => {
                   variant="caption"
                   color={theme.palette.neutral.mediumMain}
                 >
-                  {friends && friends?.length} friends
+                  {friends ? friends?.length : null} friends
                 </Typography>
               </SpaceBetween>
               <SpaceBetween>
@@ -87,7 +82,7 @@ const UserInfo: React.FC<Props> = ({ id }) => {
                   variant="caption"
                   color={theme.palette.neutral.mediumMain}
                 >
-                  {ownPosts && ownPosts?.length} posts
+                  {ownPosts ? ownPosts?.length : null} posts
                 </Typography>
               </SpaceBetween>
             </SpaceBetween>

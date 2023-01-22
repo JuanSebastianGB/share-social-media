@@ -1,5 +1,7 @@
+import { AppStore } from '@/models';
 import { useMediaQuery, useTheme } from '@mui/material';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { NavbarLeft, NavbarMenu, NavbarRight } from './components';
 import { StyledFlexBetween } from './styled-components';
 
@@ -9,6 +11,7 @@ const Navbar: React.FC<NavbarInterface> = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const isMobileScreen = useMediaQuery('(max-width: 800px)');
   const theme = useTheme();
+  const token = useSelector((store: AppStore) => store.auth.token);
 
   return (
     <StyledFlexBetween

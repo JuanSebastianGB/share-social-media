@@ -24,7 +24,6 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
       if (isLoading) return;
       if (intObserver.current) intObserver.current.disconnect();
       intObserver.current = new IntersectionObserver((posts) => {
-        console.log({ aaa: posts[0].isIntersecting });
         if (posts[0].isIntersecting && hasNextPage) {
           console.log('Almost there...');
           dispatch(incrementPage({}));

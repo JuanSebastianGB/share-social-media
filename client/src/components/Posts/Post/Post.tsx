@@ -50,7 +50,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
       const response = await likePostService(adaptedPost.id, { userId: id });
       dispatch(togglePostLikes(response));
     } catch (error) {
-      console.log(error);
+      console.log({ error });
     }
   };
 

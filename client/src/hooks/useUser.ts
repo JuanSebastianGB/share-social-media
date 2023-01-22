@@ -2,25 +2,35 @@ import { UserApiModel } from '@/models';
 import { fetchUserService } from '@/services/user.service';
 import { useEffect, useState } from 'react';
 
-/**
- * It fetches the user from the API and returns the response.
- * @returns The response object is being returned.
- */
 export const useUser = (id: string) => {
   const [user, setUser] = useState<UserApiModel>();
+  const [error, setError] = useState({});
+  const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const getUser = async () => {
-    const response = await fetchUserService(id);
+  const getUser = async (options: object) => {
+    const response = await fetchUserService(id, options);
     setUser(response);
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    const { signal } = controller;
+
     try {
-      getUser();
+      setIsError(false);
+      setError({});
+      setLoading(true);
+      getUser({ signal });
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
+      if (signal.aborted) return;
+      setIsError(true);
+      setError({ message: error });
       console.log({ error });
     }
   }, [id]);
 
-  return { user };
+  return { user, error, isError, loading };
 };

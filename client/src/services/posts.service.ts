@@ -4,10 +4,6 @@ export const fetchPostsService = async (page: number, options: object) => {
   return await Api.get(`posts?page=${page}`, options)
     .then((data) => data.data)
     .catch((error) => {
-      console.log(
-        '🚀 ~ file: posts.service.ts:8 ~ fetchPostsService ~ error',
-        error
-      );
       throw error;
     });
 };

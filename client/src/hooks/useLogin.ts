@@ -1,5 +1,5 @@
 import { loginAdapter } from '@/adapters';
-import { errorInitialState, loginInitialValues, LoginModel } from '@/models';
+import { loginInitialValues, LoginModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
 import { loginSchema } from '@/schemas';
 import { loginService } from '@/services';
@@ -13,42 +13,36 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-/**
- * It's a custom hook that handles the login form and it's validation.
- * </code>
- * @returns An object with the following properties:
- * displayButton,
- * handleSubmit,
- * getFieldProps,
- * errors,
- * touched,
- * dirty,
- * isValid,
- * resetForm,
- * handleBlur,
- * error,
- */
 export const useLogin = () => {
-  const navigate = useNavigate();
+  const [error, setError] = useState({});
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [displayButton, setDisplayButton] = useState(true);
+  const navigate = useNavigate();
 
-  const [error, setError] = useState(errorInitialState);
   const dispatch = useDispatch();
-  const onSubmit = async (values: LoginModel, onSubmitProps: any) => {
+  const onSubmit = async (values: LoginModel) => {
     try {
       setDisplayButton(false);
+      setIsLoading(true);
+      setIsError(false);
+      setError({});
       const { data } = await loginService(values);
-      toast.success(`(～￣▽￣)～ Logged in!`, successToastMessageConfig);
+      setIsLoading(false);
+      toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
       dispatch(makeLogin(loginAdapter(data)));
       setDisplayButton(true);
       navigate('/home');
-    } catch (error: any) {
+    } catch (error) {
+      setIsLoading(false);
+      setIsError(true);
+      setError({ error });
       setDisplayButton(true);
-      const { data, status, statusText } = error.response;
-      setError({ data, status, statusText });
       toast.error('＞︿＜ You cant access', errorToastMessageConfig);
+      console.log({ error });
       setTimeout(() => {
-        setError(errorInitialState);
+        setIsError(false);
+        setError({});
       }, 2000);
     }
   };
@@ -78,5 +72,7 @@ export const useLogin = () => {
     resetForm,
     handleBlur,
     error,
+    isError,
+    isLoading,
   };
 };

@@ -40,7 +40,7 @@ const AuthRegister: React.FC<Props> = () => {
         width: isMobileScreen ? '93%' : '50%',
       }}
     >
-      <form onSubmit={handleSubmit}>
+      <Box component="form" onSubmit={handleSubmit}>
         <Box
           sx={{
             display: 'grid',
@@ -49,12 +49,12 @@ const AuthRegister: React.FC<Props> = () => {
               gridColumn: isMobileScreen ? 'span 4' : undefined,
             },
             gap: '1.5rem',
+            width: '100%',
           }}
         >
           <Dropzone
             sx={{
               gridColumn: 'span 4',
-              textAlign: 'center',
             }}
             setFieldValue={setFieldValue}
           />
@@ -125,7 +125,7 @@ const AuthRegister: React.FC<Props> = () => {
             Already have an account? Login here.
           </Link>
         </Box>
-      </form>
+      </Box>
       {error?.data && (
         <Typography variant="body1" color="initial">
           Something went wrong

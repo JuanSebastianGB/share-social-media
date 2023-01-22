@@ -47,7 +47,6 @@ const DropzoneAddPost: FC<Props> = ({ setFieldValue }) => {
     onDrop,
     multiple: false,
   });
-
   const fileRejectionItems = fileRejections.map(({ file, errors }: any) => (
     <li key={file.path}>
       {file.path} - {file.size} bytes
@@ -74,7 +73,7 @@ const DropzoneAddPost: FC<Props> = ({ setFieldValue }) => {
             padding: '0.5rem',
             cursor: 'pointer',
             background: theme.palette.background.paper,
-            border: `thin solid #ced0d4`,
+            border: 'thin solid #ced0d4',
             borderRadius: '10px',
           }}
         >

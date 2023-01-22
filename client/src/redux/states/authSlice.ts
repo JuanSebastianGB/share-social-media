@@ -12,13 +12,6 @@ const authSlice = createSlice({
       posts: [...state.posts, ...action.payload],
     }),
     incrementPage: (state, action) => ({ ...state, page: state.page + 1 }),
-    // setPost: (state, action) => {
-    //   const posts = state.posts.map((post: Post) => {
-    //     if (post._id === action.payload.post._id) return action.payload.post;
-    //     return post;
-    //   });
-    //   return { ...state, posts };
-    // },
     createPost: (state, action) => {
       return {
         ...state,

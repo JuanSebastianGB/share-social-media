@@ -1,5 +1,4 @@
-import { useFriends } from '@/hooks';
-import { AppStore } from '@/models';
+import { AppStore, UserApiModel } from '@/models';
 import { removeFriend } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
@@ -10,12 +9,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AvatarWithTitles } from '../AvatarWithTitles';
 import { SpaceBetween } from '../Navbar';
 export interface Props {
-  id: string;
+  user: UserApiModel;
 }
 
-const Friends: React.FC<Props> = ({ id }) => {
+const Friends: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
-  useFriends(id);
   const { friends } = useSelector((store: AppStore) => store.auth);
   const dispatch = useDispatch();
 
@@ -38,41 +36,42 @@ const Friends: React.FC<Props> = ({ id }) => {
           Friends
         </Typography>
         <Divider />
-        {friends &&
-          friends.map((friend, index: number) => (
-            <Box key={friend._id}>
-              <Box sx={{ m: '1rem 0 0.5rem' }}>
-                <SpaceBetween>
-                  <AvatarWithTitles
-                    key={friend._id}
-                    profileImage={friend?.picturePath}
-                    title={`${friend?.firstName} ${friend?.lastName}`}
-                    subTitle={friend?.location}
-                    userId={friend._id}
-                  />
-                  <IconButton
-                    aria-label="remove-friend"
-                    color="warning"
-                    onClick={async () => {
-                      try {
-                        const friendId = friend._id;
-                        await fetchToggleFriendUserService<string>(
-                          id,
-                          friendId
-                        );
-                        dispatch(removeFriend(friendId));
-                      } catch (error) {
-                        console.log({ error });
-                      }
-                    }}
-                  >
-                    <PersonRemove sx={{ fontSize: '18px' }} />
-                  </IconButton>
-                </SpaceBetween>
+        {friends
+          ? friends.map((friend, index: number) => (
+              <Box key={friend._id}>
+                <Box sx={{ m: '1rem 0 0.5rem' }}>
+                  <SpaceBetween>
+                    <AvatarWithTitles
+                      key={friend._id}
+                      profileImage={friend?.picturePath}
+                      title={`${friend?.firstName} ${friend?.lastName}`}
+                      subTitle={friend?.location}
+                      userId={friend._id}
+                    />
+                    <IconButton
+                      aria-label="remove-friend"
+                      color="warning"
+                      onClick={async () => {
+                        try {
+                          const friendId = friend._id;
+                          await fetchToggleFriendUserService<string>(
+                            user._id,
+                            friendId
+                          );
+                          dispatch(removeFriend(friendId));
+                        } catch (error) {
+                          console.log({ error });
+                        }
+                      }}
+                    >
+                      <PersonRemove sx={{ fontSize: '18px' }} />
+                    </IconButton>
+                  </SpaceBetween>
+                </Box>
+                {friends && index < friends.length - 1 && <Divider />}
               </Box>
-              {friends && index < friends.length - 1 && <Divider />}
-            </Box>
-          ))}
+            ))
+          : null}
       </Box>
     </ErrorBoundary>
   );

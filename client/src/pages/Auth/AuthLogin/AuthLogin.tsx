@@ -1,5 +1,5 @@
+import { ErrorContent, Spinner } from '@/components';
 import { useLogin } from '@/hooks';
-import Typography from '@mui/material/Typography';
 import React from 'react';
 import { AuthLoginForm } from './AuthLoginForm';
 export interface Props {}
@@ -12,24 +12,31 @@ const AuthLogin: React.FC<Props> = () => {
     touched,
     handleBlur,
     error,
+    isError,
+    isLoading,
     displayButton,
   } = useLogin();
-  return (
-    <>
-      <AuthLoginForm
-        getFieldProps={getFieldProps}
-        errors={errors}
-        handleBlur={handleBlur}
-        touched={touched}
-        handleSubmit={handleSubmit}
-        displayButton={displayButton}
+
+  if (isLoading) return <Spinner />;
+  if (isError)
+    return (
+      <ErrorContent
+        // @ts-ignore
+        message={error?.error?.message}
+        // @ts-ignore
+        data={error?.error?.response.data}
       />
-      {error?.data && (
-        <Typography variant="body1" color="initial">
-          something went wrong
-        </Typography>
-      )}
-    </>
+    );
+
+  return (
+    <AuthLoginForm
+      getFieldProps={getFieldProps}
+      errors={errors}
+      handleBlur={handleBlur}
+      touched={touched}
+      handleSubmit={handleSubmit}
+      displayButton={displayButton}
+    />
   );
 };
 

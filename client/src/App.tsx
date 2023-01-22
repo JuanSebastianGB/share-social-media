@@ -4,10 +4,8 @@ import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header } from './components';
-import { useCheckToken } from './hooks';
+import { Header, Spinner } from './components';
 import { AppStore } from './models';
-import { SessionExpired } from './pages';
 import { makeTheme } from './utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
@@ -22,13 +20,11 @@ function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
-  const { error } = useCheckToken();
 
-  if (error) return <SessionExpired />;
   return (
     <ThemeProvider theme={makeTheme(mode)}>
       <CssBaseline />
-      <Suspense fallback={<div> Loading...</div>}>
+      <Suspense fallback={<Spinner />}>
         <Box
           sx={{
             minHeight: '100vh',
@@ -47,7 +43,7 @@ function App() {
               <Route
                 path="/register"
                 element={isAuth ? <Navigate to="/home" /> : <AuthRegister />}
-              ></Route>
+              />
               <Route
                 path="/home"
                 element={isAuth ? <Home /> : <Navigate to="/" />}

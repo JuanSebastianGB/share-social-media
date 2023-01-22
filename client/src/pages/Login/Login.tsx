@@ -1,3 +1,4 @@
+import { Spinner } from '@/components';
 import { makeLogin, makeLogout } from '@/redux/states/authSlice';
 import { fetchLogin } from '@/services/login';
 import {
@@ -44,7 +45,8 @@ const Login: React.FC<LoginInterface> = () => {
       const { userFound: user, token } = response.data;
       toast.success(`(●'◡'●) Logged in!`, successToastMessageConfig);
       dispatch(makeLogin({ user, token }));
-    } catch (error: any) {
+    } catch (error) {
+      // @ts-ignore
       const { data, status, statusText } = error.response;
       setError({ data, status, statusText });
       toast.error('😑😑 Something went wrong!', errorToastMessageConfig);
@@ -79,7 +81,7 @@ const Login: React.FC<LoginInterface> = () => {
             </Typography>
           )}
           <StyledForm>
-            <form className="form" onSubmit={handleSubmit}>
+            <Box component={'form'} className="form" onSubmit={handleSubmit}>
               <TextField
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -102,7 +104,7 @@ const Login: React.FC<LoginInterface> = () => {
               >
                 Login
               </Button>
-            </form>
+            </Box>
           </StyledForm>
         </Paper>
       </Box>

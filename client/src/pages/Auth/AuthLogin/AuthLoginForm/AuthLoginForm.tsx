@@ -1,4 +1,4 @@
-import { Button, TextField, Typography, useMediaQuery } from '@mui/material';
+import { Box, Button, TextField, useMediaQuery } from '@mui/material';
 import { FieldInputProps } from 'formik';
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -29,10 +29,7 @@ const AuthLoginForm: React.FC<Props> = ({
         width: isMobileScreen ? '93%' : '50%',
       }}
     >
-      <Typography variant="h4" gutterBottom align="center">
-        Login
-      </Typography>
-      <form onSubmit={handleSubmit} className="form">
+      <Box component="form" onSubmit={handleSubmit} className="form">
         <TextField
           className="input"
           {...getFieldProps('email')}
@@ -59,7 +56,7 @@ const AuthLoginForm: React.FC<Props> = ({
         <Link to="/register" className="link">
           Don't have an account? Sign Up here.
         </Link>
-      </form>
+      </Box>
     </StyledAuthLogin>
   );
 };
