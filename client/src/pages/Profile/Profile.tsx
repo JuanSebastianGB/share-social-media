@@ -49,7 +49,7 @@ const Profile: React.FC<ProfileInterface> = () => {
         </ProfileLayout>
       </>
     );
-  return <SkeletonDefault isProfile />;
+  return <SkeletonDefault />;
 };
 
 export default Profile;

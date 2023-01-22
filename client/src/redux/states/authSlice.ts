@@ -6,7 +6,11 @@ const authSlice = createSlice({
   name: StoreKeys.AUTH,
   initialState: authEmptyState,
   reducers: {
-    setPosts: (state, action) => ({ ...state, posts: action.payload.posts }),
+    setPosts: (state, action) => ({
+      ...state,
+      posts: action.payload.posts,
+      page: 1,
+    }),
     growPostList: (state, action) => ({
       ...state,
       posts: [...state.posts, ...action.payload],

@@ -26,14 +26,21 @@ const SkeletonDefault: React.FC<Props> = () => {
         variant="rounded"
         width="100%"
         height="100%"
-        sx={{ gridRow: 'span 3' }}
+        sx={{ gridRow: !isMobileScreen ? 'span 3' : null }}
       />
       <Skeleton
         variant="rounded"
         height="100%"
-        sx={{ gridColumn: 'span 2', gridRow: 'span 2' }}
+        sx={{
+          gridColumn: !isMobileScreen ? 'span 2' : null,
+          gridRow: !isMobileScreen ? 'span 2' : null,
+        }}
       />
-      <Skeleton variant="rounded" height="100%" sx={{ gridColumn: 'span 2' }} />
+      <Skeleton
+        variant="rounded"
+        height="100%"
+        sx={{ gridColumn: !isMobileScreen ? 'span 2' : null }}
+      />
     </Box>
   );
 };

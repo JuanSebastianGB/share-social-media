@@ -10,9 +10,10 @@ import {
 } from '@/components';
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
+import { setPosts } from '@/redux/states/authSlice';
 import { StyledSection } from '@/styled-components';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { HomeProvider } from './context';
 import HomeContainer from './Homelayout';
 export interface Props {}
@@ -20,6 +21,8 @@ export interface Props {}
 const Home: React.FC<Props> = () => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { error, isError, loading, user } = useUser(id);
+  const dispatch = useDispatch();
+  dispatch(setPosts({ posts: [] }));
 
   if (isError)
     return (

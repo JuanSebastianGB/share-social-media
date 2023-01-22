@@ -8,8 +8,11 @@ export const fetchPostsService = async (page: number, options: object) => {
     });
 };
 
-export const fetchUserPostsService = async (id: string | undefined) =>
-  await Api.get(`/users/${id}/posts`)
+export const fetchUserPostsService = async (
+  id: string | undefined,
+  options: object
+) =>
+  await Api.get(`/users/${id}/posts`, options)
     .then((data) => data.data)
     .catch((error) => {
       throw error;

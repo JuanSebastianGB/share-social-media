@@ -1,4 +1,5 @@
-import { AppStore, UserApiModel } from '@/models';
+import { useUserPosts } from '@/hooks';
+import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import { Groups2, LocationOn, WorkOutline } from '@mui/icons-material';
 import {
@@ -10,8 +11,9 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { ErrorContent } from '../ErrorContent';
 import { SpaceBetween } from '../Navbar';
+import { Spinner } from '../Spinner';
 export interface Props {
   user: UserApiModel;
 }
@@ -24,10 +26,25 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
 }));
 
 const UserInfo: React.FC<Props> = ({ user }) => {
-  const { friends, posts } = useSelector((store: AppStore) => store.auth);
   const theme = useTheme();
+  const { friends } = user;
+  const {
+    error,
+    isError,
+    isLoading,
+    results: ownPosts,
+  } = useUserPosts(user._id);
 
-  const ownPosts = posts.filter((post) => post.user._id === user._id);
+  if (isLoading) return <Spinner />;
+  if (isError)
+    return (
+      <ErrorContent
+        // @ts-ignore
+        message={error?.error?.message}
+        // @ts-ignore
+        data={error?.error?.response.data}
+      />
+    );
 
   return (
     <ErrorBoundary

@@ -8,11 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
  * It fetches posts from the server and returns the response.
  * @returns The response object is being returned.
  */
-export const usePosts = (
-  isProfile: boolean,
-  id: string | undefined
-  // page: number = 1
-) => {
+export const usePosts = (isProfile: boolean, id: string | undefined) => {
   const page = useSelector((store: AppStore) => store.auth.page);
   const [error, setError] = useState({});
   const [isError, setIsError] = useState(false);
@@ -23,7 +19,7 @@ export const usePosts = (
   const dispatch = useDispatch();
 
   const getUserPosts = async () => {
-    const response = await fetchUserPostsService(id);
+    const response = await fetchUserPostsService(id, {});
     dispatch(setPosts({ posts: response }));
   };
 
@@ -49,10 +45,11 @@ export const usePosts = (
         });
     } else {
       getUserPosts();
+      setIsLoading(false);
     }
 
     return controller.abort();
-  }, [id, page]);
+  }, [id, page, isProfile]);
 
   return { friends, posts, error, isError, isLoading, hasNextPage };
 };

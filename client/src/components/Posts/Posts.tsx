@@ -2,8 +2,11 @@ import { usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
 import { incrementPage } from '@/redux/states/authSlice';
 import { ErrorBoundary } from '@/utilities';
+import { useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { SpaceBetween } from '../Navbar';
+import { Spinner } from '../Spinner';
 import Post from './Post/Post';
 export interface Props {
   isProfile?: boolean;
@@ -12,6 +15,7 @@ export interface Props {
 
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const { friends, posts, error, hasNextPage, isError, isLoading } = usePosts(
     isProfile,
@@ -61,7 +65,7 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
       fallBackComponent={<>Error in Posts</>}
       resetCondition={posts}
     >
-      {posts &&
+      {/* {posts &&
         friends &&
         posts.map((post: PostApiModel, index) => {
           const idPostUser = post.user._id;
@@ -70,9 +74,13 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
           );
           // @ts-ignore
           return <Post key={index} isFriend={isFriend} {...post} />;
-        })}
+        })} */}
       {content}
-      {isLoading && <div>Loading more posts</div>}
+      {isLoading && (
+        <SpaceBetween>
+          <Spinner />
+        </SpaceBetween>
+      )}
     </ErrorBoundary>
   );
 };
