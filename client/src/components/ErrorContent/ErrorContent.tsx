@@ -3,9 +3,10 @@ import React from 'react';
 export interface Props {
   message: string;
   data: string;
+  sx?: object;
 }
 
-const ErrorContent: React.FC<Props> = ({ message, data }) => {
+const ErrorContent: React.FC<Props> = ({ message, data, sx }) => {
   return (
     <Box
       sx={{
@@ -22,6 +23,7 @@ const ErrorContent: React.FC<Props> = ({ message, data }) => {
           padding: '2rem',
         },
         flex: 0.5,
+        ...sx,
       }}
     >
       <Typography align="center" variant="body1" color="white">

@@ -1,3 +1,4 @@
+import { ErrorContent, Spinner } from '@/components';
 import { Dropzone } from '@/components/Dropzone';
 import { useRegister } from '@/hooks';
 import { RegisterInitialValues } from '@/models';
@@ -16,15 +17,14 @@ import { StyledRegisterAuth } from './styles';
 export interface Props {}
 
 const AuthRegister: React.FC<Props> = () => {
-  const { onSubmit, error, displayButton } = useRegister();
+  const { onSubmit, error, displayButton, isError, isLoading } = useRegister();
+
   const {
-    values: valuesForm,
     setFieldValue,
     handleSubmit,
     getFieldProps,
     errors,
     touched,
-    resetForm,
     handleBlur,
   } = useFormik({
     onSubmit,
@@ -52,12 +52,18 @@ const AuthRegister: React.FC<Props> = () => {
             width: '100%',
           }}
         >
-          <Dropzone
-            sx={{
-              gridColumn: 'span 4',
-            }}
-            setFieldValue={setFieldValue}
-          />
+          <Box sx={{ gridColumn: 'span 4' }}>
+            <Dropzone
+              setFieldValue={setFieldValue}
+              fileName="myFile"
+              isError={!!errors?.myFile}
+            />
+            {errors?.myFile && (
+              <Typography align="center" variant="body1" color="#d32f2f">
+                Missing File
+              </Typography>
+            )}
+          </Box>
           <TextField
             {...getFieldProps('firstName')}
             label="first name"
@@ -86,6 +92,7 @@ const AuthRegister: React.FC<Props> = () => {
           />
           <TextField
             {...getFieldProps('password')}
+            type="password"
             label="Password"
             helperText={errors.password && touched.password && errors.password}
             error={!!errors.password && touched.password}
@@ -120,17 +127,22 @@ const AuthRegister: React.FC<Props> = () => {
               Register
             </Button>
           )}
+          {isLoading && <Spinner sx={{ gridColumn: 'span 4' }} />}
+          {isError && (
+            <ErrorContent
+              // @ts-ignore
+              message={error?.error?.message}
+              // @ts-ignore
+              data={error?.error?.response.data}
+              sx={{ gridColumn: 'span 4' }}
+            />
+          )}
 
           <Link className="link" to="/">
             Already have an account? Login here.
           </Link>
         </Box>
       </Box>
-      {error?.data && (
-        <Typography variant="body1" color="initial">
-          Something went wrong
-        </Typography>
-      )}
     </StyledRegisterAuth>
   );
 };

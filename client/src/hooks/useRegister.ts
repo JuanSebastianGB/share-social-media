@@ -1,22 +1,21 @@
-import { errorInitialState, RegisterModel } from '@/models';
+import { RegisterModel } from '@/models';
 import { registerService } from '@/services';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
 } from '@/utilities';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-/**
- * It takes in a form, sends it to the server, and then returns the response
- * @returns An object with the onSubmit function, error state and displayButton state.
- */
 export const useRegister = () => {
-  const [error, setError] = useState(errorInitialState);
+  const [error, setError] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [displayButton, setDisplayButton] = useState(true);
 
   const navigate = useNavigate();
+  let controller = new AbortController();
 
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
     const form = new FormData();
@@ -24,28 +23,36 @@ export const useRegister = () => {
     for (let value in values) form.append(value, values[value]);
     form.append('picturePath', !!values.myFile ? values.myFile.name : '');
 
+    const { signal } = controller;
+
     try {
+      setError(false);
+      setIsLoading(true);
       setDisplayButton(false);
-      const response = await registerService(form);
-      console.log(response);
+      const response = await registerService(form, { signal });
+      console.log({ response });
+      setIsLoading(false);
       onSubmitProps.resetForm();
-      toast.success(
-        `(●'◡'●) Registered successfully!`,
-        successToastMessageConfig
-      );
+      toast.success('Registered successfully!', successToastMessageConfig);
       setDisplayButton(true);
       navigate('/');
-    } catch (error: any) {
+    } catch (error) {
+      setIsLoading(false);
       setDisplayButton(true);
+      if (signal.aborted) return;
+      setIsError(true);
       console.log({ error });
-      const { data, status, statusText } = error.response;
-      setError({ data, status, statusText });
-      toast.error('😑😑 Something went wrong!', errorToastMessageConfig);
+      setError({ error });
+      toast.error('Something went wrong!', errorToastMessageConfig);
       setTimeout(() => {
-        setError(errorInitialState);
+        setIsError(false);
       }, 2000);
     }
   };
 
-  return { onSubmit, error, displayButton };
+  useEffect(() => {
+    return () => controller.abort();
+  }, []);
+
+  return { onSubmit, error, displayButton, isLoading, isError };
 };
