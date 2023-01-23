@@ -6,7 +6,7 @@ import {
   Posts,
   SkeletonDefault,
   Spinner,
-  UserInfo
+  UserInfo,
 } from '@/components';
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
@@ -41,12 +41,12 @@ const Home: React.FC<Props> = () => {
         <Navbar />
         <HomeContainer>
           <section>
-            <StyledSection sx={{ flex: 0.6 }}>
-              <UserInfo user={user} />
-            </StyledSection>
             <StyledSection sx={{ flex: 1 }}>
               <AddPost user={user} />
               <Posts />
+            </StyledSection>
+            <StyledSection sx={{ flex: 0.6 }}>
+              <UserInfo user={user} />
             </StyledSection>
             <StyledSection sx={{ flex: 0.4 }}>
               <div>Publicity</div>

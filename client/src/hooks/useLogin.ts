@@ -42,7 +42,6 @@ export const useLogin = () => {
       setError({ error });
       setDisplayButton(true);
       toast.error('＞︿＜ You cant access', errorToastMessageConfig);
-      console.log({ error });
       setTimeout(() => {
         setIsError(false);
         setError({});

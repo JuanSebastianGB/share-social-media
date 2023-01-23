@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header, SkeletonDefault, Spinner } from './components';
+import { Header, Scroll, SkeletonDefault, Spinner } from './components';
 import { AppStore } from './models';
 import { makeTheme } from './utilities';
 
@@ -24,6 +24,7 @@ function App() {
   return (
     <ThemeProvider theme={makeTheme(mode)}>
       <CssBaseline />
+      <Scroll showBelow={250} />
       <Suspense fallback={<Spinner />}>
         <Box
           sx={{
