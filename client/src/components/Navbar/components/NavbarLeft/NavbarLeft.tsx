@@ -1,19 +1,14 @@
 import { Search } from '@mui/icons-material';
-import {
-  IconButton,
-  InputBase,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { IconButton, InputBase, Typography, useTheme } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { StyledFlexBetween } from '../../styled-components';
 
-export interface Props {}
+export interface Props {
+  isMobileScreen: boolean;
+}
 
-const NavbarLeft: React.FC<Props> = () => {
-  const isMobileScreen = useMediaQuery('(max-width: 800px)');
+const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
   const theme = useTheme();
 
   const navigate = useNavigate();
@@ -29,6 +24,7 @@ const NavbarLeft: React.FC<Props> = () => {
             color: theme.palette.primary.light,
             cursor: 'pointer',
           },
+          whiteSpace: 'nowrap',
         }}
       >
         S. Social M.

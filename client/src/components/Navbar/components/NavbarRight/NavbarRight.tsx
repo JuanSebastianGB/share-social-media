@@ -14,7 +14,6 @@ import {
   InputBase,
   MenuItem,
   Select,
-  useMediaQuery,
   useTheme,
 } from '@mui/material';
 import React, { Dispatch, Fragment, SetStateAction } from 'react';
@@ -23,11 +22,13 @@ import { StyledFlexBetween } from '../../styled-components';
 export interface NavbarRightInterface {
   setMenuOpen: Dispatch<SetStateAction<boolean>>;
   menuOpen: boolean;
+  isMobileScreen: boolean;
 }
 
 const NavbarRight: React.FC<NavbarRightInterface> = ({
   setMenuOpen,
   menuOpen,
+  isMobileScreen,
 }) => {
   const handleLogout = () => {
     dispatch(makeLogout({}));
@@ -35,7 +36,6 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   const mode = useSelector((store: AppStore) => store.auth?.mode);
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
-  const isMobileScreen = useMediaQuery('(max-width: 1000px)');
   const theme = useTheme();
 
   if (isMobileScreen)

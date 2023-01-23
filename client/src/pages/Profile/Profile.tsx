@@ -38,12 +38,12 @@ const Profile: React.FC<ProfileInterface> = () => {
         <Navbar />
         <ProfileLayout>
           <section>
-            <StyledSection sx={{ flex: 1 }}>
-              <Posts id={id} isProfile />
-            </StyledSection>
             <StyledSection sx={{ flex: 0.6, '& > *': { my: '10px' } }}>
               <UserInfo user={user} />
               <Friends user={user} />
+            </StyledSection>
+            <StyledSection sx={{ flex: 1 }}>
+              <Posts id={id} isProfile />
             </StyledSection>
           </section>
         </ProfileLayout>

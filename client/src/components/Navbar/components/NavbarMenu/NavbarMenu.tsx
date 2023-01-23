@@ -15,6 +15,7 @@ import {
   InputBase,
   MenuItem,
   Select,
+  useTheme,
 } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,6 +28,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
   const mode = useSelector((store: AppStore) => store.auth?.mode);
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -37,7 +39,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
         zIndex: 10,
         maxWidth: '500px',
         minWidth: '300px',
-        backgroundColor: '#1b191b',
+        backgroundColor: theme.palette.background.paper,
       }}
     >
       <Box display="flex" justifyContent="flex-end" p="1rem">
@@ -60,7 +62,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
           {mode === 'dark' ? (
             <DarkMode sx={{ fontSize: '25px' }} />
           ) : (
-            <LightMode sx={{ color: 'lightcyan', fontSize: '25px' }} />
+            <LightMode sx={{ fontSize: '25px' }} />
           )}
         </IconButton>
         <Message className="icon" />
@@ -70,7 +72,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
           <Select
             value={user.email}
             sx={{
-              backgroundColor: '#2e2d2e',
+              backgroundColor: theme.palette.background.default,
               color: 'whitesmoke',
               width: '80%',
               borderRadius: '0.25rem',
@@ -80,7 +82,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
                 width: '3rem',
               },
               '& .MuiSelect-select:focus': {
-                backgroundColor: '#2e2d2e',
+                backgroundColor: theme.palette.background.default,
               },
             }}
             input={<InputBase />}

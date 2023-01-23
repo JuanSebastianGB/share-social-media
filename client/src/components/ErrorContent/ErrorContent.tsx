@@ -11,7 +11,7 @@ const ErrorContent: React.FC<Props> = ({ message, data, sx }) => {
     <Box
       sx={{
         minHeight: '200px',
-        bgcolor: 'red',
+        bgcolor: '#f44336',
         width: '50%',
         margin: '2rem auto',
         padding: 'rem',

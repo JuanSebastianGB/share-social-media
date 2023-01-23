@@ -6,7 +6,7 @@ import {
   Posts,
   SkeletonDefault,
   Spinner,
-  UserInfo,
+  UserInfo
 } from '@/components';
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
@@ -24,6 +24,7 @@ const Home: React.FC<Props> = () => {
   const dispatch = useDispatch();
   dispatch(setPosts({ posts: [] }));
 
+  if (loading) return <Spinner />;
   if (isError)
     return (
       <ErrorContent
@@ -33,7 +34,6 @@ const Home: React.FC<Props> = () => {
         data={error?.error?.response.data}
       />
     );
-  if (loading) return <Spinner />;
 
   if (user)
     return (

@@ -1,8 +1,7 @@
-import { usePosts } from '@/hooks';
+import { useFriends, usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
 import { incrementPage } from '@/redux/states/authSlice';
 import { ErrorBoundary } from '@/utilities';
-import { useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { SpaceBetween } from '../Navbar';
@@ -15,13 +14,12 @@ export interface Props {
 
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const dispatch = useDispatch();
-  const theme = useTheme();
-
-  const { friends, posts, error, hasNextPage, isError, isLoading } = usePosts(
+  // @ts-ignore
+  const { friends } = useFriends(id);
+  const { posts, error, hasNextPage, isError, isLoading } = usePosts(
     isProfile,
     id
   );
-
   const intObserver = useRef<any>();
   const lastPostRef = useCallback(
     (post: PostApiModel) => {
@@ -59,22 +57,13 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
     return <Post key={`${index}a`} isFriend={isFriend} {...post} />;
   });
 
-  if (!!!posts) return <>Loading</>;
+  const validPosts = !!posts;
+  if (!validPosts) return <Spinner />;
   return (
     <ErrorBoundary
       fallBackComponent={<>Error in Posts</>}
       resetCondition={posts}
     >
-      {/* {posts &&
-        friends &&
-        posts.map((post: PostApiModel, index) => {
-          const idPostUser = post.user._id;
-          const isFriend = !!friends.find(
-            (friend: UserApiModel) => friend._id === idPostUser
-          );
-          // @ts-ignore
-          return <Post key={index} isFriend={isFriend} {...post} />;
-        })} */}
       {content}
       {isLoading && (
         <SpaceBetween>

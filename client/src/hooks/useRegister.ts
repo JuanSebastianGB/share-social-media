@@ -21,7 +21,7 @@ export const useRegister = () => {
     const form = new FormData();
     // @ts-ignore
     for (let value in values) form.append(value, values[value]);
-    form.append('picturePath', !!values.myFile ? values.myFile.name : '');
+    form.append('picturePath', values.myFile ? values.myFile.name : '');
 
     const { signal } = controller;
 
@@ -29,8 +29,7 @@ export const useRegister = () => {
       setError(false);
       setIsLoading(true);
       setDisplayButton(false);
-      const response = await registerService(form, { signal });
-      console.log({ response });
+      await registerService(form, { signal });
       setIsLoading(false);
       onSubmitProps.resetForm();
       toast.success('Registered successfully!', successToastMessageConfig);

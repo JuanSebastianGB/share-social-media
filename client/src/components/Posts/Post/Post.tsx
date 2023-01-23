@@ -60,6 +60,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         userPost={userPost}
         isOwn={isOwn}
         isFriend={isFriend}
+        // @ts-ignore
         handleClick={handleClick}
         body={adaptedPost.body}
       />

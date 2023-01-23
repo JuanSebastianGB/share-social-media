@@ -1,7 +1,7 @@
 import { Api } from '@/interceptors';
 
-export const fetchFriendsService = async (id: string) =>
-  await Api.get(`/users/${id}/friends`)
+export const fetchFriendsService = async (id: string, options = {}) =>
+  await Api.get(`/users/${id}/friends`, options)
     .then((data) => data.data)
     .catch((error) => {
       throw error;

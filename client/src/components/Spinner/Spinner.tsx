@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { Momentum } from '@uiball/loaders/';
+import { Metronome } from '@uiball/loaders/';
 import React from 'react';
 export interface SpinnerInterface {
   sx?: object;
@@ -18,7 +18,7 @@ const Spinner: React.FC<SpinnerInterface> = ({ sx }) => {
         ...sx,
       }}
     >
-      <Momentum size={40} color={theme.palette.primary.main} />
+      <Metronome size={50} color={theme.palette.primary.main} />
     </Box>
   );
 };

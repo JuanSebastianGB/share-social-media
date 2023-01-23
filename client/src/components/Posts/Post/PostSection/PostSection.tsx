@@ -8,7 +8,7 @@ export interface Props {
   userPost: UserApiModel;
   isOwn: boolean;
   isFriend: boolean;
-  handleClick: any;
+  handleClick: () => void;
   body: string;
 }
 

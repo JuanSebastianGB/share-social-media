@@ -1,4 +1,4 @@
-import { useUserPosts } from '@/hooks';
+import { useFriends, useUserPosts } from '@/hooks';
 import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import { Groups2, LocationOn, WorkOutline } from '@mui/icons-material';
@@ -27,7 +27,7 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
 
 const UserInfo: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
-  const { friends } = user;
+  const { friends } = useFriends(user._id);
   const {
     error,
     isError,
@@ -88,7 +88,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                 <Groups2 sx={{ fontSize: '15px', mr: '5px' }} />
                 <Typography
                   variant="caption"
-                  color={theme.palette.neutral.mediumMain}
+                  color={theme.palette.neutral.dark}
                 >
                   {friends ? friends?.length : null} friends
                 </Typography>
@@ -97,7 +97,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                 <Groups2 sx={{ fontSize: '15px', mr: '5px' }} />
                 <Typography
                   variant="caption"
-                  color={theme.palette.neutral.mediumMain}
+                  color={theme.palette.neutral.dark}
                 >
                   {ownPosts ? ownPosts?.length : null} posts
                 </Typography>
@@ -111,30 +111,24 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           sx={{
             pt: '5px',
             '& small': {
-              color: theme.palette.neutral.main,
+              color: theme.palette.neutral.dark,
             },
           }}
         >
           <small>{user?.viewedProfile}</small>
-          <Typography
-            variant="caption"
-            color={theme.palette.neutral.mediumMain}
-          >
+          <Typography variant="caption" color={theme.palette.neutral.dark}>
             Who's viewed your profile
           </Typography>
         </SpaceBetween>
         <SpaceBetween
           sx={{
             '& small': {
-              color: theme.palette.neutral.main,
+              color: theme.palette.neutral.dark,
             },
           }}
         >
           <small>{user?.impressions}</small>
-          <Typography
-            variant="caption"
-            color={theme.palette.neutral.mediumMain}
-          >
+          <Typography variant="caption" color={theme.palette.neutral.dark}>
             Impressions of your post
           </Typography>
         </SpaceBetween>
@@ -144,10 +138,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
         >
           <LocationOn />
-          <Typography
-            variant="caption"
-            color={theme.palette.neutral.mediumMain}
-          >
+          <Typography variant="caption" color={theme.palette.neutral.dark}>
             {user?.location}
           </Typography>
         </SpaceBetween>
@@ -156,10 +147,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
         >
           <WorkOutline />
-          <Typography
-            variant="caption"
-            color={theme.palette.neutral.mediumMain}
-          >
+          <Typography variant="caption" color={theme.palette.neutral.dark}>
             {user?.occupation}
           </Typography>
         </SpaceBetween>

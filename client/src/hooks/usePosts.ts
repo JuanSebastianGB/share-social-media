@@ -14,7 +14,7 @@ export const usePosts = (isProfile: boolean, id: string | undefined) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const { friends, posts } = useSelector((store: AppStore) => store.auth);
+  const { posts } = useSelector((store: AppStore) => store.auth);
 
   const dispatch = useDispatch();
 
@@ -51,5 +51,5 @@ export const usePosts = (isProfile: boolean, id: string | undefined) => {
     return controller.abort();
   }, [id, page, isProfile]);
 
-  return { friends, posts, error, isError, isLoading, hasNextPage };
+  return { posts, error, isError, isLoading, hasNextPage };
 };

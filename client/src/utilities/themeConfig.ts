@@ -86,7 +86,7 @@ export const makeTheme = (mode: PaletteMode | undefined) => {
             neutral: {
               dark: colorsPalette.grey[100],
               main: colorsPalette.grey[200],
-              mediumMain: colorsPalette.grey[300],
+              mediumMain: colorsPalette.grey[500],
               medium: colorsPalette.grey[400],
               light: colorsPalette.grey[700],
             },

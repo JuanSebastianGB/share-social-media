@@ -9,7 +9,7 @@ export interface NavbarInterface {}
 
 const Navbar: React.FC<NavbarInterface> = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const isMobileScreen = useMediaQuery('(max-width: 800px)');
+  const isMobileScreen = useMediaQuery('(max-width: 900px)');
   const theme = useTheme();
   const token = useSelector((store: AppStore) => store.auth.token);
 
@@ -20,8 +20,12 @@ const Navbar: React.FC<NavbarInterface> = () => {
         padding: '0.2rem',
       }}
     >
-      <NavbarLeft />
-      <NavbarRight setMenuOpen={setMenuOpen} menuOpen={menuOpen} />
+      <NavbarLeft isMobileScreen={isMobileScreen} />
+      <NavbarRight
+        setMenuOpen={setMenuOpen}
+        menuOpen={menuOpen}
+        isMobileScreen={isMobileScreen}
+      />
       {isMobileScreen && menuOpen && <NavbarMenu setMenuOpen={setMenuOpen} />}
     </StyledFlexBetween>
   );
