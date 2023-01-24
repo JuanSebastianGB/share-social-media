@@ -6,7 +6,7 @@ export interface Props {
   showBelow?: number;
 }
 
-const Scroll: React.FC<Props> = ({ showBelow }) => {
+const Scroll: React.FC<Props> = ({ showBelow = 300 }) => {
   const [show, setShow] = useState(!!showBelow);
   const handleClick = () => {
     window['scrollTo']({ top: 0, behavior: 'smooth' });

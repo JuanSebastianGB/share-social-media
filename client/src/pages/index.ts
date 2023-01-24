@@ -5,7 +5,5 @@ export * from './Auth/AuthLogin/AuthLoginForm/styles';
 export * from './Auth/AuthRegister';
 export * from './Auth/AuthRegister/styles';
 export * from './Home';
-export * from './Login';
 export * from './NotFound';
 export * from './Profile';
-export * from './SessionExpired';

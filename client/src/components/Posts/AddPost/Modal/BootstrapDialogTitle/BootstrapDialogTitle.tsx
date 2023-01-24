@@ -21,7 +21,7 @@ const BootstrapDialogTitle: FC<Props> = (props) => {
             position: 'absolute',
             right: 8,
             top: 8,
-            color: (theme) => theme.palette.grey[500],
+            color: (theme) => theme.palette.neutral.mediumMain,
           }}
         >
           <CloseIcon />
