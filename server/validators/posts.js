@@ -3,6 +3,7 @@ import validateResults from '../utilities/handleValidator.js';
 
 const validatorCreatePost = [
   check('body').not().isEmpty().exists().isString(),
+  check('type').isString(),
   check('userId', 'Must be a valid mongo ID').not().isEmpty().isMongoId(),
 
   (req, res, next) => validateResults(req, res, next),

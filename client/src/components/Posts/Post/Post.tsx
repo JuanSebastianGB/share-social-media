@@ -1,5 +1,4 @@
 import { postAdapter } from '@/adapters';
-import { DEFAULT_IMAGE_ID } from '@/constants';
 import { AppStore, PostApiModel } from '@/models';
 import { toggleFriend, togglePostLikes } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
@@ -23,6 +22,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const theme = useTheme();
   // @ts-ignore
   const adaptedPost = postAdapter(post);
+  console.log('🚀 ~ file: Post.tsx:25 ~ Post ~ adaptedPost', adaptedPost);
   const { user: userPost } = adaptedPost;
   const checkIsLikedOwn = (likes: {}, userId: string): boolean =>
     Object.keys(likes).some((row) => {
@@ -67,7 +67,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
       />
       {
         // @ts-ignore
-        adaptedPost?.file?._id !== DEFAULT_IMAGE_ID && (
+        adaptedPost?.type !== 'comment' && (
           <Box
             component="img"
             className="image"

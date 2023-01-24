@@ -19,6 +19,7 @@ export interface PostApiModel {
   comments: any[];
   file: File;
   user: UserApiModel;
+  type: string;
 }
 
 export interface PostModel {
@@ -28,6 +29,7 @@ export interface PostModel {
   comments: any[];
   file: File;
   user: UserApiModel;
+  type: string;
 }
 
 export interface PostFormInterface {

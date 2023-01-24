@@ -117,6 +117,7 @@ const getPostsPaginationService = async (start, limit) =>
 				body: 1,
 				likes: 1,
 				comments: 1,
+        type:1,
 				"file._id": 1,
 				"file.url": 1,
 				"user._id": 1,
@@ -181,6 +182,7 @@ const getPostService = async (id) =>
 				body: 1,
 				likes: 1,
 				comments: 1,
+        type:1,
 				"file._id": 1,
 				"file.url": 1,
 				"user._id": 1,
@@ -292,11 +294,12 @@ const toggleLikePostService = async (id, userId) => {
 };
 
 export {
-	getPostsService,
-	getPostService,
-	getPostsPaginationService,
-	getUserPostsService,
-	createPostService,
-	deletePostService,
-	toggleLikePostService,
+  getPostsService,
+  getPostService,
+  getPostsPaginationService,
+  getUserPostsService,
+  createPostService,
+  deletePostService,
+  toggleLikePostService,
 };
+

@@ -8,6 +8,7 @@ const PostSchema = new mongoose.Schema(
 		fileId: { type: mongoose.Schema.Types.ObjectId, required: false },
 		likes: { type: Map, of: Boolean, default: {} },
 		comments: { type: Array, of: String, default: [] },
+    type: {type: String, default: 'file'}
 	},
 	{ timestamps: true, versionKey: false },
 );
