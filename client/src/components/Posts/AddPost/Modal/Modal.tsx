@@ -1,7 +1,7 @@
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/authSlice';
-import { makePostService } from '@/services';
+import { makePostFileService, makePostService } from '@/services';
 import {
   Avatar,
   Box,
@@ -22,6 +22,7 @@ import { BootstrapDialog } from './styles';
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
+  addAction: string;
 }
 
 const validationSchema = yup.object().shape({
@@ -34,7 +35,7 @@ const StyledForm = styled('form')(({ theme }) => ({
   padding: '2rem',
 }));
 
-export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
+export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
@@ -46,9 +47,11 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
     const form = new FormData();
     form.append('body', body);
     form.append('userId', id);
-    form.append('myFile', myFile);
+    if (addAction === 'file/video') form.append('myFile', myFile);
     try {
-      const newPost = await makePostService(form);
+      let newPost;
+      if (addAction === 'file/video') newPost = await makePostFileService(form);
+      if (addAction === 'comment') newPost = await makePostService(form);
       setShowButton(true);
       dispatch(createPost(newPost));
       handleClose();
@@ -70,6 +73,8 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
         open={open}
+        fullWidth
+        maxWidth="md"
       >
         <BootstrapDialogTitle
           id="customized-dialog-title"
@@ -88,7 +93,12 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
                 }}
               >
                 <Avatar src={user?.picturePath} />
-                <Typography variant="subtitle1" color="GrayText">
+                <Typography
+                  variant="subtitle1"
+                  align="center"
+                  width="100%"
+                  color="GrayText"
+                >
                   {user?.firstName} {user?.lastName}
                 </Typography>
               </Box>
@@ -96,15 +106,19 @@ export const Modal: FC<ModalProps> = ({ open, handleClose }) => {
                 {...getFieldProps('body')}
                 sx={{
                   background: theme.palette.background.paper,
-                  borderRadius: '15px',
+                  borderRadius: '10px',
                   p: '10px',
                   mb: '10px',
                   width: '100%',
+                  justifyContent: 'center',
                 }}
                 placeholder={`what is in your mind  ${user?.firstName}`}
               />
             </Box>
-            <DropzoneAddPost setFieldValue={setFieldValue} />
+            {addAction === 'file/video' && (
+              <DropzoneAddPost setFieldValue={setFieldValue} />
+            )}
+
             {showButton && (
               <Button variant="text" type="submit" color="primary" fullWidth>
                 Publish

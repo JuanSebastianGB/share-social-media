@@ -10,7 +10,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Modal } from './Modal';
 import { AddPostsStyles } from './styles';
 export interface Props {
@@ -20,16 +20,15 @@ export interface Props {
 const AddPost: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
   const [open, setOpen] = React.useState<boolean>(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  const [addAction, setAddAction] = useState('file');
+
   const handleClose = () => {
     setOpen(false);
   };
 
   return (
     <Fragment>
-      <Modal open={open} handleClose={handleClose} />
+      <Modal addAction={addAction} open={open} handleClose={handleClose} />
       <AddPostsStyles>
         <SpaceBetweenColumn gap="0.2rem">
           <SpaceBetween
@@ -44,7 +43,7 @@ const AddPost: React.FC<Props> = ({ user }) => {
             <InputBase
               sx={{
                 background: theme.palette.background.default,
-                borderRadius: '15px',
+                borderRadius: '10px',
                 pl: '10px',
                 mb: '10px',
                 width: '100%',
@@ -53,7 +52,10 @@ const AddPost: React.FC<Props> = ({ user }) => {
                   cursor: 'pointer',
                 },
               }}
-              onClick={handleClickOpen}
+              onClick={() => {
+                setOpen(true);
+                setAddAction('comment');
+              }}
               placeholder={`What is in your mind ${user?.firstName} `}
             />
           </SpaceBetween>
@@ -66,7 +68,13 @@ const AddPost: React.FC<Props> = ({ user }) => {
             }}
           >
             <Box sx={{ borderRadius: '10px' }}>
-              <SpaceBetween width="4.5rem" onClick={handleClickOpen}>
+              <SpaceBetween
+                width="4.5rem"
+                onClick={() => {
+                  setOpen(true);
+                  setAddAction('file/video');
+                }}
+              >
                 <IconButton>
                   <AttachFile fontSize="small" />
                   <Typography variant="subtitle2" color="GrayText">

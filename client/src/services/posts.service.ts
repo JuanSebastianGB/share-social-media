@@ -19,7 +19,13 @@ export const fetchUserPostsService = async (
     });
 
 export const makePostService = async (formData: FormData) =>
-  await Api.post('/posts', formData)
+  await ApiJson.post('/posts', formData)
+    .then((data) => data.data)
+    .catch((error) => {
+      throw error;
+    });
+export const makePostFileService = async (formData: FormData) =>
+  await Api.post('/posts/file', formData)
     .then((data) => data.data)
     .catch((error) => {
       throw error;

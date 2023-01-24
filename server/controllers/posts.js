@@ -46,7 +46,7 @@ export const getPost = async (req, res) => {
 		handleHttpErrors(res, "ERROR_GET_POST");
 	}
 };
-export const createUserPost = async (req, res) => {
+export const createUserPostFile = async (req, res) => {
 	if (!req.file) return handleHttpErrors(res, "ERROR_MISSING_FILE");
 	const {
 		file: { filename },
@@ -62,6 +62,19 @@ export const createUserPost = async (req, res) => {
 		return res.json(newData[0]);
 	} catch (error) {
 		await deleteHardFileService(savedFileRegister._id);
+		handleHttpErrors(res, "ERROR_CREATE_POST");
+	}
+};
+export const createUserPost = async (req, res) => {
+	try {
+		const body = matchedData(req);
+		const newPost = await createPostService({
+			...body,
+			fileId: process.env.DEFAULT_IMAGE_ID,
+		});
+		const newData = await getPostService(newPost._id);
+		return res.json(newData[0]);
+	} catch (error) {
 		handleHttpErrors(res, "ERROR_CREATE_POST");
 	}
 };

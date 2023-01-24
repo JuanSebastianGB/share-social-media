@@ -1,4 +1,5 @@
 import { postAdapter } from '@/adapters';
+import { DEFAULT_IMAGE_ID } from '@/constants';
 import { AppStore, PostApiModel } from '@/models';
 import { toggleFriend, togglePostLikes } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
@@ -64,19 +65,24 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         handleClick={handleClick}
         body={adaptedPost.body}
       />
-      <Box
-        component="img"
-        className="image"
-        sx={{
-          width: '100%',
-          objectFit: 'cover',
-          minHeight: '450px',
-          borderRadius: '10px',
-        }}
+      {
         // @ts-ignore
-        src={adaptedPost.file.url}
-        alt="idea"
-      />
+        adaptedPost?.file?._id !== DEFAULT_IMAGE_ID && (
+          <Box
+            component="img"
+            className="image"
+            sx={{
+              width: '100%',
+              objectFit: 'cover',
+              minHeight: '450px',
+              borderRadius: '10px',
+            }}
+            // @ts-ignore
+            src={adaptedPost.file.url}
+            alt="idea"
+          />
+        )
+      }
       <SpaceBetween>
         <IconButton aria-label="share">
           <ShareIcon
