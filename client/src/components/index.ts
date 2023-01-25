@@ -23,4 +23,5 @@ export * from './Scroll';
 export * from './SkeletonDefault';
 export * from './Spinner';
 export * from './Thumb';
+export * from './Trends';
 export * from './UserInfo';
