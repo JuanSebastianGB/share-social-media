@@ -57,7 +57,14 @@ const Home: React.FC<Props> = () => {
             <StyledSection sx={{ flex: 0.6 }}>
               <UserInfo user={user} />
             </StyledSection>
-            <StyledSection sx={{ flex: 0.4, gap: '1rem' }}>
+            <StyledSection
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 0.4,
+                gap: '1rem',
+              }}
+            >
               <Trends />
               <Friends user={user} />
             </StyledSection>

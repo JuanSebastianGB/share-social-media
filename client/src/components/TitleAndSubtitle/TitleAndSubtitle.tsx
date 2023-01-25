@@ -11,7 +11,7 @@ const TitleAndSubtitle: FC<Props> = ({ title, subtitle }) => {
   return (
     <Box sx={{ my: '10px' }}>
       <Typography variant="body1" color={theme.palette.neutral.dark}>
-        {title}
+        #{title}
       </Typography>
       <Typography
         sx={{ transform: 'translate(10px,20px) scale 1' }}

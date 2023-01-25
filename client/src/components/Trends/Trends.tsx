@@ -3,6 +3,13 @@ import { FC } from 'react';
 import { TitleAndSubtitle } from '../TitleAndSubtitle';
 interface Props {}
 
+const trends = [
+  { title: 'ReactJs', subtitle: '100k shares' },
+  { title: 'House of dragon', subtitle: '30k shares' },
+  { title: 'Crypto', subtitle: '20k shares' },
+  { title: 'Dev', subtitle: '50k shares' },
+];
+
 const Trends: FC<Props> = () => {
   const theme = useTheme();
   return (
@@ -25,10 +32,13 @@ const Trends: FC<Props> = () => {
       >
         Trends
       </Typography>
-      <TitleAndSubtitle title="ReactJs" subtitle="100k shares" />
-      <TitleAndSubtitle title="House of dragon" subtitle="30k shares" />
-      <TitleAndSubtitle title="Crypto" subtitle="50k shares" />
-      <TitleAndSubtitle title="Dev" subtitle="50k shares" />
+      {trends.map((trend, index) => (
+        <TitleAndSubtitle
+          key={index}
+          title={trend.title}
+          subtitle={trend.subtitle}
+        />
+      ))}
     </Box>
   );
 };
