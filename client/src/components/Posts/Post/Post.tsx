@@ -1,5 +1,4 @@
 import { postAdapter } from '@/adapters';
-import { DEFAULT_IMAGE_ID } from '@/constants';
 import { AppStore, PostApiModel } from '@/models';
 import { toggleFriend, togglePostLikes } from '@/redux/states/authSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
@@ -67,7 +66,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
       />
       {
         // @ts-ignore
-        adaptedPost?.file?._id !== DEFAULT_IMAGE_ID && (
+        adaptedPost?.type !== 'comment' && (
           <Box
             component="img"
             className="image"

@@ -25,13 +25,14 @@ export const getPosts = async (req, res) => {
 };
 
 export const getPostsPagination = async (req, res) => {
-	const limit = 1;
+	const limit = 2;
 	const total = await Post.find({}).count();
 	const pages = Math.ceil(total / limit);
 	const page = !req.query.page ? 1 : req.query.page;
+	const search = req.query.search;
 	let start = (page - 1) * limit;
 
-	const posts = await getPostsPaginationService(start, limit);
+	const posts = await getPostsPaginationService(start, limit, search);
 
 	return res.json(posts);
 };

@@ -8,5 +8,6 @@ export const postAdapter = (post: PostApiModel): PostModel => {
     comments: post.comments,
     file: post.file,
     user: post.user,
+    type: post.type,
   };
 };

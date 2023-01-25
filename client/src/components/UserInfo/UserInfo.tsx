@@ -1,7 +1,12 @@
 import { useFriends, useUserPosts } from '@/hooks';
 import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
-import { Groups2, LocationOn, WorkOutline } from '@mui/icons-material';
+import {
+  DynamicFeed,
+  Groups2,
+  LocationOn,
+  WorkOutline,
+} from '@mui/icons-material';
 import {
   Avatar,
   Box,
@@ -94,7 +99,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                 </Typography>
               </SpaceBetween>
               <SpaceBetween>
-                <Groups2 sx={{ fontSize: '15px', mr: '5px' }} />
+                <DynamicFeed sx={{ fontSize: '15px', mr: '5px' }} />
                 <Typography
                   variant="caption"
                   color={theme.palette.neutral.dark}

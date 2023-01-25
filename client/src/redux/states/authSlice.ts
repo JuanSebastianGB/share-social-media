@@ -11,6 +11,12 @@ const authSlice = createSlice({
       posts: action.payload.posts,
       page: 1,
     }),
+    searchPosts: (state, action) => ({
+      ...state,
+      page: 1,
+      search: action.payload,
+      posts: [],
+    }),
     growPostList: (state, action) => ({
       ...state,
       posts: [...state.posts, ...action.payload],
@@ -85,6 +91,7 @@ export const {
   createPost,
   growPostList,
   incrementPage,
+  searchPosts,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -24,7 +24,6 @@ function App() {
   return (
     <ThemeProvider theme={makeTheme(mode)}>
       <CssBaseline />
-      <Scroll showBelow={250} />
       <Suspense fallback={<Spinner />}>
         <Box
           sx={{

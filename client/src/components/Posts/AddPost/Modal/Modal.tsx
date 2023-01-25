@@ -50,8 +50,14 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
     if (addAction === 'file/video') form.append('myFile', myFile);
     try {
       let newPost;
-      if (addAction === 'file/video') newPost = await makePostFileService(form);
-      if (addAction === 'comment') newPost = await makePostService(form);
+      if (addAction === 'file/video') {
+        form.append('type', 'file/video');
+        newPost = await makePostFileService(form);
+      }
+      if (addAction === 'comment') {
+        form.append('type', 'comment');
+        newPost = await makePostService(form);
+      }
       setShowButton(true);
       dispatch(createPost(newPost));
       handleClose();
