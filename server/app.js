@@ -5,7 +5,7 @@ import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import swaggerSetup from "./docs/swagger.js";
 import { checkValidJwt } from "./middlewares/session.js";
-import { auth, items, posts, storage, users } from "./routes/index.js";
+import { auth, comments, items, posts, storage, users } from "./routes/index.js";
 
 dotenv.config();
 
@@ -22,6 +22,7 @@ app.use("/storage", checkValidJwt, storage);
 app.use("/users", users);
 app.use("/auth", auth);
 app.use("/posts", posts);
+app.use("/comments", comments);
 
 app.use("/checktoken", checkValidJwt, (req, res) => res.send("ok"));
 
