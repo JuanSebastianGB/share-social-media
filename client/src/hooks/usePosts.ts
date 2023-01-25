@@ -14,7 +14,7 @@ export const usePosts = (isProfile: boolean, id: string | undefined) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const { posts } = useSelector((store: AppStore) => store.auth);
+  const { posts, search } = useSelector((store: AppStore) => store.auth);
 
   const dispatch = useDispatch();
 
@@ -31,7 +31,7 @@ export const usePosts = (isProfile: boolean, id: string | undefined) => {
     const { signal } = controller;
 
     if (!isProfile) {
-      fetchPostsService(page, {})
+      fetchPostsService(page, search, {})
         .then((data) => {
           dispatch(growPostList(data));
           setHasNextPage(!!data.length);
@@ -49,7 +49,7 @@ export const usePosts = (isProfile: boolean, id: string | undefined) => {
     }
 
     return controller.abort();
-  }, [id, page, isProfile]);
+  }, [id, page, isProfile, search]);
 
   return { posts, error, isError, isLoading, hasNextPage };
 };

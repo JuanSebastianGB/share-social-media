@@ -27,21 +27,6 @@ export const useUser = (id: string) => {
         setError({ error });
       });
 
-    // try {
-    //   setIsError(false);
-    //   setError({});
-    //   setLoading(true);
-    //   getUser({ signal });
-    //   console.log('second');
-    //   setLoading(false);
-    // } catch (error) {
-    //   setLoading(false);
-    //   if (signal.aborted) return;
-    //   setIsError(true);
-    //   setError({ message: error });
-    //   console.log({ error });
-    // }
-
     return () => controller.abort();
   }, [id]);
 

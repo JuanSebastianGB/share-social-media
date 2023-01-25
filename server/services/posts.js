@@ -73,8 +73,8 @@ const getPostsService = async () =>
  * @param start - The starting index of the posts to be returned.
  * @param limit - The number of documents to return.
  */
-const getPostsPaginationService = async (start, limit) =>
-	await Post.aggregate([
+const getPostsPaginationService = async (start, limit, search) => {
+	return await Post.aggregate([
 		{
 			$sort: {
 				createdAt: -1,
@@ -117,7 +117,7 @@ const getPostsPaginationService = async (start, limit) =>
 				body: 1,
 				likes: 1,
 				comments: 1,
-        type:1,
+				type: 1,
 				"file._id": 1,
 				"file.url": 1,
 				"user._id": 1,
@@ -132,9 +132,20 @@ const getPostsPaginationService = async (start, limit) =>
 				"user.profileImage.url": 1,
 			},
 		},
+		{
+			$match: {
+				$or: [
+					{ body: { $regex: search, $options: "i" } },
+					{ "user.firstName": { $regex: search, $options: "i" } },
+					{ "user.lastName": { $regex: search, $options: "i" } },
+					{ "user.location": { $regex: search, $options: "i" } },
+				],
+			},
+		},
 	])
 		.skip(start)
 		.limit(limit);
+};
 
 /**
  * It takes a post id, finds the post, finds the file associated with the post, finds the user
@@ -182,7 +193,7 @@ const getPostService = async (id) =>
 				body: 1,
 				likes: 1,
 				comments: 1,
-        type:1,
+				type: 1,
 				"file._id": 1,
 				"file.url": 1,
 				"user._id": 1,
@@ -244,6 +255,7 @@ const getUserPostsService = async (userId) =>
 				likes: 1,
 				comments: 1,
 				userId: 1,
+				type: 1,
 				"file._id": 1,
 				"file.url": 1,
 				"user._id": 1,
@@ -294,12 +306,11 @@ const toggleLikePostService = async (id, userId) => {
 };
 
 export {
-  getPostsService,
-  getPostService,
-  getPostsPaginationService,
-  getUserPostsService,
-  createPostService,
-  deletePostService,
-  toggleLikePostService,
+	getPostsService,
+	getPostService,
+	getPostsPaginationService,
+	getUserPostsService,
+	createPostService,
+	deletePostService,
+	toggleLikePostService,
 };
-

@@ -1,7 +1,11 @@
 import { Api, ApiJson } from '@/interceptors';
 
-export const fetchPostsService = async (page: number, options: object) => {
-  return await Api.get(`posts?page=${page}`, options)
+export const fetchPostsService = async (
+  page: number,
+  search: string,
+  options: object
+) => {
+  return await Api.get(`posts?page=${page}&search=${search}`, options)
     .then((data) => data.data)
     .catch((error) => {
       throw error;

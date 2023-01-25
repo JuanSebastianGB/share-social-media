@@ -1,7 +1,10 @@
+import { AppStore } from '@/models';
+import { searchPosts } from '@/redux/states/authSlice';
 import { Search } from '@mui/icons-material';
 import { IconButton, InputBase, Typography, useTheme } from '@mui/material';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import { StyledFlexBetween } from '../../styled-components';
 
 export interface Props {
@@ -10,6 +13,10 @@ export interface Props {
 
 const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
   const theme = useTheme();
+  const { search: param } = useSelector((store: AppStore) => store.auth);
+  const [search, setSearch] = useState<string>(param);
+  const dispatch = useDispatch();
+  const { id } = useParams();
 
   const navigate = useNavigate();
   return (
@@ -33,6 +40,8 @@ const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
         <StyledFlexBetween>
           <InputBase
             placeholder="search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             sx={{
               color: theme.palette.neutral.dark,
               backgroundColor: theme.palette.background.default,
@@ -40,7 +49,7 @@ const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
               borderRadius: '0.5rem',
             }}
           />
-          <IconButton>
+          <IconButton onClick={() => !id && dispatch(searchPosts(search))}>
             <Search sx={{ color: theme.palette.neutral.dark }} />
           </IconButton>
         </StyledFlexBetween>

@@ -9,6 +9,7 @@ export interface Auth {
   posts: PostApiModel[];
   friends: UserApiModel[];
   page: number;
+  search: string;
 }
 
 export const authEmptyState: Auth = {
@@ -18,6 +19,7 @@ export const authEmptyState: Auth = {
   posts: [],
   friends: [],
   page: 1,
+  search: '',
 };
 
 export interface LoginModel {

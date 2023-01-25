@@ -1,5 +1,6 @@
 import { useMediaQuery, useTheme } from '@mui/material';
 import React, { useState } from 'react';
+import { Scroll } from '../Scroll';
 import { NavbarLeft, NavbarMenu, NavbarRight } from './components';
 import { StyledFlexBetween } from './styled-components';
 
@@ -25,6 +26,7 @@ const Navbar: React.FC<NavbarInterface> = () => {
         isMobileScreen={isMobileScreen}
       />
       {isMobileScreen && menuOpen && <NavbarMenu setMenuOpen={setMenuOpen} />}
+      <Scroll showBelow={250} />
     </StyledFlexBetween>
   );
 };

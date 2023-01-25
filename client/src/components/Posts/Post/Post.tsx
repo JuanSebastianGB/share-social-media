@@ -22,7 +22,6 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const theme = useTheme();
   // @ts-ignore
   const adaptedPost = postAdapter(post);
-  console.log('🚀 ~ file: Post.tsx:25 ~ Post ~ adaptedPost', adaptedPost);
   const { user: userPost } = adaptedPost;
   const checkIsLikedOwn = (likes: {}, userId: string): boolean =>
     Object.keys(likes).some((row) => {
