@@ -123,7 +123,6 @@ export const getPostComments = async (req, res)=>{
     const  result = await Promise.all(post.comments.map((async(commentId)=> await Comment.findById(commentId)))) ;
     return res.json(result);
   } catch (error) {
-    console.log("🚀 ~ file: posts.js:121 ~ getPostComments ~ error", error)
     handleHttpErrors(res, "ERROR_GET_POST_COMMENTS");
   }
 }

@@ -7,8 +7,9 @@ import ChatIcon from '@mui/icons-material/Chat';
 import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { CommentsModal } from './CommentsModal';
 import { PostSection } from './PostSection';
 export interface Props extends PostApiModel {
   isFriend: boolean;
@@ -16,6 +17,7 @@ export interface Props extends PostApiModel {
 
 // @ts-ignore
 const Post = forwardRef(({ isFriend, ...post }, ref) => {
+  const [openModal, setOpenModal] = useState(false);
   const { id } = useSelector((store: AppStore) => store.auth.user);
   // @ts-ignore
   const isOwn = id === post.user._id;
@@ -108,12 +110,23 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
               {Object.values(adaptedPost?.likes).length}
             </Typography>
           </SpaceBetween>
+          <CommentsModal
+            onClose={() => setOpenModal(false)}
+            open={openModal}
+            post={post}
+          />
           <SpaceBetween>
-            <IconButton aria-label="comments">
+            <IconButton
+              aria-label="comments"
+              onClick={() => setOpenModal(true)}
+            >
               <ChatIcon sx={{ fontSize: '18px' }} />
             </IconButton>
             <Typography variant="caption" color={theme.palette.neutral.main}>
-              10
+              {
+                // @ts-ignore
+                post.comments.length
+              }
             </Typography>
           </SpaceBetween>
         </SpaceBetween>
