@@ -23,9 +23,10 @@ interface Props {
   open: boolean;
   onClose: (value: string) => void;
   post: PostApiModel;
+  isOwn: boolean;
 }
 
-const CommentsModal: FC<Props> = ({ open, onClose, post }) => {
+const CommentsModal: FC<Props> = ({ open, onClose, post, isOwn }) => {
   const dispatch = useDispatch();
   const { id } = useSelector((storage: AppStore) => storage.auth.user);
   const theme = useTheme();
@@ -60,26 +61,28 @@ const CommentsModal: FC<Props> = ({ open, onClose, post }) => {
   return (
     <Dialog fullWidth maxWidth="md" onClose={handleClose} open={open}>
       <DialogTitle>Comments</DialogTitle>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          width: '90%',
-          margin: '0 auto 2rem',
-          display: 'flex',
-        }}
-      >
-        <TextField
-          label="Post..."
-          value={description}
-          variant="outlined"
-          onChange={(e) => {
-            setDescription(e.target.value);
+      {!isOwn && (
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{
+            width: '90%',
+            margin: '0 auto 2rem',
+            display: 'flex',
           }}
-          sx={{ flex: 1 }}
-        />
-        <TextField id="" type="submit" variant="outlined" value="send" />
-      </Box>
+        >
+          <TextField
+            label="Post..."
+            value={description}
+            variant="outlined"
+            onChange={(e) => {
+              setDescription(e.target.value);
+            }}
+            sx={{ flex: 1 }}
+          />
+          <TextField id="" type="submit" variant="outlined" value="send" />
+        </Box>
+      )}
       {!!comments.length &&
         comments.map(({ firstName, lastName, description, createdAt }) => (
           <List key={createdAt} sx={{ display: 'flex', alignItems: 'center' }}>

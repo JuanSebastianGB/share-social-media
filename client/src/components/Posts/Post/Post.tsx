@@ -115,6 +115,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
               onClose={() => setOpenModal(false)}
               open={openModal}
               post={post as PostApiModel}
+              isOwn={isOwn}
             />
           )}
 
