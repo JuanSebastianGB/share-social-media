@@ -94,6 +94,7 @@ const AuthRegister: React.FC<Props> = () => {
             {...getFieldProps('password')}
             type="password"
             label="Password"
+            autoComplete="off"
             helperText={errors.password && touched.password && errors.password}
             error={!!errors.password && touched.password}
             onBlur={handleBlur}

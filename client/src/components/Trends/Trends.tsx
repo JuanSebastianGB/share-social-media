@@ -34,7 +34,7 @@ const Trends: FC<Props> = () => {
       </Typography>
       {trends.map((trend, index) => (
         <TitleAndSubtitle
-          key={index}
+          key={`${index}${trend.title}`}
           title={trend.title}
           subtitle={trend.subtitle}
         />

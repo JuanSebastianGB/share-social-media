@@ -18,7 +18,7 @@ export interface Props {
 
 const Friends: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
-  const { friends, error, isError, isLoading } = useFriends(user._id);
+  const { friends, error, isError, isLoading } = useFriends(user?._id);
   const dispatch = useDispatch();
   const { id } = useParams();
   const isProfile = !!id;

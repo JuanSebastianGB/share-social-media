@@ -13,6 +13,7 @@ import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
 import { makeLogout, setPosts } from '@/redux/states/authSlice';
 import { StyledSection } from '@/styled-components';
+import { useMediaQuery } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,8 @@ export interface Props {}
 const Home: React.FC<Props> = () => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { error, isError, loading, user } = useUser(id);
+  const isMobileScreen = useMediaQuery('(max-width: 900px)');
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // @ts-ignore
@@ -65,8 +68,9 @@ const Home: React.FC<Props> = () => {
                 gap: '1rem',
               }}
             >
-              <Trends />
-              <Friends user={user} />
+              {!isMobileScreen && <Trends />}
+
+              {!!user && <Friends user={user} />}
             </StyledSection>
           </section>
         </HomeContainer>
