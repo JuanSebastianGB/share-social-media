@@ -34,10 +34,7 @@ const CommentsModal: FC<Props> = ({ open, onClose, post }) => {
   };
   const [comments, setComments] = useState([]);
   const [description, setDescription] = useState<string>('');
-
-  useEffect(() => {
-    fetchPostComments(post._id).then((data) => setComments(data));
-  }, []);
+  const [posted, setPosted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,10 +45,17 @@ const CommentsModal: FC<Props> = ({ open, onClose, post }) => {
       lastName: post.user.lastName,
       description,
     };
-    await postComment(body)
-      .then((response) => dispatch(updatePost(response)))
-      .catch((error) => console.log({ error }));
+    postComment(body)
+      .then((response) => {
+        dispatch(updatePost(response));
+        setPosted((prev) => !prev);
+      })
+      .catch(console.log);
   };
+
+  useEffect(() => {
+    fetchPostComments(post._id).then((data) => setComments(data));
+  }, [posted]);
 
   return (
     <Dialog fullWidth maxWidth="md" onClose={handleClose} open={open}>

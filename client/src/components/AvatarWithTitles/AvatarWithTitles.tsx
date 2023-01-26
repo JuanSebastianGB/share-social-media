@@ -32,7 +32,6 @@ const AvatarWithTitles: React.FC<Props> = ({
             sx={{
               textDecoration: 'none',
               fontSize: '13px',
-              color: theme.palette.neutral.mediumMain,
             }}
             component={Link}
             to={`/profile/${userId}`}
