@@ -1,5 +1,11 @@
 export * from './AddPost';
 export * from './AddPost/DropzoneAddPost';
+export * from './AddPost/DropzoneAddPost/Thumbs';
+export * from './AddPost/Modal';
+export * from './AddPost/Modal/BootstrapDialogTitle';
+export * from './AddPost/Modal/styles';
 export * from './AddPost/styles';
 export * from './Post';
+export * from './Post/CommentsModal';
+export * from './Post/PostSection';
 export { default as Posts } from './Posts';

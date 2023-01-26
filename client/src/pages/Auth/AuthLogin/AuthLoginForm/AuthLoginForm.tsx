@@ -43,6 +43,7 @@ const AuthLoginForm: React.FC<Props> = ({
           {...getFieldProps('password')}
           label="Password"
           type="password"
+          autoComplete="off"
           helperText={errors.password && touched.password && errors.password}
           error={!!errors.password && touched.password}
           onBlur={handleBlur}

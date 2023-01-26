@@ -1,19 +1,20 @@
 import express from "express";
 import {
-	createUserPost,
-	createUserPostFile,
-	deletePost,
-	getPost,
-	getPostsPagination,
-	// getPosts,
-	toggleLikePost,
+  createUserPost,
+  createUserPostFile,
+  deletePost,
+  getPost,
+  getPostComments,
+  getPostsPagination,
+  // getPosts,
+  toggleLikePost
 } from "../controllers/posts.js";
 import { checkValidJwt } from "../middlewares/session.js";
 import uploadMiddleware from "../utilities/handleUploadFile.js";
 import {
-	validatorCreatePost,
-	validatorGetPost,
-	validatorToggleLikePost,
+  validatorCreatePost,
+  validatorGetPost,
+  validatorToggleLikePost
 } from "../validators/posts.js";
 
 const router = express.Router();
@@ -32,5 +33,7 @@ router.post("/", checkValidJwt, validatorCreatePost, createUserPost);
 router.put("/:id", validatorGetPost, validatorToggleLikePost, toggleLikePost);
 
 router.delete("/:id", validatorGetPost, deletePost);
+router.get("/:id/comments", validatorGetPost, getPostComments);
+
 
 export default router;

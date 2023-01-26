@@ -3,4 +3,5 @@ export const names = {
   STORAGE: 'storage',
   USERS: 'users',
   POSTS: 'posts',
+  'COMMENTS': 'comments'
 };

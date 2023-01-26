@@ -17,6 +17,13 @@ const authSlice = createSlice({
       search: action.payload,
       posts: [],
     }),
+    updatePost: (state, action) => ({
+      ...state,
+      posts: state.posts.map((post) => {
+        if (post._id === action.payload._id) return action.payload;
+        return post;
+      }),
+    }),
     growPostList: (state, action) => ({
       ...state,
       posts: [...state.posts, ...action.payload],
@@ -92,6 +99,7 @@ export const {
   growPostList,
   incrementPage,
   searchPosts,
+  updatePost,
 } = authSlice.actions;
 
 export default authSlice.reducer;

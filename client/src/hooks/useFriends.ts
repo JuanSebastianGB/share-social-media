@@ -15,27 +15,26 @@ export const useFriends = (id: string) => {
   const { friends } = useSelector((store: AppStore) => store.auth);
 
   const dispatch = useDispatch();
-  const getFriends = async (options = {}) => {
-    const response = await fetchFriendsService(id, options);
-    dispatch(setFriends({ friends: response }));
-  };
 
   useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
 
-    try {
-      setError({});
-      setIsError(false);
-      setIsLoading(true);
-      getFriends({ signal });
-      setIsLoading(false);
-    } catch (error) {
-      setIsLoading(false);
-      if (signal.aborted) return;
-      setError({ error });
-      setIsError(true);
-    }
+    fetchFriendsService(id, {})
+      .then((response) => {
+        setError({});
+        setIsError(false);
+        setIsLoading(true);
+        dispatch(setFriends({ friends: response }));
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.log({ error });
+        setIsLoading(false);
+        if (signal.aborted) return;
+        setError({ error });
+        setIsError(true);
+      });
 
     return () => controller.abort();
   }, [id]);

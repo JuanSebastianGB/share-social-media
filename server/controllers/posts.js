@@ -1,4 +1,5 @@
 import { matchedData } from "express-validator";
+import Comment from "../models/comment.js";
 import Post from "../models/post.js";
 import {
 	createPostService,
@@ -110,5 +111,18 @@ export const toggleLikePost = async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		handleHttpErrors(res, "ERROR_TOGGLE_LIKE_POST");
+	}
+};
+
+export const getPostComments = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const post = await Post.findById(id);
+		const result = await Promise.all(
+			post.comments.map(async (commentId) => await Comment.findById(commentId)),
+		);
+		return res.json(result);
+	} catch (error) {
+		handleHttpErrors(res, "ERROR_GET_POST_COMMENTS");
 	}
 };
