@@ -114,7 +114,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
             <CommentsModal
               onClose={() => setOpenModal(false)}
               open={openModal}
-              post={post}
+              post={post as PostApiModel}
             />
           )}
 
