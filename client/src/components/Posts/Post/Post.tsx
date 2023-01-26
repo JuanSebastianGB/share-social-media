@@ -110,11 +110,14 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
               {Object.values(adaptedPost?.likes).length}
             </Typography>
           </SpaceBetween>
-          <CommentsModal
-            onClose={() => setOpenModal(false)}
-            open={openModal}
-            post={post}
-          />
+          {openModal && (
+            <CommentsModal
+              onClose={() => setOpenModal(false)}
+              open={openModal}
+              post={post}
+            />
+          )}
+
           <SpaceBetween>
             <IconButton
               aria-label="comments"

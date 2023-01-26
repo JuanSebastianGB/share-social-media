@@ -2,17 +2,17 @@ import { matchedData } from "express-validator";
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
 import {
-  createPostService,
-  deletePostService,
-  getPostService,
-  getPostsPaginationService,
-  getPostsService,
-  getUserPostsService,
-  toggleLikePostService
+	createPostService,
+	deletePostService,
+	getPostService,
+	getPostsPaginationService,
+	getPostsService,
+	getUserPostsService,
+	toggleLikePostService,
 } from "../services/posts.js";
 import {
-  createFileUploadedRegisterService,
-  deleteHardFileService
+	createFileUploadedRegisterService,
+	deleteHardFileService,
 } from "../services/storage.js";
 import { handleHttpErrors } from "../utilities/handleHttpErrors.js";
 
@@ -114,15 +114,15 @@ export const toggleLikePost = async (req, res) => {
 	}
 };
 
-
-export const getPostComments = async (req, res)=>{
-  const {id} = req.params;
-  try {
-    const post = await Post.findById(id);
-    console.log({post});
-    const  result = await Promise.all(post.comments.map((async(commentId)=> await Comment.findById(commentId)))) ;
-    return res.json(result);
-  } catch (error) {
-    handleHttpErrors(res, "ERROR_GET_POST_COMMENTS");
-  }
-}
+export const getPostComments = async (req, res) => {
+	const { id } = req.params;
+	try {
+		const post = await Post.findById(id);
+		const result = await Promise.all(
+			post.comments.map(async (commentId) => await Comment.findById(commentId)),
+		);
+		return res.json(result);
+	} catch (error) {
+		handleHttpErrors(res, "ERROR_GET_POST_COMMENTS");
+	}
+};
