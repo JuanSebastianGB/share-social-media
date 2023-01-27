@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header, Scroll, SkeletonDefault, Spinner } from './components';
+import { Header, SkeletonDefault, Spinner } from './components';
 import { AppStore } from './models';
 import { makeTheme } from './utilities';
 
@@ -20,6 +20,7 @@ function App() {
   const mode = useSelector((store: AppStore) => store.auth.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
+  const { id } = useSelector((store: AppStore) => store.auth.user);
 
   return (
     <ThemeProvider theme={makeTheme(mode)}>
@@ -46,7 +47,7 @@ function App() {
               />
               <Route
                 path="/home"
-                element={isAuth ? <Home /> : <Navigate to="/" />}
+                element={isAuth ? <Home id={id} /> : <Navigate to="/" />}
               />
               <Route
                 path="/profile/:id"

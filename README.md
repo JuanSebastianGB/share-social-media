@@ -6,7 +6,7 @@
 
 ![enter image description here](https://github.com/JuanSebastianGB/infinite-scroll-v2/blob/main/structure.png?raw=true)
 
-### Features
+### Features ☆*: .｡. o(≧▽≦)o .｡.:*☆
 
 - ✅ Post Home page
 - ✅ Profile page
@@ -45,7 +45,7 @@
 
 ## Structure
 
-**backend**
+**backend** 🕶️
 
 > MVC pattern
 
@@ -61,7 +61,7 @@
 
 **frontend**
 
-> Clean Architecture
+> Clean Architecture 🗒️
 
 - models
 - components
@@ -75,7 +75,7 @@
 - adapters
 - constants
 
-## Future Improvements
+## Future Improvements 🕚
 
 - Improve the user interface to make it as friendly as possible.
 - Implement registration using google or facebook.

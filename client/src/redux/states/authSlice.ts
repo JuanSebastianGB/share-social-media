@@ -55,8 +55,8 @@ const authSlice = createSlice({
     toggleMode: (state, action) => ({
       ...state,
       mode: action.payload.mode === 'dark' ? 'light' : 'dark',
-      page: 1,
-      search: '',
+      // page: 1,
+      // search: '',
     }),
     setFriends: (state, action) => {
       return {

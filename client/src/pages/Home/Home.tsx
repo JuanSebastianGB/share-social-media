@@ -10,31 +10,34 @@ import {
   UserInfo,
 } from '@/components';
 import { useUser } from '@/hooks';
-import { AppStore } from '@/models';
 import { makeLogout, setPosts } from '@/redux/states/authSlice';
 import { StyledSection } from '@/styled-components';
 import { useMediaQuery } from '@mui/material';
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { HomeProvider } from './context';
 import HomeContainer from './Homelayout';
-export interface Props {}
+export interface Props {
+  id: string;
+}
 
-const Home: React.FC<Props> = () => {
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+const Home: React.FC<Props> = ({ id }) => {
   const { error, isError, loading, user } = useUser(id);
   const isMobileScreen = useMediaQuery('(max-width: 900px)');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // @ts-ignore
-  if (error?.error?.response.data === 'ERROR_GET_USER') {
-    dispatch(makeLogout({}));
-    navigate('/');
-  }
 
-  dispatch(setPosts({ posts: [] }));
+  useEffect(() => {
+    // @ts-ignore
+    if (error?.error?.response.data === 'ERROR_GET_USER') {
+      dispatch(makeLogout({}));
+      navigate('/');
+    }
+
+    dispatch(setPosts({ posts: [] }));
+  }, []);
 
   if (loading) return <Spinner />;
   if (isError)
