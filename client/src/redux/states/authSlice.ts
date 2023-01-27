@@ -39,6 +39,9 @@ const authSlice = createSlice({
       ...state,
       user: action.payload.user,
       token: action.payload.token,
+      page: 1,
+      posts: [],
+      search: '',
     }),
     makeLogout: (state, action) => ({
       ...state,
@@ -47,10 +50,13 @@ const authSlice = createSlice({
       friends: [],
       token: '',
       page: 1,
+      search: '',
     }),
     toggleMode: (state, action) => ({
       ...state,
       mode: action.payload.mode === 'dark' ? 'light' : 'dark',
+      page: 1,
+      search: '',
     }),
     setFriends: (state, action) => {
       return {
@@ -86,7 +92,6 @@ const authSlice = createSlice({
 });
 
 export const {
-  // setPost,
   setPosts,
   setFriends,
   makeLogin,
