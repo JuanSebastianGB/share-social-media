@@ -1,6 +1,8 @@
 import { matchedData } from "express-validator";
 import Comment from "../models/comment.js";
 import Post from "../models/post.js";
+
+import { MONGO_IMAGE_ID } from "../constants/constants.js";
 import {
 	createPostService,
 	deletePostService,
@@ -72,7 +74,7 @@ export const createUserPost = async (req, res) => {
 		const body = matchedData(req);
 		const newPost = await createPostService({
 			...body,
-			fileId: "63cf4d2242c5e33c105a87eb",
+			fileId: MONGO_IMAGE_ID,
 		});
 		const newData = await getPostService(newPost._id);
 		return res.json(newData[0]);

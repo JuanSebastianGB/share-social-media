@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { MONGO_IMAGE_ID } from "../constants/constants.js";
 import Storage from "../models/storage.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,7 +52,7 @@ const deleteHardFileService = async (id) => {
 };
 
 const createDefaultService = async () => {
-	const defaultId = "63cf4d2242c5e33c105a87eb";
+	const defaultId = MONGO_IMAGE_ID;
 	const file = await getFileService(defaultId);
 	let response = null;
 	console.log({ file });
