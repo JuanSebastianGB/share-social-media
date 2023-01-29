@@ -72,7 +72,7 @@ export const createUserPost = async (req, res) => {
 		const body = matchedData(req);
 		const newPost = await createPostService({
 			...body,
-			fileId: process.env.DEFAULT_IMAGE_ID,
+			fileId: "63cf4d2242c5e33c105a87eb",
 		});
 		const newData = await getPostService(newPost._id);
 		return res.json(newData[0]);
