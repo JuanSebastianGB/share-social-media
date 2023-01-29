@@ -1,5 +1,5 @@
 import { RegisterModel } from '@/models';
-import { registerService } from '@/services';
+import { createDefault, registerService } from '@/services';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
@@ -18,6 +18,7 @@ export const useRegister = () => {
   let controller = new AbortController();
 
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
+    await createDefault();
     const form = new FormData();
     // @ts-ignore
     for (let value in values) form.append(value, values[value]);

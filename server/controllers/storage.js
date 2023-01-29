@@ -1,5 +1,6 @@
 import { matchedData } from "express-validator";
 import {
+	createDefaultService,
 	createFileUploadedRegisterService,
 	deleteSoftFileService,
 	getFileService,
@@ -52,4 +53,15 @@ const deleteFile = async (req, res) => {
 	}
 };
 
-export { getFiles, createFileUploadedRegister, getFile, deleteFile };
+const createDefault = async (req, res) => {
+	const creationDefault = await createDefaultService();
+	res.json(creationDefault);
+};
+
+export {
+	getFiles,
+	createFileUploadedRegister,
+	getFile,
+	deleteFile,
+	createDefault,
+};
