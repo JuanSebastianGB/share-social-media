@@ -43,7 +43,7 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 
 ## Checklist
 
-- [x] T1 docs-scaffold — CONTEXT Comments in-progress; Feed status update; ADR 0002; module barrels; backend-standards — route: delegated — commit: e465371f3d76a8b347f59db08acaeef85b0b8079
+- [x] T1 docs-scaffold — CONTEXT Comments in-progress; Feed status update; ADR 0002; module barrels; backend-standards — route: delegated — commit: 114ea055ba30e8af06d60a0c7eb4f0a502507bc9
 - [ ] T2 domain-tdd — Comment aggregate + unit + fast-check — route: delegated
 - [ ] T3 ports-adapters — CommentRepository port, in-memory, Dynamo adapter — route: delegated
 - [ ] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated
