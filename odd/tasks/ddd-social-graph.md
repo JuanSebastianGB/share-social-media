@@ -46,9 +46,9 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 - [x] **T1** — docs-scaffold — CONTEXT Social in-progress; ADR 0005; module barrels; backend-standards — route: delegated — commit: `3a001093ed7344a6d418f07c47b56f70d23cca6a`
 - [x] **T2** — domain-tdd — FriendList aggregate + unit (+ property) — route: delegated — commit: `3c1be024fbf33bac988cd07c69fb41ff89fb502d`
 - [x] **T3** — ports-adapters — FriendListRepository + in-memory + Dynamo (USER.friends field) — route: delegated — commit: `dfdea9457e283ce8b3d0e7a694cacaaff8371860`
-- [x] **T4** — use-cases-wire — toggle + list friends; wire controllers/services; strip Identity toggle; characterization green — route: delegated — commit:
-- [ ] **T5** — integration — DynamoDB Local social specs (friends toggle HTTP/DB) — route: delegated
-- [ ] **T6** — docs-finalize — CONTEXT glossary; standards; guides; mark Done after merge — route: delegated
+- [x] **T4** — use-cases-wire — toggle + list friends; wire controllers/services; strip Identity toggle; characterization green — route: delegated — commit: `e12d0813cbbb47436476775e8c136dde7a73017c`
+- [x] **T5** — integration — DynamoDB Local social specs (friends toggle HTTP/DB) — route: delegated — commit:
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; guides; mark Done after merge — route: delegated — commit:
 
 ## Acceptance
 
@@ -63,13 +63,12 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 
 - Authorized: Social graph (2026-09-20)
 - Branch: `feat/ddd-social-graph` (from main)
-- Mapping: `PATCH /users/:id/:friendId` → `controllers/users.toggleRelationFriend` → `services/users` → Identity `toggleRelationFriendService` → `toggleFriendship` → `User.toggleFriend` ×2 → USER `friends[]`
+- Mapping: `PATCH /users/:id/:friendId` → `controllers/users.toggleRelationFriend` → `services/users` → Social `toggleRelationFriendService` → `toggleFriendship` → `FriendList.toggleFriend` ×2 → USER `friends[]`
 - Approach: keep embedded `friends[]` on USER; Social owns FriendList + bidirectional toggle (explore recommendation)
-- T1: docs/scaffold complete (route: delegated); ADR 0005 + `modules/social` barrels; no glossary yet (T6); commit pending parent
-- T2: FriendList domain + unit/property tests green (route: delegated); Identity `User.toggleFriend` still present (T4); commit pending parent
-- T3: FriendListRepository port + InMemory + Dynamo adapters (UpdateCommand SET friends/updatedAt only; no Cognito writes; missing USER throws); in-memory unit tests green; commit SHA blank pending parent
-- T4: Social `toggleFriendship` + composition `getUserFriendsService` / `toggleRelationFriendService`; `services/users.ts` wires friends from Social; Identity stripped of toggle use case + `User.toggleFriend`; identity.integration friends cases call Social facade; characterization green; commit SHA blank pending parent
-- Next: T5 integration
+- T1–T4: complete on branch; T4 commit `e12d0813cbbb47436476775e8c136dde7a73017c`
+- T5: `social.integration.spec.ts` (repo round-trip, toggleFriendship peers, HTTP PATCH/GET + USER.friends oracles); friends cases removed from `identity.integration.spec.ts`; commit SHA blank pending parent
+- T6: CONTEXT Social glossary + invariants (status remains **In progress**); backend-standards / development_guide / data-model / ADR 0005 consequences updated; commit SHA blank pending parent
+- Next: parent commit T5+T6; open PR chain; mark CONTEXT Done only after merge
 
 ## Delivery
 

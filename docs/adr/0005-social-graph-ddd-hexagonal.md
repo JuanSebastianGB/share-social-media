@@ -24,8 +24,8 @@ Out of scope for this migration: Catalog (Items), the client, domain events, and
 ## Consequences
 
 - New Social graph work lands in `server/modules/social/`, not by deepening Identity friendship use cases.
-- Controllers must not contain friendship toggle/list business rules once wired; call the Social facade (`modules/social` / thin users-service re-exports as needed).
-- Docs (`CONTEXT.md`, backend-standards) describe the Social hexagonal BC; CONTEXT Social is marked **In progress** until the feature PR merges (same strangler pattern as prior BCs).
+- Controllers must not contain friendship toggle/list business rules; call the Social facade (`modules/social` / thin `services/users.ts` friends re-exports).
+- Docs (`CONTEXT.md`, backend-standards) describe the Social hexagonal BC; CONTEXT Social stays **In progress** until the feature PR merges (same strangler pattern as prior BCs).
 - Dynamo shape stays embedded `friends: string[]` on USER; do not introduce `FRIEND#` edges in this migration.
-- Identity no longer owns friendship mutation once Social is wired; until then, extract is in progress and friends remain on USER items.
-- Characterization (`users`) plus Social module unit/property tests and optional social integration specs lock behavior.
+- Identity no longer owns friendship mutation (`User.toggleFriend` removed); Identity may keep `friends[]` on User snapshots for profile/Feed hydration reads.
+- Characterization (`users`) plus Social module unit/property tests and `social.integration.spec.ts` (DynamoDB Local) lock behavior.
