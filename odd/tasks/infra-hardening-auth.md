@@ -65,7 +65,7 @@ User (2026-09-19): “I want them all” for A + B + C.
 
 - [x] **T1** — Auth harden routes + bind `userId` from JWT; JWT before S3 on `/posts/file` (route: delegated; A1)
 - [x] **T2** — Update characterization tests for T1 (route: delegated; A2)
-- [ ] **T3** — CD wire `VITE_APP_BASE_URL` (Api output / GitHub var → client build → Web) (route: inline-ok small; CD1)
+- [x] **T3** — CD wire `VITE_APP_BASE_URL` (Api output / GitHub var → client build → Web) (route: inline; CD1)
 - [ ] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
 - [ ] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
 - [ ] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
@@ -77,9 +77,10 @@ User (2026-09-19): “I want them all” for A + B + C.
 
 - Tracker: `feat/infra-hardening-auth` (`ab10533`)
 - PR1 branch: `feat/infra-hardening-auth-01-jwt-harden` (`1f96e0b` T1+T2)
-- Next: T3 (CD wire `VITE_APP_BASE_URL`) on next child branch after T3
+- PR2 branch: `feat/infra-hardening-auth-02-cd` (T3)
+- Next: T4 (media CloudFront)
 - Delivery: `feature-branch-chain`
-- Authored lines so far (PR1 vs tracker): 224
+- Authored lines so far (PR1 vs tracker): 224; PR2 pending commit
 
 ## Decisions
 
@@ -88,7 +89,9 @@ User (2026-09-19): “I want them all” for A + B + C.
 - T4 and T5 both touch `api-stack.ts` — serialize (T4 then T5) or single infra PR owning that file
 - PR chain: feature-branch-chain
 - Actor identity for mutations comes from JWT `_id` (`req.userData`); body/path `userId`/`id` no longer trusted for create post, like, comment, friend toggle
+- CD deploys Api first, resolves `ApiUrl` (or `vars.VITE_APP_BASE_URL`), builds client, then deploys Web
 
 ## Verification evidence
 
-- **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open.
+- **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open. RDD assess unavailable on cursor runtime.
+- **T3**: CD workflow reordered (Api → resolve URL → client build → Web). Docs updated. No runtime AWS deploy in CI for this slice.

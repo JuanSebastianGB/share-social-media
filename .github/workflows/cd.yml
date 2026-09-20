@@ -49,9 +49,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build client
-        run: pnpm --filter client build
-
       - name: Build server
         run: pnpm --filter server build
 
@@ -61,7 +58,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-      - name: CDK deploy
+      - name: Deploy API stack
         working-directory: infra
         env:
           CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -72,6 +69,57 @@ jobs:
           if [ -n "$APP_SECRET_ARN" ]; then
             EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
           fi
-          pnpm exec cdk deploy ${{ github.event.inputs.stacks || '--all' }} \
+          pnpm exec cdk deploy ShareSocialMediaApi \
             --require-approval never \
             $EXTRA_CONTEXT
+
+      - name: Resolve API URL for client build
+        id: api_url
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          VITE_APP_BASE_URL_OVERRIDE: ${{ vars.VITE_APP_BASE_URL }}
+        run: |
+          if [ -n "$VITE_APP_BASE_URL_OVERRIDE" ]; then
+            echo "url=${VITE_APP_BASE_URL_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Using vars.VITE_APP_BASE_URL override"
+            exit 0
+          fi
+          URL=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" \
+            --output text)
+          if [ -z "$URL" ] || [ "$URL" = "None" ]; then
+            echo "::error::Could not resolve ApiUrl. Set vars.VITE_APP_BASE_URL or deploy ShareSocialMediaApi first."
+            exit 1
+          fi
+          echo "url=${URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved ApiUrl=${URL}"
+
+      - name: Build client
+        env:
+          VITE_APP_BASE_URL: ${{ steps.api_url.outputs.url }}
+          VITE_APP_DEFAULT_IMAGE_ID: ${{ vars.VITE_APP_DEFAULT_IMAGE_ID }}
+        run: pnpm --filter client build
+
+      - name: Deploy remaining stacks
+        working-directory: infra
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
+          CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
+        run: |
+          EXTRA_CONTEXT=""
+          if [ -n "$APP_SECRET_ARN" ]; then
+            EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
+          fi
+          STACKS="${{ github.event.inputs.stacks || '--all' }}"
+          if [ "$STACKS" = "--all" ] || [ -z "$STACKS" ]; then
+            pnpm exec cdk deploy ShareSocialMediaWeb \
+              --require-approval never \
+              $EXTRA_CONTEXT
+          else
+            pnpm exec cdk deploy $STACKS \
+              --require-approval never \
+              $EXTRA_CONTEXT
+          fi

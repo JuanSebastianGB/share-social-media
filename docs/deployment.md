@@ -30,6 +30,8 @@ npx cdk bootstrap aws://$ACCOUNT/$REGION
    - **Secret** `AWS_ACCOUNT_ID` — 12-digit account id
    - **Variable** `AWS_REGION` — e.g. `us-east-1`
    - Optional **Secret** `APP_SECRET_ARN` — existing Secrets Manager ARN (otherwise the Api stack creates a placeholder secret)
+   - Optional **Variable** `VITE_APP_BASE_URL` — override API URL for the client build (otherwise CD reads stack output `ApiUrl` after deploying `ShareSocialMediaApi`)
+   - Optional **Variable** `VITE_APP_DEFAULT_IMAGE_ID` — default avatar/storage id baked into the client build
 
 ## Application secrets
 
@@ -65,18 +67,18 @@ pnpm exec cdk deploy --all -c appSecretArn=arn:aws:secretsmanager:...
 
 Stack outputs:
 
-- `ApiUrl` — HTTP API endpoint (set client `VITE_APP_BASE_URL` to this for production builds)
+- `ApiUrl` — HTTP API endpoint (CD wires this into the client build; set `vars.VITE_APP_BASE_URL` to override)
 - `DistributionDomainName` — CloudFront domain for the SPA
 - `AppSecretArn` — secrets ARN
 
-Rebuild the client with the real API URL before a production web deploy:
+For a local production-like web build outside CD:
 
 ```bash
 # client/.env.production
 VITE_APP_BASE_URL=https://xxxx.execute-api.region.amazonaws.com
-VITE_APP_DEFAULT_IMAGE_ID=<mongo storage id>
+VITE_APP_DEFAULT_IMAGE_ID=<storage id>
 pnpm --filter client build
-pnpm --filter infra deploy
+pnpm --filter infra exec cdk deploy ShareSocialMediaWeb
 ```
 
 ## CI / CD
@@ -84,9 +86,18 @@ pnpm --filter infra deploy
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push to `main` | lint, typecheck, test, build, `cdk synth` |
-| [`.github/workflows/cd.yml`](../.github/workflows/cd.yml) | `workflow_dispatch` or push to `main` (path-filtered) | OIDC → `cdk deploy` |
+| [`.github/workflows/cd.yml`](../.github/workflows/cd.yml) | `workflow_dispatch` or push to `main` (path-filtered) | OIDC → deploy API → build client with `ApiUrl` → deploy Web |
 
 CD uses the `production` GitHub Environment. Prefer confirming `workflow_dispatch` for the first production deploy.
+
+CD order:
+
+1. Deploy `ShareSocialMediaApi`
+2. Resolve `VITE_APP_BASE_URL` from `vars.VITE_APP_BASE_URL` or CloudFormation output `ApiUrl`
+3. Build the Vite client with that URL
+4. Deploy `ShareSocialMediaWeb` (or the stacks requested via `workflow_dispatch`)
+
+Manual client rebuild with a hard-coded URL is only needed for local/prod experiments outside CD.
 
 ## Cost notes
 
