@@ -43,7 +43,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 
 ## Checklist
 
-- [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 88dfcfe
+- [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
 - [ ] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated
 - [ ] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated
 - [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
@@ -64,7 +64,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - Branch: `feat/ddd-catalog` (from main @ `9bcc11a`)
 - Mapping: `routes/items` → `controllers/items` → `repositories/items` → `ITEM#` / Scan; no cross-BC coupling; public cached list; admin POST
 - Approach: module `catalog/`, aggregate `CatalogItem` (CONTEXT language)
-- T1: docs/scaffold complete (route: delegated); ADR 0006 + `modules/catalog` barrels; no glossary yet (T6); commit `88dfcfe`
+- T1: docs/scaffold complete (route: delegated); ADR 0006 + `modules/catalog` barrels; no glossary yet (T6); commit `2442cd0`
 - Next: T2 domain-tdd
 
 ## Delivery
