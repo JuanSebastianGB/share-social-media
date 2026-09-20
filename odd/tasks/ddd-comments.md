@@ -48,7 +48,7 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 - [x] T3 ports-adapters — CommentRepository port, in-memory, Dynamo adapter — route: delegated — commit: 9b1df6f5a17f0250af1862b4e038fe56277f7c6c
 - [x] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated — commit: ea0d39cc9e8d50e86aefcab9e4c0c76b3190d2a2
 - [x] T5 integration-docker — DynamoDB Local comment specs (reuse Feed Testcontainers) — route: delegated — commit: 533073d4d2b333d91affaf534d2c0e84fcb91fad
-- [x] T6 docs-finalize — CONTEXT glossary complete; standards; development_guide cross-links — route: delegated — commit: pending
+- [x] T6 docs-finalize — CONTEXT glossary complete; standards; development_guide cross-links — route: delegated — commit: 4723c7be0e0bf590e8c47f98a43b6c70bff5139b
 
 ## Acceptance
 
