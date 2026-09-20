@@ -6,3 +6,6 @@ process.env.MEDIA_ENDPOINT = process.env.MEDIA_ENDPOINT || 'memory';
 process.env.MEDIA_BUCKET = process.env.MEDIA_BUCKET || 'test-media-bucket';
 process.env.MEDIA_BASE_URL = process.env.MEDIA_BASE_URL || 'https://media.local';
 process.env.AWS_REGION = process.env.AWS_REGION || 'us-east-1';
+process.env.OPENAPI_SPEC_PATH =
+  process.env.OPENAPI_SPEC_PATH ||
+  require('node:path').resolve(__dirname, '../../docs/api-spec.yml');
