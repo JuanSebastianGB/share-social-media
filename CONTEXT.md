@@ -10,7 +10,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Comments | Done (DDD hexagonal) | `server/modules/comments/` |
 | Identity | Done (DDD hexagonal) | `server/modules/identity/` |
 | Social graph | Legacy layered | friends on User (embedded for this Identity slice — approach B; extract later) |
-| Media | Legacy utilities | `server/services/storage.ts`, S3 upload |
+| Media | In progress (DDD hexagonal) | `server/modules/media/` |
 | Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
 
 ## Feed glossary
@@ -68,4 +68,4 @@ This document records the ubiquitous language for the application. Bounded conte
 
 ## Persistence note
 
-Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, and ADR `docs/adr/0003-identity-ddd-hexagonal.md`.
+Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. Media uses `FILE#id` / `META` (full glossary in T6). See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, ADR `docs/adr/0003-identity-ddd-hexagonal.md`, and ADR `docs/adr/0004-media-ddd-hexagonal.md`.

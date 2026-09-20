@@ -43,8 +43,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 
 ## Checklist
 
-- [x] **T0** — remnant-cleanup — delete unused `repositories/{users,comments,posts}.ts`; update standards/ADRs/CONTEXT wording — route: inline — commit: pending
-- [ ] **T1** — docs-scaffold — CONTEXT Media in-progress; ADR 0004; module barrels; backend-standards
+- [x] **T0** — remnant-cleanup — delete unused `repositories/{users,comments,posts}.ts`; update standards/ADRs/CONTEXT wording — route: inline — commit: `be2080d3643f225419ef03474465d293c73801de`
+- [x] **T1** — docs-scaffold — CONTEXT Media in-progress; ADR 0004; module barrels; backend-standards — route: inline — commit: pending (parent)
 - [ ] **T2** — domain-tdd — Media domain + unit (+ property if justified)
 - [ ] **T3** — ports-adapters — MediaRepository / storage port, in-memory, S3/Dynamo adapter as mapped
 - [ ] **T4** — use-cases-wire — wire controllers/services; characterization green; leave storage remnant unused or delete if fully replaced
@@ -63,20 +63,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 - Authorized: cleanup + Media (2026-09-20)
 - Branch: `feat/ddd-media` (from main @ `3ea8d99`)
 - Mapping (Media): codegraph — live path `controllers/storage` + `services/storage` → `repositories/storage` (FILE# Dynamo); S3 via `utilities/s3Upload` (`req.image.secure_url`); callers of `deleteHardFileService`: posts/auth controllers + Feed composition; test setup imports storage repo for memory seed
-- T0: remnant cleanup complete (route: inline); suite **18/126** green; commit pending
-- Seams (confirmed by prior BC pattern + map):
-  1. Domain: `MediaFile` aggregate (id, fileName, url, deleted) — softDelete; create; no S3 in domain
-  2. Ports: `MediaFileRepository` + optional `ObjectStore` for hard-delete S3 side effect
-  3. HTTP characterization safety net
-  4. Optional Dynamo Local FILE round-trip integration
-
-## Delivery
-
-- Strategy: **feature-branch-chain** (default; mirror Identity/Comments)
-- Forecast authored lines: ~800–1400 (Media smaller than Identity; T0 small)
-- Running authored lines: T0 pending count
-- Review boundary: branch point = main
-
+- T0: remnant cleanup complete (route: inline); suite **18/126** green; commit `be2080d3643f225419ef03474465d293c73801de`
+- T1: docs/scaffold complete (route: inline); ADR 0004 + `modules/media` barrels; no glossary yet (T6); commit pending parent
 ## Applicable checks
 
 - `pnpm --filter server test`
