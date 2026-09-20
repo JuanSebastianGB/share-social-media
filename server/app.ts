@@ -47,7 +47,7 @@ app.use(express.static('storage'));
 app.get('/', (_req, res) => res.json({ a: 1 }));
 app.use('/items', items);
 app.use('/storage', checkValidJwt, storage);
-app.use('/defaulstorage', createDefault);
+app.use('/defaultstorage', createDefault);
 app.use('/users', users);
 app.use('/auth', auth);
 app.use('/posts', posts);
