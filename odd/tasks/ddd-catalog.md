@@ -45,7 +45,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
-- [ ] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated
+- [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: PENDING
 - [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
 - [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
 - [ ] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated
@@ -69,14 +69,18 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
   - RED: `pnpm --filter server test -- --testPathPattern='catalog/domain/catalog-item'` — 2 suites failed (TS2307 Cannot find module `./catalog-item.js` / `./errors.js`)
   - GREEN: same pattern — 2 suites / 18 tests passed; full `pnpm --filter server test` — 28 suites / 190 tests passed
   - Delivered: `errors.ts`, `catalog-item.ts` (create/reconstitute/rename/setActive/toSnapshot), unit + fast-check property tests; barrels export aggregate + errors + types; no applyPatch; no HTTP 5–20 length in domain
+  - Commit: `bb5932f`
+- T3: ports-adapters complete (route: delegated)
+  - GREEN: in-memory adapter — 1 suite / 5 tests; full `pnpm --filter server test` — 29 suites / 195 tests passed
+  - Delivered: `CatalogItemRepository` port (save/findById/list/delete); `InMemoryCatalogItemRepository` + unit tests; `DynamoCatalogItemRepository` Put-based save + ITEM# Scan list; barrels updated; no controller wire; legacy `repositories/items.ts` kept
   - Commit: PENDING
-- Next: T3 ports-adapters
+- Next: T4 use-cases-wire
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Social/Media)
 - Forecast authored lines: ~900–1300
-- Running authored lines: ~450 (T1+T2)
+- Running authored lines: ~700 (T1+T2+T3)
 - Review boundary: branch point = main
 - Tracker / child PRs: open after T1–T6 on branch
 

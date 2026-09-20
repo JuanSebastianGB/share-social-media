@@ -1,6 +1,6 @@
 /**
  * Catalog infrastructure barrel.
- * Scaffolding only — DynamoDB and in-memory adapters land in later tasks.
  */
 
-export {};
+export { DynamoCatalogItemRepository } from './dynamodb-catalog-item-repository.js';
+export { InMemoryCatalogItemRepository } from './in-memory-catalog-item-repository.js';

@@ -1,6 +1,5 @@
 /**
  * Catalog application barrel.
- * Scaffolding only — use cases and ports land in later tasks.
  */
 
-export {};
+export type { CatalogItemRepository } from './ports/catalog-item-repository.js';
