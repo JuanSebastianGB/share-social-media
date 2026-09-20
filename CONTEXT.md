@@ -7,9 +7,9 @@ This document records the ubiquitous language for the application. Bounded conte
 | Context | Status | Code |
 |---------|--------|------|
 | Feed | Done (DDD hexagonal) | `server/modules/feed/` |
-| Comments | In progress (DDD hexagonal) | `server/modules/comments/` |
-| Identity | Legacy layered | `server/controllers/auth.ts`, `server/services/auth.ts` |
-| Social graph | Legacy layered | friends on User |
+| Comments | Done (DDD hexagonal) | `server/modules/comments/` |
+| Identity | In progress (DDD hexagonal) | `server/modules/identity/` |
+| Social graph | Legacy layered | friends on User (embedded for this Identity slice — approach B; extract later) |
 | Media | Legacy utilities | `server/services/storage.ts`, S3 upload |
 | Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
 
@@ -46,6 +46,26 @@ This document records the ubiquitous language for the application. Bounded conte
 - Empty `firstName` / `lastName` are allowed (legacy validators: exists + isString).
 - There is no `postId` on the Comment aggregate or COMMENT DynamoDB item.
 
+## Identity glossary
+
+| Term | Meaning |
+|------|---------|
+| User | Aggregate root for identity/profile. Owns email, display fields, optional password hash (local auth), optional `cognitoSub`, and embedded `friends[]` for this slice (approach B). Domain `id` ↔ persistence `_id`. |
+| Cognito link | Persistence pointer item (`COGNITO#sub` / `LINK`) mapping Cognito access-token `sub` → application user id. Created/updated with USER when `cognitoSub` is set; looked up via `findByCognitoSub`. |
+| Friends toggle | Bidirectional mutual friendship on two User aggregates. Domain `toggleFriend` mutates one aggregate; use case `toggleFriendship` loads both peers, toggles each, and saves both. |
+| Dual-mode auth | HS256 local/Jest register+login when Cognito env is unset; Cognito JWT + `POST /auth/profile` (complete profile / idempotent lookup) when Cognito env is set. HTTP contracts unchanged. |
+| Identity facade | Public API of `server/modules/identity/` (composition services + domain/ports exports). Controllers and Feed assembler call the facade — not `repositories/users.ts`. |
+
+## Identity invariants (domain)
+
+- Email is required (non-empty after `trim().toLowerCase()`) on create.
+- User id is required (non-empty after trim) on create.
+- Self-friend is rejected (`Cannot friend yourself`).
+- Empty friend id is rejected.
+- `toggleFriend` mutates **this** aggregate’s `friends[]` only; bidirectional HTTP behavior is application orchestration.
+- Password hashing is outside the domain (caller supplies opaque hash for local auth).
+- There is no Friend entity — friends remain `string[]` of peer user ids on USER.
+
 ## Persistence note
 
-Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, and ADR `docs/adr/0002-comments-ddd-hexagonal.md`.
+Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, and ADR `docs/adr/0003-identity-ddd-hexagonal.md`.
