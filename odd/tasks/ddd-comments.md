@@ -46,7 +46,7 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 - [x] T1 docs-scaffold — CONTEXT Comments in-progress; Feed status update; ADR 0002; module barrels; backend-standards — route: delegated — commit: 114ea055ba30e8af06d60a0c7eb4f0a502507bc9
 - [x] T2 domain-tdd — Comment aggregate + unit + fast-check — route: delegated — commit: a6359cd968fa6a303e43886f056dbdf9706699f7
 - [x] T3 ports-adapters — CommentRepository port, in-memory, Dynamo adapter — route: delegated — commit: 9b1df6f5a17f0250af1862b4e038fe56277f7c6c
-- [x] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated — commit: PENDING
+- [x] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated — commit: ea0d39cc9e8d50e86aefcab9e4c0c76b3190d2a2
 - [ ] T5 integration-docker — DynamoDB Local comment specs (reuse Feed Testcontainers) — route: delegated
 - [ ] T6 docs-finalize — CONTEXT glossary complete; standards; development_guide cross-links — route: delegated
 
@@ -71,4 +71,4 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 
 - Strategy: feature-branch-chain
 - Forecast authored lines: ~800–1200 (similar to Feed slice)
-- Running authored lines: ~1100 (T1–T4; exact from commits after T4 SHA)
+- Running authored lines: ~1118 (T1–T4; T4 alone ~508)
