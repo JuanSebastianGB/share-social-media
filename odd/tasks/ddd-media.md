@@ -68,16 +68,18 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 
 ## Delivery
 
-- Strategy: **feature-branch-chain** (mirror Identity/Comments; ~2200 authored lines vs main)
+- Strategy: **feature-branch-chain** (mirror Identity/Comments; ~2211 authored lines vs main)
 - Review boundary: branch point = main
-- Suggested slices (not opened yet):
-  1. T0 cleanup — `be2080d`
-  2. T1 docs — `13247dd`
-  3. T2 domain — `940df87`
-  4. T3 ports — `7734c29`
-  5. T4 wire — `35a1bbd` (likely size:exception)
-  6. T5+T6 integration/docs — `75efd91`
-- Next: push + open chained PRs when user asks; then mark Media Done in CONTEXT
+- Tracker PR: **#51** `feat/ddd-media` → `main` (draft / no-merge until children reviewed)
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-media-01-cleanup` → `main` — T0 — **#52** (~688, size:exception deletions)
+  2. `feat/ddd-media-02-docs` → `feat/ddd-media-01-cleanup` — T1 — **#53** (~74)
+  3. `feat/ddd-media-03-domain` → `feat/ddd-media-02-docs` — T2 — **#54** (~325)
+  4. `feat/ddd-media-04-ports` → `feat/ddd-media-03-domain` — T3 — **#55** (~369)
+  5. `feat/ddd-media-05-wire` → `feat/ddd-media-04-ports` — T4 — **#56** (~441, size:exception)
+  6. `feat/ddd-media-06-integration-docs` → `feat/ddd-media-05-wire` — T5+T6 — **#57** (~418, size:exception)
+- Merge: review children; ship via tracker #51 → main; then mark Media Done in CONTEXT
+- Next: review/merge chain; CONTEXT Media Done follow-up after #51 merges
 
 ## Applicable checks
 
