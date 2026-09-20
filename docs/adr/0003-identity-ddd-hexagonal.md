@@ -27,5 +27,5 @@ Out of scope for this migration: Media avatar ownership, Catalog (Items), extrac
 - Controllers must not contain register/login/profile/friend business rules once wired; call the Identity facade (`modules/identity` / thin `services/auth.ts` + `services/users.ts` re-exports).
 - Docs (`CONTEXT.md`, backend-standards) describe the Identity hexagonal BC; CONTEXT keeps Identity **In progress** until the feature PR merges (Comments stayed In progress through finalize; Feed was marked Done after its merge).
 - Friends remain on the User aggregate until a later Social graph extract; CONTEXT keeps Social graph listed separately so the eventual split stays visible.
-- Legacy `server/repositories/users.ts` remains as an unused strangler remnant until deleted in a follow-up; do not revive it.
+- Legacy `server/repositories/users.ts` was deleted in a follow-up cleanup after Identity wire; do not revive it.
 - Characterization (`auth` / `users`) plus Identity module unit/property tests and `identity.integration.spec.ts` (DynamoDB Local) lock behavior.

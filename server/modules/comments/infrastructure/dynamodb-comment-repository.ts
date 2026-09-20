@@ -12,7 +12,7 @@ import type { CommentRepository } from '../application/ports/comment-repository.
 
 /**
  * Maps a Comment snapshot to the legacy DynamoDB COMMENT item shape
- * (`server/repositories/comments.ts`).
+ * (formerly `server/repositories/comments.ts`).
  */
 function toItem(snapshot: CommentSnapshot): Record<string, unknown> {
   return {
@@ -46,7 +46,7 @@ function fromItem(
 
 /**
  * DynamoDB single-table adapter for the Comment aggregate.
- * Preserves the legacy COMMENT item shape from `repositories/comments.ts`.
+ * Preserves the legacy COMMENT item shape formerly in `repositories/comments.ts`.
  */
 export class DynamoCommentRepository implements CommentRepository {
   async save(comment: Comment): Promise<void> {

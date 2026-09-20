@@ -54,7 +54,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Cognito link | Persistence pointer item (`COGNITO#sub` / `LINK`) mapping Cognito access-token `sub` → application user id. Created/updated with USER when `cognitoSub` is set; looked up via `findByCognitoSub`. |
 | Friends toggle | Bidirectional mutual friendship on two User aggregates. Domain `toggleFriend` mutates one aggregate; use case `toggleFriendship` loads both peers, toggles each, and saves both. |
 | Dual-mode auth | HS256 local/Jest register+login when Cognito env is unset; Cognito JWT + `POST /auth/profile` (complete profile / idempotent lookup) when Cognito env is set. HTTP contracts unchanged. |
-| Identity facade | Public API of `server/modules/identity/` (composition services + domain/ports exports). Controllers and Feed assembler call the facade — not `repositories/users.ts`. |
+| Identity facade | Public API of `server/modules/identity/` (composition services + domain/ports exports). Controllers and Feed assembler call the facade. |
 
 ## Identity invariants (domain)
 

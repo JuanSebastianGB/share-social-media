@@ -99,9 +99,9 @@ HTTP request
 
 **Feed BC (done / migrated):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
 
-**Comments BC (done / migrated):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` remains as an unused strangler remnant (do not call it).
+**Comments BC (done / migrated):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` was removed after the strangler cleanup.
 
-**Identity BC (done / migrated):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns, embedded `friends[]` approach B), application use cases, `UserRepository` port, DynamoDB + in-memory adapters. Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export it for compatibility. Session middleware and Feed assembler use the facade (not the users repo). Legacy `server/repositories/users.ts` remains as an unused strangler remnant (do not call it).
+**Identity BC (done / migrated):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns, embedded `friends[]` approach B), application use cases, `UserRepository` port, DynamoDB + in-memory adapters. Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export it for compatibility. Session middleware and Feed assembler use the facade. Legacy `server/repositories/users.ts` (and unused `posts.ts`) were removed after the strangler cleanup.
 
 **Dual entrypoints:**
 
@@ -133,7 +133,7 @@ server/
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
   modules/identity/      Identity BC (hexagonal DDD)
-  repositories/          DynamoDB access (posts, storage, items; users.ts + comments.ts unused remnants)
+  repositories/          DynamoDB access still used by legacy Media/Items (`storage.ts`, `items.ts`)
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -151,9 +151,9 @@ server/
 
 **Compliant:** `controllers/posts.ts` → Feed facade (`modules/feed` / `services/posts.ts` re-export) → Dynamo adapter.
 
-**Compliant:** `controllers/comments.ts` (and posts comment list paths) → Comments module facade (`modules/comments`) → Dynamo adapter. Do not call `repositories/comments.ts` (unused strangler remnant).
+**Compliant:** `controllers/comments.ts` (and posts comment list paths) → Comments module facade (`modules/comments`) → Dynamo adapter.
 
-**Compliant:** `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity` / `services/auth.ts` + `services/users.ts` re-exports) → Dynamo adapter. Do not call `repositories/users.ts` (unused strangler remnant). Dual-mode auth stays explicit; friends remain embedded on User for this slice (approach B).
+**Compliant:** `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity` / `services/auth.ts` + `services/users.ts` re-exports) → Dynamo adapter. Dual-mode auth stays explicit; friends remain embedded on User for this slice (approach B).
 
 **Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
@@ -190,9 +190,9 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Feed (done / migrated):** the Posts/Feed bounded context lives under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
 
-**Comments (done / migrated):** the Comments bounded context lives under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create-on-post orchestrates Feed attach and returns a hydrated Post; Comment items have no `postId`. New comment domain logic belongs in the Comments module, not in controllers or `repositories/comments.ts`.
+**Comments (done / migrated):** the Comments bounded context lives under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create-on-post orchestrates Feed attach and returns a hydrated Post; Comment items have no `postId`. New comment domain logic belongs in the Comments module.
 
-**Identity (done / migrated):** the Identity bounded context lives under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later). New identity domain logic belongs in the Identity module, not in controllers or `repositories/users.ts`.
+**Identity (done / migrated):** the Identity bounded context lives under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later). New identity domain logic belongs in the Identity module.
 
 ### Entities (implemented)
 
@@ -525,8 +525,6 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| comments repo unused remnant | `repositories/comments.ts` unused after Comments BC wire; controllers → `modules/comments` facade; create attaches via Feed | Do not revive the remnant; new comment logic in `server/modules/comments/` (ADR 0002) |
-| users repo unused remnant | `repositories/users.ts` unused after Identity BC wire; controllers → `modules/identity` facade; session/Feed use facade | Do not revive the remnant; new identity logic in `server/modules/identity/` (ADR 0003) |
 | items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Auth/users services are Identity facade | `server/services/auth.ts` / `users.ts` re-export `modules/identity` | New Identity domain logic goes in `server/modules/identity/` |

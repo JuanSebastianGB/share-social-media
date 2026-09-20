@@ -19,7 +19,7 @@ import type { UserRepository } from '../application/ports/user-repository.js';
 
 /**
  * Maps a User snapshot to the legacy DynamoDB USER item shape
- * (`server/repositories/users.ts`). Domain `id` ↔ item `_id`.
+ * (formerly `server/repositories/users.ts`). Domain `id` ↔ item `_id`.
  */
 function toItem(snapshot: UserSnapshot): Record<string, unknown> {
   return {
@@ -77,7 +77,7 @@ function fromItem(
 
 /**
  * DynamoDB single-table adapter for the User aggregate.
- * Preserves the legacy USER + COGNITO_LINK item shapes from `repositories/users.ts`.
+ * Preserves the legacy USER + COGNITO_LINK item shapes formerly in `repositories/users.ts`.
  */
 export class DynamoUserRepository implements UserRepository {
   /**
