@@ -1,25 +1,18 @@
 import { PaletteMode } from '@mui/material';
-import { PostApiModel } from './post.model';
 import { User, UserApiModel, userEmptyState } from './user.model';
 
 export interface Auth {
   user: User;
   token: string;
   mode: PaletteMode | undefined;
-  posts: PostApiModel[];
   friends: UserApiModel[];
-  page: number;
-  search: string;
 }
 
 export const authEmptyState: Auth = {
   user: userEmptyState,
   token: '',
   mode: 'light',
-  posts: [],
   friends: [],
-  page: 1,
-  search: '',
 };
 
 export interface LoginModel {

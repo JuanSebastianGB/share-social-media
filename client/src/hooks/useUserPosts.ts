@@ -8,7 +8,7 @@ export const useUserPosts = (userId: string) => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<PostApiModel[]>([]);
-  const { posts } = useSelector((store: AppStore) => store.auth);
+  const { posts } = useSelector((store: AppStore) => store.posts);
 
   useEffect(() => {
     const controller = new AbortController();

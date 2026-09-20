@@ -1,5 +1,5 @@
 import { AppStore, PostApiModel } from '@/models';
-import { updatePost } from '@/redux/states/authSlice';
+import { updatePost } from '@/redux/states/postsSlice';
 import { fetchPostComments, postComment } from '@/services';
 import { formatDate } from '@/utilities';
 import ImageIcon from '@mui/icons-material/Image';

@@ -1,5 +1,5 @@
 import { AppStore } from '@/models';
-import { searchPosts } from '@/redux/states/authSlice';
+import { searchPosts } from '@/redux/states/postsSlice';
 import { Search } from '@mui/icons-material';
 import { IconButton, InputBase, Typography, useTheme } from '@mui/material';
 import React, { useState } from 'react';
@@ -13,7 +13,7 @@ export interface Props {
 
 const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
   const theme = useTheme();
-  const { search: param } = useSelector((store: AppStore) => store.auth);
+  const { search: param } = useSelector((store: AppStore) => store.posts);
   const [search, setSearch] = useState<string>(param);
   const dispatch = useDispatch();
   const { id } = useParams();

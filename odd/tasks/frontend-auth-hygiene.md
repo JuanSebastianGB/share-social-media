@@ -37,8 +37,8 @@ Delegated mapping (explore). Per-task: T1 inline; T2–T4 delegated writer (2+ n
 
 ## Checklist
 
-- [x] **T1** — Remove unused RHF/resolvers/SWR + dead `useCheckToken` — route: inline — pending commit
-- [ ] **T2** — Extract `postsSlice` (`posts`, `page`, `search`) + persist migrate stub for posts fields — route: delegated
+- [x] **T1** — Remove unused RHF/resolvers/SWR + dead `useCheckToken` — route: inline — `e82eef2`
+- [x] **T2** — Extract `postsSlice` (`posts`, `page`, `search`) + persist migrate for posts fields — route: delegated — `c56f847`
 - [ ] **T3** — Extract `friendsSlice` — route: delegated
 - [ ] **T4** — Extract `themeSlice` (`mode`); finalize persist migrate; update frontend-standards — route: delegated
 
@@ -61,7 +61,9 @@ Delegated mapping (explore). Per-task: T1 inline; T2–T4 delegated writer (2+ n
 
 - Mapping complete (explore agent)
 - Worktree created from `origin/main`
+- T1 complete (`e82eef2`)
+- T2 complete (`c56f847`) — postsSlice + persist migrate v2
 
 ## Next step
 
-T1 dependency cleanup.
+T3 friendsSlice extraction.

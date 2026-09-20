@@ -10,7 +10,8 @@ import {
   UserInfo,
 } from '@/components';
 import { useUser } from '@/hooks';
-import { makeLogout, setPosts } from '@/redux/states/authSlice';
+import { makeLogout } from '@/redux/states/authSlice';
+import { setPosts } from '@/redux/states/postsSlice';
 import { StyledSection } from '@/styled-components';
 import { useMediaQuery } from '@mui/material';
 import React, { useEffect } from 'react';

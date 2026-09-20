@@ -1,6 +1,7 @@
 export enum StoreKeys {
   USER = 'user',
   AUTH = 'auth',
+  POSTS = 'posts',
 }
 
 export enum urlServices {

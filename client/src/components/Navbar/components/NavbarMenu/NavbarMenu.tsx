@@ -1,5 +1,6 @@
 import { AppStore } from '@/models';
-import { makeLogout, searchPosts, toggleMode } from '@/redux/states/authSlice';
+import { makeLogout, toggleMode } from '@/redux/states/authSlice';
+import { searchPosts } from '@/redux/states/postsSlice';
 import {
   Close,
   DarkMode,
@@ -34,7 +35,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobileScreen = useMediaQuery('(max-width: 900px)');
-  const { search: param } = useSelector((store: AppStore) => store.auth);
+  const { search: param } = useSelector((store: AppStore) => store.posts);
   const [search, setSearch] = useState<string>(param);
   const { id } = useParams();
 
