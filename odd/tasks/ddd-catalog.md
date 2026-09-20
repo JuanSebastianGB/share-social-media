@@ -77,15 +77,22 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - T4: use-cases-wire complete (route: delegated); commit `e4279d4`
 - T5: `catalog.integration.spec.ts` (repo save/find/list/delete, composition CRUD, HTTP GET/POST/PUT/DELETE + ITEM# oracles); commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
 - T6: CONTEXT Catalog glossary + invariants (status remains **In progress**); data-model / backend-standards / development_guide / ADR 0006 consequences updated; `server/repositories/items.ts` deleted; commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
-- Next: open PR chain; mark CONTEXT Done only after merge
+- Next: merge chain #67–#72; mark CONTEXT Done after tracker merge
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Social/Media)
 - Forecast authored lines: ~900–1300
-- Running authored lines: ~1400 (T1–T6)
+- Running authored lines: ~1706 (T1–T6)
 - Review boundary: branch point = main
-- Tracker / child PRs: open after T1–T6 on branch
+- Tracker PR: **#67** `feat/ddd-catalog` → `main`
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-catalog-01-docs` → `main` — T1 — **#68** (~149)
+  2. `feat/ddd-catalog-02-domain` → `feat/ddd-catalog-01-docs` — T2 — **#69** (~389)
+  3. `feat/ddd-catalog-03-ports` → `feat/ddd-catalog-02-domain` — T3 — **#70** (~268)
+  4. `feat/ddd-catalog-04-wire` → `feat/ddd-catalog-03-ports` — T4 — **#71** (~488, size:exception)
+  5. `feat/ddd-catalog-05-integration-docs` → `feat/ddd-catalog-04-wire` — T5+T6 — **#72** (~486, size:exception)
+- Merge: review children; ship via tracker #67 → main; then mark Catalog Done in CONTEXT
 
 ## Applicable checks
 
