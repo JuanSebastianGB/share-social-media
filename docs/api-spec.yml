@@ -1,0 +1,1251 @@
+# OpenAPI 3 contract of record for Share Social Media.
+# Reflects Express handlers in server/app.ts and server/routes/*.
+# The Swagger UI at GET /documentation (server/docs) is STALE — prefer this file.
+#
+# Error reality:
+#   handleHttpErrors → default HTTP 403 with a JSON string body (e.g. "ERROR_LOGIN")
+#   express-validator (validateResults) → HTTP 403 with { "errors": [...] }
+# Auth dual-mode:
+#   Cognito on  → POST /auth/register and /auth/login return 410
+#   Cognito off → POST /auth/profile returns 410
+
+openapi: 3.0.3
+
+info:
+  title: Share Social Media API
+  version: "1.0.0"
+  description: >
+    Express API for the Share Social Media demo. Consumed by the Vite React SPA.
+    Persistence is DynamoDB single-table; media is S3 (+ CloudFront in AWS).
+    Authentication is dual-mode (local HS256 JWT vs Cognito access tokens).
+  contact:
+    name: Sebastian Gonzalez
+    url: https://github.com/JuanSebastianGB/share-social-media
+  license:
+    name: ISC
+
+servers:
+  - url: http://localhost:3000
+    description: Local development (server.ts)
+  - url: https://{apiId}.execute-api.{region}.amazonaws.com
+    description: AWS HTTP API (Lambda). Replace from stack output ApiUrl.
+    variables:
+      apiId:
+        default: example
+      region:
+        default: us-east-1
+
+tags:
+  - name: health
+    description: Liveness and token check
+  - name: documentation
+    description: In-server Swagger UI (stale; not the contract of record)
+  - name: auth
+    description: Register, login, Cognito profile completion
+  - name: users
+    description: User profiles, friends, user posts
+  - name: posts
+    description: Feed, posts, likes, post comments list
+  - name: comments
+    description: Comment resources
+  - name: items
+    description: Demo item CRUD
+  - name: storage
+    description: File metadata (JWT required on mount)
+  - name: legacy
+    description: Legacy paths retained for client compatibility
+
+paths:
+  /:
+    get:
+      tags: [health]
+      summary: Health-ish ping
+      operationId: getRoot
+      responses:
+        "200":
+          description: Minimal JSON payload used as a smoke check
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: integer
+                    example: 1
+
+  /checktoken:
+    get:
+      tags: [health]
+      summary: Validate Bearer token
+      operationId: checkToken
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token accepted
+          content:
+            text/html:
+              schema:
+                type: string
+                example: ok
+        "401":
+          description: Missing or invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+
+  /documentation:
+    get:
+      tags: [documentation]
+      summary: Swagger UI (stale)
+      description: >
+        Serves swagger-ui-express with server/docs/swagger.js.
+        Do not treat as authoritative; use this OpenAPI file instead.
+      operationId: getDocumentation
+      responses:
+        "200":
+          description: HTML Swagger UI
+
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: Local register with avatar upload
+      description: >
+        Multipart register. Requires file field myFile. Disabled with HTTP 410 when
+        Cognito mode is enabled on the server.
+      operationId: authRegister
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - location
+                - occupation
+                - myFile
+              properties:
+                firstName:
+                  type: string
+                  minLength: 5
+                  maxLength: 30
+                lastName:
+                  type: string
+                  minLength: 5
+                  maxLength: 30
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 5
+                  maxLength: 15
+                location:
+                  type: string
+                occupation:
+                  type: string
+                picturePath:
+                  type: string
+                myFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Registered user payload from registerService
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Validation errors or business ERROR_* string
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+        "410":
+          description: Cognito mode enabled — use Cognito SignUp + /auth/profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+              example: ERROR_USE_COGNITO_AUTH
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Local login
+      description: Returns user + HS256 JWT. Disabled with 410 when Cognito mode is on.
+      operationId: authLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "403":
+          description: Unknown user, bad password, or validation
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+        "410":
+          description: Cognito mode enabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+              example: ERROR_USE_COGNITO_AUTH
+
+  /auth/profile:
+    post:
+      tags: [auth]
+      summary: Cognito profile completion
+      description: >
+        Requires Cognito access token. Creates DynamoDB user linked to cognitoSub,
+        or returns existing profile. Returns 410 when Cognito mode is off.
+        If the token already maps to a profile, may short-circuit before multer.
+      operationId: authCompleteProfile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                location:
+                  type: string
+                occupation:
+                  type: string
+                myFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Existing or updated profile wrapped in response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "201":
+          description: Newly created profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponse"
+        "401":
+          description: Missing Cognito session credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+        "403":
+          description: Validation or upload/business error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+        "410":
+          description: Cognito mode disabled — use /auth/register
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+              example: ERROR_USE_REGISTER
+
+  /users:
+    get:
+      tags: [users]
+      summary: List users
+      description: Scan-based list (demo scale). No JWT required today.
+      operationId: listUsers
+      responses:
+        "200":
+          description: Array of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "403":
+          description: ERROR_GET_USERS style failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+
+  /users/{id}:
+    get:
+      tags: [users]
+      summary: Get user by id
+      operationId: getUser
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: User detail (shape depends on controller hydration)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Validation or not found style ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /users/{id}/friends:
+    get:
+      tags: [users]
+      summary: List friends for user
+      operationId: getUserFriends
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Friend users array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "403":
+          description: Validation or error string
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /users/{id}/posts:
+    get:
+      tags: [users]
+      summary: List posts authored by user
+      operationId: getUserPosts
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Hydrated posts for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HydratedPost"
+        "403":
+          description: Validation or error string
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /users/{id}/{friendId}:
+    patch:
+      tags: [users]
+      summary: Toggle friendship between id and friendId
+      operationId: toggleRelationFriend
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+        - name: friendId
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-fA-F0-9]{24}$"
+      responses:
+        "200":
+          description: Updated friends list / user payload from controller
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "403":
+          description: Auth, validation, or business error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /posts:
+    get:
+      tags: [posts]
+      summary: Paginated feed
+      description: >
+        Query page (default 1) and optional search. Server hard-codes limit=2.
+        Returns hydrated posts matching search against body and user fields.
+      operationId: getPostsPagination
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Page of hydrated posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HydratedPost"
+    post:
+      tags: [posts]
+      summary: Create text post (no new upload)
+      description: Requires JWT. Uses validatorCreatePost (body, type).
+      operationId: createUserPost
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePostBody"
+      responses:
+        "200":
+          description: Created / resulting post payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HydratedPost"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /posts/file:
+    post:
+      tags: [posts]
+      summary: Create post with image upload
+      description: JWT + multer myFile + S3 upload middleware + createUserPostFile.
+      operationId: createUserPostFile
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [body, myFile]
+              properties:
+                body:
+                  type: string
+                type:
+                  type: string
+                myFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Created hydrated post
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HydratedPost"
+        "403":
+          description: Missing file, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /posts/{id}:
+    get:
+      tags: [posts]
+      summary: Get post by id
+      operationId: getPost
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Array with one hydrated post (controller returns getPostService array)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HydratedPost"
+        "403":
+          description: Validation or ERROR_GET_POST
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+    put:
+      tags: [posts]
+      summary: Toggle like on post
+      operationId: toggleLikePost
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Updated post / likes payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+    delete:
+      tags: [posts]
+      summary: Delete post (and hard-delete media when present)
+      operationId: deletePost
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Delete result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /posts/{id}/comments:
+    get:
+      tags: [posts]
+      summary: List comments for a post
+      operationId: getPostComments
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Comments resolved from post.comments ids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "403":
+          description: Validation or error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /comments:
+    get:
+      tags: [comments]
+      summary: List all comments
+      description: Scan-based list (legacy).
+      operationId: listComments
+      responses:
+        "200":
+          description: Comment array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        "403":
+          description: ERROR_* string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+    post:
+      tags: [comments]
+      summary: Create comment and attach to post
+      description: >
+        Requires JWT. Body includes postId; userId taken from token.
+        Returns the hydrated post (data[0] from getPostService), not the bare comment.
+      operationId: createComment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommentBody"
+      responses:
+        "200":
+          description: Hydrated post after comment attach
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HydratedPost"
+        "403":
+          description: Auth, validation, or ERROR_CREATE_COMMENT
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /comments/{id}:
+    get:
+      tags: [comments]
+      summary: Get comment by id
+      operationId: getComment
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Comment or null-ish payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "403":
+          description: ERROR_GET_COMMENT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+    put:
+      tags: [comments]
+      summary: Update comment
+      operationId: updateComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: UpdateResult
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResult"
+        "403":
+          description: Auth or ERROR_UPDATE_COMMENT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+    delete:
+      tags: [comments]
+      summary: Delete comment
+      operationId: deleteComment
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: DeleteResult
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "403":
+          description: Auth or ERROR_DELETE_COMMENT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+
+  /items:
+    get:
+      tags: [items]
+      summary: List items
+      description: Cached via express-expeditious middleware; Scan-based.
+      operationId: listItems
+      responses:
+        "200":
+          description: Item array
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Item"
+        "403":
+          description: ERROR_*
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+    post:
+      tags: [items]
+      summary: Create item (admin)
+      operationId: createItem
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateItemBody"
+      responses:
+        "200":
+          description: Created item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "403":
+          description: Auth, role, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /items/{id}:
+    get:
+      tags: [items]
+      summary: Get item by id
+      operationId: getItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+    put:
+      tags: [items]
+      summary: Update item
+      operationId: updateItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: UpdateResult
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateResult"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+    delete:
+      tags: [items]
+      summary: Delete item
+      operationId: deleteItem
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: DeleteResult
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "403":
+          description: Auth, validation, or ERROR_*
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /storage:
+    get:
+      tags: [storage]
+      summary: List file metadata
+      description: Entire /storage mount requires JWT in app.ts.
+      operationId: listStorage
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: StorageRecord array (non-deleted)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/File"
+        "403":
+          description: Auth or ERROR_GET_FILES
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+    post:
+      tags: [storage]
+      summary: Upload file and register metadata
+      operationId: createStorage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [myFile]
+              properties:
+                myFile:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Created FILE record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+        "403":
+          description: Auth or ERROR_UPLOAD_FILE
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorString"
+
+  /storage/{id}:
+    get:
+      tags: [storage]
+      summary: Get file metadata by id
+      operationId: getStorage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: File record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/File"
+        "403":
+          description: Auth, validation, or ERROR_GET_FILE
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+    delete:
+      tags: [storage]
+      summary: Soft-delete file metadata
+      operationId: softDeleteStorage
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/MongoIdPath"
+      responses:
+        "200":
+          description: Soft-delete result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+        "403":
+          description: Auth, validation, or ERROR_DELETE_FILE
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/ValidationErrorBody"
+
+  /defaulstorage:
+    get:
+      tags: [legacy]
+      summary: Ensure default avatar FILE row exists
+      description: >
+        Legacy typo path (defaulstorage). Creates DEFAULT_IMAGE_ID storage row if missing.
+        Called by the client during register. Do not rename without a coordinated client change.
+      operationId: createDefaultStorage
+      responses:
+        "200":
+          description: Created default file record, or null when it already existed
+          content:
+            application/json:
+              schema:
+                nullable: true
+                allOf:
+                  - $ref: "#/components/schemas/File"
+
+components:
+  parameters:
+    MongoIdPath:
+      name: id
+      in: path
+      required: true
+      description: 24-char hex id (express-validator isMongoId)
+      schema:
+        type: string
+        pattern: "^[a-fA-F0-9]{24}$"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >
+        Local mode — HS256 JWT from /auth/login signed with JWT_SECRET.
+        Cognito mode — Cognito access token verified with aws-jwt-verify.
+
+  schemas:
+    ErrorString:
+      description: handleHttpErrors body — a JSON-encoded string, not an object
+      type: string
+      example: ERROR_LOGIN
+
+    ValidationErrorBody:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            description: express-validator error object
+
+    User:
+      type: object
+      required: [_id, email, friends, role]
+      properties:
+        _id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+          description: Omitted or undefined on safe responses
+        email:
+          type: string
+          format: email
+        age:
+          type: number
+        role:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        friends:
+          type: array
+          items:
+            type: string
+        location:
+          type: string
+        occupation:
+          type: string
+        viewedProfile:
+          type: number
+        impressions:
+          type: number
+        profileImageId:
+          type: string
+        cognitoSub:
+          type: string
+        profileImage:
+          $ref: "#/components/schemas/File"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    LoginResponse:
+      type: object
+      required: [userFound, token]
+      properties:
+        userFound:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+
+    ProfileResponse:
+      type: object
+      required: [response]
+      properties:
+        response:
+          $ref: "#/components/schemas/User"
+
+    File:
+      type: object
+      required: [_id]
+      properties:
+        _id:
+          type: string
+        fileName:
+          type: string
+        filename:
+          type: string
+        url:
+          type: string
+        deleted:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Post:
+      type: object
+      required: [_id, body, userId, likes, comments]
+      properties:
+        _id:
+          type: string
+        body:
+          type: string
+        userId:
+          type: string
+        fileId:
+          type: string
+        likes:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: Map of userId to true when liked
+        comments:
+          type: array
+          items:
+            type: string
+          description: Comment ids
+        type:
+          type: string
+          default: file
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    HydratedPost:
+      allOf:
+        - $ref: "#/components/schemas/Post"
+        - type: object
+          properties:
+            file:
+              type: object
+              properties:
+                _id:
+                  type: string
+                url:
+                  type: string
+            user:
+              $ref: "#/components/schemas/User"
+
+    CreatePostBody:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+        type:
+          type: string
+
+    Comment:
+      type: object
+      required: [_id, description, userId, firstName, lastName]
+      properties:
+        _id:
+          type: string
+        description:
+          type: string
+        userId:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateCommentBody:
+      type: object
+      required: [postId, firstName, lastName, description]
+      properties:
+        postId:
+          type: string
+          pattern: "^[a-fA-F0-9]{24}$"
+        firstName:
+          type: string
+        lastName:
+          type: string
+        description:
+          type: string
+        userId:
+          type: string
+          description: Ignored on create — server uses JWT user id
+
+    Item:
+      type: object
+      required: [_id, name]
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateItemBody:
+      type: object
+      required: [name, active]
+      properties:
+        name:
+          type: string
+          minLength: 5
+          maxLength: 20
+        active:
+          type: boolean
+
+    DeleteResult:
+      type: object
+      required: [acknowledged, deletedCount]
+      properties:
+        acknowledged:
+          type: boolean
+          enum: [true]
+        deletedCount:
+          type: integer
+
+    UpdateResult:
+      type: object
+      required: [acknowledged, matchedCount, modifiedCount]
+      properties:
+        acknowledged:
+          type: boolean
+          enum: [true]
+        matchedCount:
+          type: integer
+        modifiedCount:
+          type: integer
