@@ -56,9 +56,14 @@ User confirmed brownfield classification and authorized investigation + generati
 
 ## Delivery
 
-- Strategy: `ask-on-risk` (default)
-- Forecast: substantial docs (~2k–4k authored lines); slice if needed
-- Commits: deferred until user asks
+- Strategy: `ask-on-risk` → user accepted **`size:exception`** (single PR; api-spec alone exceeds 400)
+- PR: https://github.com/JuanSebastianGB/share-social-media/pull/36
+- Branch: `feat/project-context`
+- Commits: `30ae30d`, `c7452f1`
+
+## Next step
+
+Wait for CI / review / merge.
 
 ## Route
 
