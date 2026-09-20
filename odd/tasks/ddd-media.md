@@ -7,7 +7,7 @@
 
 ## Problem
 
-Media uploads remain legacy utilities (`services/storage.ts` → `repositories/storage.ts` → S3/memory). Feed/Identity already migrated; unused legacy repos still sit in the tree. CONTEXT lists Media as legacy.
+Media uploads were legacy utilities (`services/storage.ts` → `repositories/storage.ts` → S3/memory). Feed/Comments/Identity already migrated. Media is now wired through `server/modules/media/`; CONTEXT status stays In progress until PR merge.
 
 ## Why
 
@@ -15,7 +15,7 @@ User-authorized 2026-09-20: small cleanup first, then Media strangler BC after I
 
 ## Scope
 
-- In: delete unused `server/repositories/{users,comments,posts}.ts`; update docs/ADRs that call them remnants; Media BC under `server/modules/media/` (domain + ports + adapters + thin controller/service wire); characterization green; optional Dynamo/S3-local or memory integration as appropriate
+- In: delete unused `server/repositories/{users,comments,posts,storage}.ts`; update docs/ADRs; Media BC under `server/modules/media/` (domain + ports + adapters + thin controller/service wire); characterization green; DynamoDB Local integration
 - Out: Social graph extract, Catalog/Items, client Redux, HTTP contract changes, CloudFront infra changes, domain events
 
 ## Constraints
@@ -48,8 +48,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 - [x] **T2** — domain-tdd — Media domain + unit (+ property) — route: delegated — commit: pending (parent)
 - [x] **T3** — ports-adapters — MediaFileRepository + object store ports; in-memory + Dynamo + S3 adapters — route: delegated — commit: pending (parent)
 - [x] **T4** — use-cases-wire — wire controllers/services; characterization green; leave storage remnant unused — route: delegated — commit: pending (parent)
-- [ ] **T5** — integration — memory or Docker path as mapped
-- [ ] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links
+- [x] **T5** — integration — `media.integration.spec.ts` DynamoDB Local — route: delegated — commit: pending (parent)
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; guides; delete `repositories/storage.ts` — route: delegated — commit: pending (parent)
 
 ## Acceptance
 
@@ -62,12 +62,12 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 
 - Authorized: cleanup + Media (2026-09-20)
 - Branch: `feat/ddd-media` (from main @ `3ea8d99`)
-- Mapping (Media): codegraph — live path `controllers/storage` + `services/storage` → `repositories/storage` (FILE# Dynamo); S3 via `utilities/s3Upload` (`req.image.secure_url`); callers of `deleteHardFileService`: posts/auth controllers + Feed composition; test setup imports storage repo for memory seed
+- Mapping (Media): live path `controllers/storage` + `services/storage` (re-export) → `modules/media` → Dynamo FILE# + S3/memory object store
 - T0: remnant cleanup complete (route: inline); suite **18/126** green; commit `be2080d3643f225419ef03474465d293c73801de`
-- T1: docs/scaffold complete (route: delegated); ADR 0004 + `modules/media` barrels; no glossary yet (T6); commit `13247dd77b150e35e56a3737af273581240d4409`
-- T2: MediaFile domain + unit/property tests (route: delegated); domain **2 suites / 13 tests**; full suite **20/139** green; commit pending parent
-- T3: ports + InMemory/Dynamo/S3 adapters (route: delegated); Media module **3 suites / 19 tests**; full suite **21/145** green; commit pending parent
-- T4: use cases + composition + `services/storage` re-export; setup/integration off remnant; full suite **22/158** green; commit pending parent
+- T1: docs/scaffold complete (route: delegated); ADR 0004 + `modules/media` barrels; commit `13247dd77b150e35e56a3737af273581240d4409`
+- T2–T4: domain, ports, wire — commit pending parent
+- T5+T6: integration + docs finalize; `repositories/storage.ts` deleted; unit **22/158**; integration **4/10** (Docker DynamoDB Local); commit pending parent
+
 ## Applicable checks
 
 - `pnpm --filter server test`

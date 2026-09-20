@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-The Share Social Media backend is a layered Express + DynamoDB API. Media logic lives in legacy utilities: `services/storage.ts` orchestrates `repositories/storage.ts` for `FILE#` DynamoDB items and `utilities/s3Upload` for upload side effects that set `req.image.secure_url`. Characterization tests lock HTTP behavior on `/storage` and the legacy `/defaulstorage` typo path. Feed, Comments, and Identity already migrated to hexagonal DDD (ADR 0001, ADR 0002, ADR 0003). After remnant repository cleanup, the team authorized migrating the Media area next.
+The Share Social Media backend is a layered Express + DynamoDB API. Media logic lived in legacy utilities: `services/storage.ts` orchestrated `repositories/storage.ts` for `FILE#` DynamoDB items and `utilities/s3Upload` for upload side effects that set `req.image.secure_url`. Characterization tests lock HTTP behavior on `/storage` and the legacy `/defaulstorage` typo path. Feed, Comments, and Identity already migrated to hexagonal DDD (ADR 0001, ADR 0002, ADR 0003). After remnant repository cleanup, the team authorized migrating the Media area next.
 
 ## Decision
 
@@ -25,6 +25,7 @@ Out of scope for this migration: Social graph extract, Catalog (Items), the clie
 
 - New Media work lands in `server/modules/media/`, not in ad-hoc controller → service → repository deepening.
 - Controllers must not contain file metadata create/update/delete business rules once wired; call the Media facade (`modules/media` / thin `services/storage.ts` re-export).
-- Docs (`CONTEXT.md`, backend-standards) mark Media as DDD in progress; Feed, Comments, and Identity as done/migrated.
-- Legacy `server/repositories/storage.ts` remains until T4 wire (then unused remnant or delete); do not deepen it while the BC migrates.
+- Docs (`CONTEXT.md`, backend-standards) describe the Media hexagonal BC; CONTEXT keeps Media **In progress** until the feature PR merges (Comments/Identity stayed In progress through finalize; Feed was marked Done after its merge).
 - Soft-delete stays a domain concern; object-store hard-delete is application/infra orchestration.
+- Legacy `server/repositories/storage.ts` was deleted after Media wire; do not revive it.
+- Characterization (storage/posts/auth that touch media) plus Media module unit/property tests and `media.integration.spec.ts` (DynamoDB Local) lock behavior.

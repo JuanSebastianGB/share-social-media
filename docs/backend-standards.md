@@ -66,9 +66,9 @@ Contract of record for HTTP: [`docs/api-spec.yml`](./api-spec.yml). The in-serve
 |---------|--------|-------|
 | Runner | Jest 29 + `ts-jest` | `NODE_OPTIONS=--experimental-vm-modules` |
 | HTTP | `supertest` | Against Express app (`server/tests/testApp.ts`) |
-| Style | Characterization + Feed/Comments/Identity domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
+| Style | Characterization + Feed/Comments/Identity/Media domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
 | Coverage threshold | **None** | No gate in CI beyond green suite |
-| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `server/modules/identity/**/*.test.ts`, `*.integration.spec.ts` | |
+| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `server/modules/identity/**/*.test.ts`, `server/modules/media/**/*.test.ts`, `*.integration.spec.ts` | |
 | Integration | `pnpm --filter server test:integration` | Testcontainers DynamoDB Local; Docker required; skips if unavailable |
 
 ### Development Tools
@@ -103,7 +103,7 @@ HTTP request
 
 **Identity BC (done / migrated):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns, embedded `friends[]` approach B), application use cases, `UserRepository` port, DynamoDB + in-memory adapters. Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export it for compatibility. Session middleware and Feed assembler use the facade. Legacy `server/repositories/users.ts` (and unused `posts.ts`) were removed after the strangler cleanup.
 
-**Media BC (in progress):** `server/modules/media/` — hexagonal DDD scaffolding; `MediaFile` aggregate (id, fileName, url, soft-delete). Controllers will call the Media facade; `services/storage.ts` becomes a thin re-export once wired. Legacy `repositories/storage.ts` remains until T4 wire — do not deepen it while the BC migrates.
+**Media BC (done / migrated; CONTEXT status In progress until PR merges):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
 
 **Dual entrypoints:**
 
@@ -131,12 +131,12 @@ server/
   routes/                Express routers (auth, users, posts, comments, items, storage)
   middlewares/           session (JWT/Cognito), role, cache
   controllers/           Request handlers
-  services/              posts, storage, auth/users thin re-exports (items: LEGACY — none; comments: modules/comments; identity: modules/identity; media migrating)
+  services/              posts, storage, auth/users thin re-exports (items: LEGACY — none; comments: modules/comments; identity: modules/identity; media: modules/media)
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
   modules/identity/      Identity BC (hexagonal DDD)
-  modules/media/         Media BC (hexagonal DDD; in progress)
-  repositories/          DynamoDB access still used by Media (`storage.ts` until T4 wire) and Items (`items.ts`)
+  modules/media/         Media BC (hexagonal DDD; CONTEXT In progress until PR merges)
+  repositories/          DynamoDB access still used by Items (`items.ts`) only
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -158,7 +158,7 @@ server/
 
 **Compliant:** `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity` / `services/auth.ts` + `services/users.ts` re-exports) → Dynamo adapter. Dual-mode auth stays explicit; friends remain embedded on User for this slice (approach B).
 
-**Media (in progress):** prefer `controllers/storage.ts` → Media module facade (`modules/media` / eventual `services/storage.ts` re-export) rather than deepening controller → service → `repositories/storage.ts`. Keep `/storage` and `/defaulstorage` HTTP contracts unchanged.
+**Compliant:** `controllers/storage.ts` → Media module facade (`modules/media` / `services/storage.ts` re-export) → Dynamo adapter. Soft-delete is domain then save; hard-delete orchestrates object-store cleanup outside the domain. Keep `/storage` and `/defaulstorage` HTTP contracts unchanged.
 
 **Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
@@ -199,7 +199,7 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Identity (done / migrated):** the Identity bounded context lives under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later). New identity domain logic belongs in the Identity module.
 
-**Media (in progress):** the Media bounded context is migrating to hexagonal DDD under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. Legacy `repositories/storage.ts` remains until T4 wire.
+**Media (done / migrated; CONTEXT status In progress until PR merges):** the Media bounded context lives under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. New media domain logic belongs in the Media module, not in controllers or a revived storage repository.
 
 ### Entities (implemented)
 
@@ -362,6 +362,7 @@ server/tests/
   posts.integration.spec.ts
   comments.integration.spec.ts
   identity.integration.spec.ts
+  media.integration.spec.ts
   integration/               # DynamoDB Local Testcontainers harness
   helpers.ts
   setup.ts
@@ -378,6 +379,11 @@ server/modules/comments/
   application/**/*.test.ts
   infrastructure/*.test.ts
 server/modules/identity/
+  domain/*.test.ts
+  domain/*.property.test.ts
+  application/**/*.test.ts
+  infrastructure/*.test.ts
+server/modules/media/
   domain/*.test.ts
   domain/*.property.test.ts
   application/**/*.test.ts
@@ -533,8 +539,8 @@ Documented so agents do not “clean up” blindly without tests and product int
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
 | items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
-| storage layered until Media wire | `services/storage.ts` → `repositories/storage.ts` + `s3Upload` | Migrate via `server/modules/media/` facade (ADR 0004); keep `repositories/storage.ts` until T4 |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
+| Storage service is Media facade | `server/services/storage.ts` re-exports `modules/media`; legacy `repositories/storage.ts` deleted | Do not revive the storage repository; new Media logic in `server/modules/media/` (ADR 0004) |
 | Auth/users services are Identity facade | `server/services/auth.ts` / `users.ts` re-export `modules/identity` | New Identity domain logic goes in `server/modules/identity/` |
 | Scan-based lists | users, comments (Comments `list()`), items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |

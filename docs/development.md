@@ -59,7 +59,7 @@ pnpm --filter client dev
 
 Characterization tests live under [`server/tests/`](../server/tests/). They lock current HTTP behavior (status codes, auth gaps, response shapes) using Jest + Supertest + an in-memory DynamoDB DocumentClient (`DYNAMODB_ENDPOINT=memory`).
 
-Feed DDD unit/property tests live under [`server/modules/feed/`](../server/modules/feed/). Comments DDD unit/property tests live under [`server/modules/comments/`](../server/modules/comments/). Identity DDD unit/property tests live under [`server/modules/identity/`](../server/modules/identity/). Integration tests (`test:integration`) use DynamoDB Local via Testcontainers (`posts.integration.spec.ts`, `comments.integration.spec.ts`, `identity.integration.spec.ts`) and require Docker.
+Feed DDD unit/property tests live under [`server/modules/feed/`](../server/modules/feed/). Comments DDD unit/property tests live under [`server/modules/comments/`](../server/modules/comments/). Identity DDD unit/property tests live under [`server/modules/identity/`](../server/modules/identity/). Media DDD unit/property tests live under [`server/modules/media/`](../server/modules/media/). Integration tests (`test:integration`) use DynamoDB Local via Testcontainers (`posts.integration.spec.ts`, `comments.integration.spec.ts`, `identity.integration.spec.ts`, `media.integration.spec.ts`) and require Docker.
 
 ```bash
 pnpm --filter server test
