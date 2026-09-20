@@ -10,26 +10,29 @@ flowchart LR
   CF --> S3[S3_static_client]
   User --> MediaCF[CloudFront_media]
   MediaCF --> MediaS3[S3_media]
+  User --> Cognito[Cognito_User_Pool]
   User --> APIGW[HttpApi]
   APIGW --> Lambda[Express_Lambda]
   Lambda --> DDB[DynamoDB]
   Lambda --> MediaS3
   Lambda --> SM[Secrets_Manager]
+  Lambda -.->|verify access JWT| Cognito
 ```
 
 | Layer | Tech |
 |-------|------|
 | Client | React 18, Vite, TypeScript, MUI, Redux |
-| API | Express (TypeScript), JWT, AWS SDK |
+| Auth | Cognito User Pool (SPA client, no Hosted UI) in AWS; local HS256 JWT when Cognito env is unset |
+| API | Express (TypeScript), JWT / Cognito access-token verify, AWS SDK |
 | Media | S3 (private) + CloudFront OAC (`uploads/`) |
 | Data | DynamoDB (on-demand, single-table) |
 | Hosting | S3 + CloudFront (static SPA) |
-| IaC | AWS CDK — HTTP API, Lambda, DynamoDB, S3 (site + media), CloudFront |
+| IaC | AWS CDK — HTTP API, Lambda, DynamoDB, S3 (site + media), CloudFront, Cognito |
 | CI/CD | GitHub Actions (OIDC deploy) |
 
 ## Features
 
-- Auth (register / login)
+- Auth: Cognito SignUp/SignIn + profile completion in AWS; local register/login (HS256) without Cognito env
 - Profiles and friends
 - Posts with likes, comments, infinite scroll
 - File uploads via S3 (served through CloudFront)
@@ -60,6 +63,8 @@ pnpm --filter client dev
 | `MEDIA_BASE_URL` | Public URL prefix for media (CloudFront domain in AWS) |
 | `MEDIA_ENDPOINT` | Optional; `memory` stubs uploads locally |
 | `JWT_SECRET` | JWT signing secret |
+| `COGNITO_USER_POOL_ID` | Optional; with `COGNITO_CLIENT_ID` enables Cognito access-token verify |
+| `COGNITO_CLIENT_ID` | Optional; SPA app client id |
 
 **Client** (`client/.env`):
 
@@ -67,6 +72,13 @@ pnpm --filter client dev
 |----------|-------------|
 | `VITE_APP_BASE_URL` | API base URL |
 | `VITE_APP_DEFAULT_IMAGE_ID` | Default storage file id for avatars/posts |
+| `VITE_COGNITO_USER_POOL_ID` | Optional; with client id + region enables Cognito SPA auth |
+| `VITE_COGNITO_CLIENT_ID` | Optional; Cognito app client id |
+| `VITE_AWS_REGION` | Optional; Cognito region (required when Cognito vars are set) |
+
+Local without Cognito: leave `VITE_COGNITO_*` and server `COGNITO_*` unset — client calls `/auth/register` and `/auth/login`, server issues HS256 JWTs.
+
+Local/prod-like with Cognito: set matching Cognito ids on **both** client and server (pool must allow `USER_PASSWORD_AUTH`). Register flow: Cognito SignUp → confirm if needed → InitiateAuth → `POST /auth/profile` with the access token.
 
 ## Scripts
 
@@ -99,6 +111,7 @@ docs/     Development and deployment guides
 - Tighten JWT on comments / likes / deletes (currently characterized as open)
 - OAuth providers, websockets, bookmarks
 - UI redesign
+- Cognito Hosted UI / social IdPs
 
 ## Author
 

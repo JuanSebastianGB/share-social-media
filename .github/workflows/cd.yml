@@ -37,8 +37,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -96,10 +94,50 @@ jobs:
           echo "url=${URL}" >> "$GITHUB_OUTPUT"
           echo "Resolved ApiUrl=${URL}"
 
+      - name: Resolve Cognito env for client build
+        id: cognito
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          VITE_COGNITO_USER_POOL_ID_OVERRIDE: ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+          VITE_COGNITO_CLIENT_ID_OVERRIDE: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_AWS_REGION_OVERRIDE: ${{ vars.VITE_AWS_REGION }}
+        run: |
+          REGION="${VITE_AWS_REGION_OVERRIDE:-$AWS_REGION}"
+          echo "region=${REGION}" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$VITE_COGNITO_USER_POOL_ID_OVERRIDE" ] && [ -n "$VITE_COGNITO_CLIENT_ID_OVERRIDE" ]; then
+            echo "user_pool_id=${VITE_COGNITO_USER_POOL_ID_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "client_id=${VITE_COGNITO_CLIENT_ID_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Using vars.VITE_COGNITO_* overrides"
+            exit 0
+          fi
+
+          POOL_ID=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" \
+            --output text)
+          CLIENT_ID=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" \
+            --output text)
+
+          if [ -z "$POOL_ID" ] || [ "$POOL_ID" = "None" ] || [ -z "$CLIENT_ID" ] || [ "$CLIENT_ID" = "None" ]; then
+            echo "::error::Could not resolve Cognito outputs. Set vars.VITE_COGNITO_USER_POOL_ID and vars.VITE_COGNITO_CLIENT_ID or deploy ShareSocialMediaApi with Cognito outputs."
+            exit 1
+          fi
+          echo "user_pool_id=${POOL_ID}" >> "$GITHUB_OUTPUT"
+          echo "client_id=${CLIENT_ID}" >> "$GITHUB_OUTPUT"
+          echo "Resolved UserPoolId=${POOL_ID} UserPoolClientId=${CLIENT_ID}"
+
       - name: Build client
         env:
           VITE_APP_BASE_URL: ${{ steps.api_url.outputs.url }}
           VITE_APP_DEFAULT_IMAGE_ID: ${{ vars.VITE_APP_DEFAULT_IMAGE_ID }}
+          VITE_COGNITO_USER_POOL_ID: ${{ steps.cognito.outputs.user_pool_id }}
+          VITE_COGNITO_CLIENT_ID: ${{ steps.cognito.outputs.client_id }}
+          VITE_AWS_REGION: ${{ steps.cognito.outputs.region }}
         run: pnpm --filter client build
 
       - name: Deploy remaining stacks
