@@ -66,9 +66,9 @@ Contract of record for HTTP: [`docs/api-spec.yml`](./api-spec.yml). The in-serve
 |---------|--------|-------|
 | Runner | Jest 29 + `ts-jest` | `NODE_OPTIONS=--experimental-vm-modules` |
 | HTTP | `supertest` | Against Express app (`server/tests/testApp.ts`) |
-| Style | Characterization + Feed domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
+| Style | Characterization + Feed/Comments domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
 | Coverage threshold | **None** | No gate in CI beyond green suite |
-| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `*.integration.spec.ts` | |
+| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `*.integration.spec.ts` | |
 | Integration | `pnpm --filter server test:integration` | Testcontainers DynamoDB Local; Docker required; skips if unavailable |
 
 ### Development Tools
@@ -92,12 +92,14 @@ HTTP request
   → routes/*.ts          (path + middleware chain)
   → middlewares/*        (JWT, role, cache, validators)
   → controllers/*        (HTTP I/O, matchedData, status codes)
-  → services/* OR modules/feed  (orchestration; Feed BC is DDD hexagonal)
+  → services/* OR modules/feed OR modules/comments  (orchestration; DDD hexagonal BCs)
   → repositories/* / Dynamo adapters
   → DynamoDB / S3
 ```
 
-**Feed BC (in progress):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
+**Feed BC (done / migrated):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
+
+**Comments BC (done / migrated; CONTEXT status In progress until merge):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` remains as an unused strangler remnant (do not call it).
 
 **Dual entrypoints:**
 
@@ -125,8 +127,10 @@ server/
   routes/                Express routers (auth, users, posts, comments, items, storage)
   middlewares/           session (JWT/Cognito), role, cache
   controllers/           Request handlers
-  services/              auth, users, posts, storage (items/comments: LEGACY — none)
-  repositories/          DynamoDB access (users, posts, comments, storage, items)
+  services/              auth, users, posts, storage (items: LEGACY — none; comments: modules/comments)
+  modules/feed/          Feed BC (hexagonal DDD)
+  modules/comments/      Comments BC (hexagonal DDD)
+  repositories/          DynamoDB access (users, posts, storage, items; comments.ts unused remnant)
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -142,9 +146,11 @@ server/
 
 ### Prefer controller → service → repository (new code)
 
-**Compliant:** `controllers/posts.ts` → `services/posts.ts` → `repositories/posts.ts`.
+**Compliant:** `controllers/posts.ts` → Feed facade (`modules/feed` / `services/posts.ts` re-export) → Dynamo adapter.
 
-**Violating (legacy, do not copy):** `controllers/comments.ts` and `controllers/items.ts` call repositories directly. When touching those domains, introduce a service layer rather than deepening the skip.
+**Compliant:** `controllers/comments.ts` (and posts comment list paths) → Comments module facade (`modules/comments`) → Dynamo adapter. Do not call `repositories/comments.ts` (unused strangler remnant).
+
+**Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
 ### Keep DynamoDB keys centralized
 
@@ -177,7 +183,9 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Legacy default:** most domains are still TypeScript record types plus DynamoDB item shapes (layered CRUD).
 
-**Feed (in progress):** the Posts/Feed bounded context is migrating to hexagonal DDD under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
+**Feed (done / migrated):** the Posts/Feed bounded context lives under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
+
+**Comments (done / migrated):** the Comments bounded context lives under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create-on-post orchestrates Feed attach and returns a hydrated Post; Comment items have no `postId`. New comment domain logic belongs in the Comments module, not in controllers or `repositories/comments.ts`.
 
 ### Entities (implemented)
 
@@ -338,12 +346,18 @@ server/tests/
   posts.characterization.test.ts
   comments.characterization.test.ts
   posts.integration.spec.ts
+  comments.integration.spec.ts
   integration/               # DynamoDB Local Testcontainers harness
   helpers.ts
   setup.ts
   setup-env.cjs
   testApp.ts
 server/modules/feed/
+  domain/*.test.ts
+  domain/*.property.test.ts
+  application/**/*.test.ts
+  infrastructure/*.test.ts
+server/modules/comments/
   domain/*.test.ts
   domain/*.property.test.ts
   application/**/*.test.ts
@@ -498,9 +512,10 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| items/comments skip services | Controllers → repositories for Comment CRUD; attach uses Feed `attachCommentToPostService` | Comments-as-aggregate BC still legacy |
+| comments repo unused remnant | `repositories/comments.ts` unused after Comments BC wire; controllers → `modules/comments` facade; create attaches via Feed | Do not revive the remnant; new comment logic in `server/modules/comments/` (ADR 0002) |
+| items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
-| Scan-based lists | users, comments, items, storage | Prefer Query + GSI |
+| Scan-based lists | users, comments (Comments `list()`), items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
 | `/defaulstorage` typo | Real mounted path | Keep path for client compat; do not “fix” spelling without client change |
 | Mongo-style hex ids | `isMongoId()` validators | Keep generating 24-hex ids |
