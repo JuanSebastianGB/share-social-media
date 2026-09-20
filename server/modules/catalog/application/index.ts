@@ -1,6 +1,13 @@
 /**
  * Catalog application barrel.
- * Scaffolding only — use cases and ports land in later tasks.
  */
 
-export {};
+export type { CatalogItemRepository } from './ports/catalog-item-repository.js';
+export {
+  toLegacyItemRecord,
+  listItemsService,
+  getItemService,
+  createItemService,
+  updateItemService,
+  deleteItemService,
+} from './composition.js';

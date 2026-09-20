@@ -45,10 +45,10 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
-- [ ] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated
-- [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
-- [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
-- [ ] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated
+- [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: 3d0578e
+- [x] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated — commit: e4279d4
+- [x] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated — commit: `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated — commit: `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
 
 ## Acceptance
 
@@ -69,16 +69,30 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
   - RED: `pnpm --filter server test -- --testPathPattern='catalog/domain/catalog-item'` — 2 suites failed (TS2307 Cannot find module `./catalog-item.js` / `./errors.js`)
   - GREEN: same pattern — 2 suites / 18 tests passed; full `pnpm --filter server test` — 28 suites / 190 tests passed
   - Delivered: `errors.ts`, `catalog-item.ts` (create/reconstitute/rename/setActive/toSnapshot), unit + fast-check property tests; barrels export aggregate + errors + types; no applyPatch; no HTTP 5–20 length in domain
-  - Commit: PENDING
-- Next: T3 ports-adapters
+  - Commit: `bb5932f`
+- T3: ports-adapters complete (route: delegated)
+  - GREEN: in-memory adapter — 1 suite / 5 tests; full `pnpm --filter server test` — 29 suites / 195 tests passed
+  - Delivered: `CatalogItemRepository` port (save/findById/list/delete); `InMemoryCatalogItemRepository` + unit tests; `DynamoCatalogItemRepository` Put-based save + ITEM# Scan list; barrels updated; no controller wire; legacy `repositories/items.ts` kept
+  - Commit: `3d0578e`
+- T4: use-cases-wire complete (route: delegated); commit `e4279d4`
+- T5: `catalog.integration.spec.ts` (repo save/find/list/delete, composition CRUD, HTTP GET/POST/PUT/DELETE + ITEM# oracles); commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- T6: CONTEXT Catalog glossary + invariants (status remains **In progress**); data-model / backend-standards / development_guide / ADR 0006 consequences updated; `server/repositories/items.ts` deleted; commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- Next: merge chain #67–#72; mark CONTEXT Done after tracker merge
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Social/Media)
 - Forecast authored lines: ~900–1300
-- Running authored lines: ~450 (T1+T2)
+- Running authored lines: ~1706 (T1–T6)
 - Review boundary: branch point = main
-- Tracker / child PRs: open after T1–T6 on branch
+- Tracker PR: **#67** `feat/ddd-catalog` → `main`
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-catalog-01-docs` → `main` — T1 — **#68** (~149)
+  2. `feat/ddd-catalog-02-domain` → `feat/ddd-catalog-01-docs` — T2 — **#69** (~389)
+  3. `feat/ddd-catalog-03-ports` → `feat/ddd-catalog-02-domain` — T3 — **#70** (~268)
+  4. `feat/ddd-catalog-04-wire` → `feat/ddd-catalog-03-ports` — T4 — **#71** (~488, size:exception)
+  5. `feat/ddd-catalog-05-integration-docs` → `feat/ddd-catalog-04-wire` — T5+T6 — **#72** (~486, size:exception)
+- Merge: review children; ship via tracker #67 → main; then mark Catalog Done in CONTEXT
 
 ## Applicable checks
 

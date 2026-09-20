@@ -68,7 +68,7 @@ Contract of record for HTTP: [`docs/api-spec.yml`](./api-spec.yml). The in-serve
 | HTTP | `supertest` | Against Express app (`server/tests/testApp.ts`) |
 | Style | Characterization + Feed/Comments/Identity/Media/Social domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
 | Coverage threshold | **None** | No gate in CI beyond green suite |
-| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `server/modules/identity/**/*.test.ts`, `server/modules/media/**/*.test.ts`, `server/modules/social/**/*.test.ts`, `*.integration.spec.ts` | |
+| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `server/modules/identity/**/*.test.ts`, `server/modules/media/**/*.test.ts`, `server/modules/social/**/*.test.ts`, `server/modules/catalog/**/*.test.ts`, `*.integration.spec.ts` | |
 | Integration | `pnpm --filter server test:integration` | Testcontainers DynamoDB Local; Docker required; skips if unavailable |
 
 ### Development Tools
@@ -107,7 +107,7 @@ HTTP request
 
 **Social BC (done / migrated):** `server/modules/social/` — hexagonal DDD; domain `FriendList` aggregate, `FriendListRepository` port, DynamoDB + in-memory adapters, `toggleFriendship` + list-friends composition. Controllers call the Social facade for toggle/list friends (`modules/social`; `services/users.ts` re-exports friends paths). Friends remain `friends[]` on USER items (no `FRIEND#` edges). Safety nets: `users.characterization.test.ts`, Social module unit/property tests, and `social.integration.spec.ts`.
 
-**Catalog BC (in progress):** `server/modules/catalog/` — hexagonal DDD scaffolding; `CatalogItem` aggregate planned. Controllers will call the Catalog facade once wired (T4). Until then, `controllers/items.ts` → `repositories/items.ts` remains the documented layering violation; keep `repositories/items.ts` until wire. Dynamo stays `ITEM#` / `META` with Scan list; cache on `GET /items` and admin on `POST` unchanged.
+**Catalog BC (done / migrated):** `server/modules/catalog/` — hexagonal DDD; domain `CatalogItem` aggregate, `CatalogItemRepository` port, DynamoDB + in-memory adapters, CRUD composition. Controllers call the Catalog facade (`modules/catalog`; `services/items.ts` re-exports). Dynamo stays `ITEM#` / `META` with Scan list (no soft-delete); cache on `GET /items` and admin on `POST` unchanged. Legacy `server/repositories/items.ts` was removed after the strangler wire. CONTEXT stays **In progress** until the feature PR merges.
 
 **Dual entrypoints:**
 
@@ -135,14 +135,14 @@ server/
   routes/                Express routers (auth, users, posts, comments, items, storage)
   middlewares/           session (JWT/Cognito), role, cache
   controllers/           Request handlers
-  services/              posts, storage, auth/users thin re-exports (items: LEGACY — none; comments: modules/comments; identity: modules/identity; media: modules/media; users friends paths: modules/social)
+  services/              posts, storage, auth/users/items thin re-exports (comments: modules/comments; identity: modules/identity; media: modules/media; social friends: modules/social; items: modules/catalog)
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
   modules/identity/      Identity BC (hexagonal DDD)
   modules/media/         Media BC (hexagonal DDD)
   modules/social/        Social graph BC (hexagonal DDD)
-  modules/catalog/       Catalog (Items) BC (hexagonal DDD; in progress)
-  repositories/          DynamoDB access still used by Items (`items.ts`) only — until Catalog T4 wire
+  modules/catalog/       Catalog (Items) BC (hexagonal DDD)
+  repositories/          empty / removed after Catalog wire (legacy Dynamo access deleted)
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -168,7 +168,7 @@ server/
 
 **Compliant:** `controllers/users.ts` friends paths → Social module facade (`modules/social` / `services/users.ts` friends re-exports) → Dynamo adapter on USER.`friends`. Keep `friends[]` on USER; keep `/users/:id/:friendId` and `/users/:id/friends` HTTP contracts unchanged. Do not reintroduce Identity `toggleFriend`.
 
-**Violating (legacy until Catalog T4 wire, do not copy):** `controllers/items.ts` calls `repositories/items.ts` directly. Prefer Controllers → Catalog facade (`modules/catalog`) once wired; keep `repositories/items.ts` until then.
+**Compliant (Catalog, CONTEXT In progress until PR merge):** `controllers/items.ts` → Catalog module facade (`modules/catalog` / `services/items.ts` re-exports) → Dynamo adapter. Keep `ITEM#` / Scan list; keep cache on `GET /items` and admin on `POST`; keep create `{ newItem }` wrapper. Do not revive `repositories/items.ts`.
 
 ### Keep DynamoDB keys centralized
 
@@ -211,7 +211,7 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Social (done / migrated):** the Social graph bounded context lives under `server/modules/social/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md). Domain owns `FriendList`; persistence stays `friends[]` on USER (no `FRIEND#` edges). Controllers call the Social facade; Identity no longer owns friendship mutation.
 
-**Catalog (in progress):** the Catalog (Items) bounded context is migrating to hexagonal DDD under `server/modules/catalog/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md). Domain will own `CatalogItem`; persistence stays `ITEM#` / `META` with Scan list. Controllers still call `repositories/items.ts` until T4 wire.
+**Catalog (done / migrated; CONTEXT In progress until PR merge):** the Catalog (Items) bounded context lives under `server/modules/catalog/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md). Domain owns `CatalogItem`; persistence stays `ITEM#` / `META` with Scan list (no soft-delete). Controllers call the Catalog facade; legacy `repositories/items.ts` was deleted.
 
 ### Entities (implemented)
 
@@ -376,6 +376,7 @@ server/tests/
   identity.integration.spec.ts
   media.integration.spec.ts
   social.integration.spec.ts
+  catalog.integration.spec.ts
   integration/               # DynamoDB Local Testcontainers harness
   helpers.ts
   setup.ts
@@ -556,7 +557,7 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
+| Items service is Catalog facade (resolved) | `server/services/items.ts` re-exports `modules/catalog`; legacy `repositories/items.ts` deleted | Do not revive the items repository; new Catalog logic in `server/modules/catalog/` (ADR 0006; CONTEXT In progress until PR merge) |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Storage service is Media facade | `server/services/storage.ts` re-exports `modules/media`; legacy `repositories/storage.ts` deleted | Do not revive the storage repository; new Media logic in `server/modules/media/` (ADR 0004) |
 | Auth/users services split Identity + Social | `server/services/auth.ts` re-exports Identity; `users.ts` re-exports Identity profiles + Social friends | New Identity logic in `server/modules/identity/`; friendship mutation in `server/modules/social/` (ADR 0005) |
