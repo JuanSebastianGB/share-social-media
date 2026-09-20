@@ -105,7 +105,7 @@ HTTP request
 
 **Media BC (done / migrated):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
 
-**Social BC (in progress):** `server/modules/social/` — hexagonal DDD; domain `FriendList` aggregate, `FriendListRepository` port, DynamoDB + in-memory adapters, `toggleFriendship` + list-friends composition. Controllers call the Social facade for toggle/list friends (`modules/social`; `services/users.ts` re-exports friends paths). Friends remain `friends[]` on USER items (no `FRIEND#` edges). Safety nets: `users.characterization.test.ts`, Social module unit/property tests, and `social.integration.spec.ts`. CONTEXT Social stays **In progress** until the feature PR merges.
+**Social BC (done / migrated):** `server/modules/social/` — hexagonal DDD; domain `FriendList` aggregate, `FriendListRepository` port, DynamoDB + in-memory adapters, `toggleFriendship` + list-friends composition. Controllers call the Social facade for toggle/list friends (`modules/social`; `services/users.ts` re-exports friends paths). Friends remain `friends[]` on USER items (no `FRIEND#` edges). Safety nets: `users.characterization.test.ts`, Social module unit/property tests, and `social.integration.spec.ts`.
 
 **Dual entrypoints:**
 
@@ -138,7 +138,7 @@ server/
   modules/comments/      Comments BC (hexagonal DDD)
   modules/identity/      Identity BC (hexagonal DDD)
   modules/media/         Media BC (hexagonal DDD)
-  modules/social/        Social graph BC (hexagonal DDD; in progress)
+  modules/social/        Social graph BC (hexagonal DDD)
   repositories/          DynamoDB access still used by Items (`items.ts`) only
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
@@ -163,7 +163,7 @@ server/
 
 **Compliant:** `controllers/storage.ts` → Media module facade (`modules/media` / `services/storage.ts` re-export) → Dynamo adapter. Soft-delete is domain then save; hard-delete orchestrates object-store cleanup outside the domain. Keep `/storage` and `/defaulstorage` HTTP contracts unchanged.
 
-**Compliant (Social, in progress until PR merge):** `controllers/users.ts` friends paths → Social module facade (`modules/social` / `services/users.ts` friends re-exports) → Dynamo adapter on USER.`friends`. Keep `friends[]` on USER; keep `/users/:id/:friendId` and `/users/:id/friends` HTTP contracts unchanged. Do not reintroduce Identity `toggleFriend`.
+**Compliant:** `controllers/users.ts` friends paths → Social module facade (`modules/social` / `services/users.ts` friends re-exports) → Dynamo adapter on USER.`friends`. Keep `friends[]` on USER; keep `/users/:id/:friendId` and `/users/:id/friends` HTTP contracts unchanged. Do not reintroduce Identity `toggleFriend`.
 
 **Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
@@ -206,7 +206,7 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Media (done / migrated):** the Media bounded context lives under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. New media domain logic belongs in the Media module, not in controllers or a revived storage repository.
 
-**Social (in progress):** the Social graph bounded context lives under `server/modules/social/` (hexagonal DDD; wired). See [CONTEXT.md](../CONTEXT.md) and [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md). Domain owns `FriendList`; persistence stays `friends[]` on USER (no `FRIEND#` edges). Controllers call the Social facade; Identity no longer owns friendship mutation. CONTEXT stays **In progress** until the feature PR merges.
+**Social (done / migrated):** the Social graph bounded context lives under `server/modules/social/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md). Domain owns `FriendList`; persistence stays `friends[]` on USER (no `FRIEND#` edges). Controllers call the Social facade; Identity no longer owns friendship mutation.
 
 ### Entities (implemented)
 
@@ -554,8 +554,8 @@ Documented so agents do not “clean up” blindly without tests and product int
 | items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Storage service is Media facade | `server/services/storage.ts` re-exports `modules/media`; legacy `repositories/storage.ts` deleted | Do not revive the storage repository; new Media logic in `server/modules/media/` (ADR 0004) |
-| Auth/users services split Identity + Social | `server/services/auth.ts` re-exports Identity; `users.ts` re-exports Identity profiles + Social friends | New Identity logic in `server/modules/identity/`; friendship mutation in `server/modules/social/` (ADR 0005; CONTEXT In progress until PR merge) |
-| Social graph wired, PR not merged | Friends still `friends[]` on USER; Social owns toggle/list; Identity keeps read-only `friends[]` on snapshots | New friendship domain logic goes in `server/modules/social/`; do not add `FRIEND#` edges; do not revive Identity `toggleFriend` |
+| Auth/users services split Identity + Social | `server/services/auth.ts` re-exports Identity; `users.ts` re-exports Identity profiles + Social friends | New Identity logic in `server/modules/identity/`; friendship mutation in `server/modules/social/` (ADR 0005) |
+| Social graph Done | Friends still `friends[]` on USER; Social owns toggle/list; Identity keeps read-only `friends[]` on snapshots | New friendship domain logic goes in `server/modules/social/`; do not add `FRIEND#` edges; do not revive Identity `toggleFriend` |
 | Scan-based lists | users, comments (Comments `list()`), items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
 | `/defaulstorage` typo | Real mounted path | Keep path for client compat; do not “fix” spelling without client change |

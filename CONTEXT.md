@@ -9,7 +9,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Feed | Done (DDD hexagonal) | `server/modules/feed/` |
 | Comments | Done (DDD hexagonal) | `server/modules/comments/` |
 | Identity | Done (DDD hexagonal) | `server/modules/identity/` |
-| Social graph | In progress (DDD hexagonal) | `server/modules/social/` |
+| Social graph | Done (DDD hexagonal) | `server/modules/social/` |
 | Media | Done (DDD hexagonal) | `server/modules/media/` |
 | Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
 
