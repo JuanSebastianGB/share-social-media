@@ -1,4 +1,14 @@
 node_modules
+dist
+cdk.out
+coverage
 .env
 .vscode
 storage/*
+!storage/.gitkeep
+!server/storage/.gitkeep
+*.log
+.DS_Store
+# Local AI runtime state
+.atl/
+.codegraph/
