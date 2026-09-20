@@ -306,5 +306,5 @@ API must be reachable at `VITE_APP_BASE_URL` (typically `http://localhost:3000`)
 | SWR mostly unused | Dependency present | Prefer hooks + services |
 | `@ts-ignore` in places | Legacy | Remove only when typing is fixed properly |
 | Nested client lockfile | Legacy | Use root `pnpm-lock.yaml` |
-| `/defaulstorage` client call | Matches server typo | Keep spelling until coordinated rename |
+| `/defaultstorage` client call | Default file bootstrap | Called during register; idempotent (null on subsequent calls) |
 | Hardcoded dropzone border color | Local hex | Prefer theme tokens in new UI |

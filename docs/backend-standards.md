@@ -164,7 +164,7 @@ server/
 
 **Compliant:** `controllers/auth.ts` / `controllers/users.ts` profile paths → Identity module facade (`modules/identity` / `services/auth.ts` + Identity re-exports on `services/users.ts`) → Dynamo adapter. Dual-mode auth stays explicit. Friends remain embedded on USER for reads; friendship mutation is Social.
 
-**Compliant:** `controllers/storage.ts` → Media module facade (`modules/media` / `services/storage.ts` re-export) → Dynamo adapter. Soft-delete is domain then save; hard-delete orchestrates object-store cleanup outside the domain. Keep `/storage` and `/defaulstorage` HTTP contracts unchanged.
+**Compliant:** `controllers/storage.ts` → Media module facade (`modules/media` / `services/storage.ts` re-export) → Dynamo adapter. Soft-delete is domain then save; hard-delete orchestrates object-store cleanup outside the domain. Keep `/storage` and `/defaultstorage` HTTP contracts unchanged.
 
 **Compliant:** `controllers/users.ts` friends paths → Social module facade (`modules/social` / `services/users.ts` friends re-exports) → Dynamo adapter on USER.`friends`. Keep `friends[]` on USER; keep `/users/:id/:friendId` and `/users/:id/friends` HTTP contracts unchanged. Do not reintroduce Identity `toggleFriend`.
 
@@ -306,7 +306,7 @@ Mounted in `server/app.ts`:
 | `/comments` | per-route | comment CRUD |
 | `/items` | per-route | item CRUD (+ cache on list) |
 | `/storage` | **JWT on entire mount** | file metadata CRUD |
-| `/defaulstorage` | none | **Legacy typo path** — ensures default image row |
+| `/defaultstorage` | none | Default file bootstrap — idempotent: first call creates DEFAULT_IMAGE_ID row, subsequent return null |
 
 No URL versioning (`/v1`). No HATEOAS.
 
@@ -564,7 +564,7 @@ Documented so agents do not “clean up” blindly without tests and product int
 | Social graph Done | Friends still `friends[]` on USER; Social owns toggle/list; Identity keeps read-only `friends[]` on snapshots | New friendship domain logic goes in `server/modules/social/`; do not add `FRIEND#` edges; do not revive Identity `toggleFriend` |
 | Scan-based lists | users, comments (Comments `list()`), items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
-| `/defaulstorage` typo | Real mounted path | Keep path for client compat; do not “fix” spelling without client change |
+| `/defaultstorage` | Default file bootstrap | Idempotent endpoint — do not change return shape without updating client |
 | Mongo-style hex ids | `isMongoId()` validators | Keep generating 24-hex ids |
 | `handleHttpErrors` → 403 string | Characterized | Preserve unless intentionally migrating API |
 | Stale `/documentation` Swagger | Served but outdated | Update `docs/api-spec.yml` first |

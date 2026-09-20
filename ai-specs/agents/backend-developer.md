@@ -81,5 +81,5 @@ Example: I've created a plan at `ai-specs/plans/{feature_name}/backend.md`, read
 - ALWAYS write the plan to `ai-specs/plans/{feature_name}/backend.md`
 - If the standards documents are missing or contradict each other, say so and stop —
   do not fill the gap with assumptions
-- Do not “fix” `/defaulstorage` spelling, Scan lists, or open auth gaps without tests +
+- Do not change `Scan` lists, open auth gaps, or other shared behavior without tests +
   explicit product intent
