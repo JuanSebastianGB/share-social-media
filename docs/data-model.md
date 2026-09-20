@@ -129,10 +129,10 @@ A feed post. Likes are a map of `userId → true`. Comments are an array of COMM
 
 ### 4. COMMENT
 
-> Status: implemented
+> Status: implemented — Comments BC under `server/modules/comments/` ([CONTEXT.md](../CONTEXT.md), [ADR 0002](./adr/0002-comments-ddd-hexagonal.md))
 
 A comment authored by a user. Association to a post is maintained by appending the comment
-id onto `Post.comments` at create time (`controllers/comments.ts`). The COMMENT item itself
+id onto `Post.comments` at create time (Comments create-on-post → Feed attach). The COMMENT item itself
 has no `postId` attribute.
 
 **Keys:**
@@ -275,7 +275,7 @@ erDiagram
 
 - **Single-table design:** all entity types share one table; `entityType` and key prefixes discriminate.
 - **Embedded social graph:** friends and likes are attributes, not rows — simplifies demo writes, complicates querying “who liked X” at scale.
-- **Comment linkage is denormalized:** create writes COMMENT item + updates POST.`comments`; deleting a comment does not automatically repair the post array (verify behavior before assuming cascade).
+- **Comment linkage is denormalized:** create writes COMMENT item + updates POST.`comments` (Comments BC + Feed attach); deleting a comment does not automatically repair the post array (verify behavior before assuming cascade). See [ADR 0002](./adr/0002-comments-ddd-hexagonal.md).
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.
 - **Id strategy** remains Mongo-compatible hex for validator compatibility (`isMongoId`).
