@@ -75,10 +75,11 @@ User (2026-09-19): “I want them all” for A + B + C.
 
 ## Progress
 
-- Branch: `feat/infra-hardening-auth`
-- Next: T3 (CD wire `VITE_APP_BASE_URL`)
-- Delivery: `feature-branch-chain` chosen
-- T1+T2 done (uncommitted; parent owns commit)
+- Tracker: `feat/infra-hardening-auth` (`ab10533`)
+- PR1 branch: `feat/infra-hardening-auth-01-jwt-harden` (`1f96e0b` T1+T2)
+- Next: T3 (CD wire `VITE_APP_BASE_URL`) on next child branch after T3
+- Delivery: `feature-branch-chain`
+- Authored lines so far (PR1 vs tracker): 224
 
 ## Decisions
 
@@ -90,4 +91,4 @@ User (2026-09-19): “I want them all” for A + B + C.
 
 ## Verification evidence
 
-- **T1+T2** (2026-09-19): `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER` (existing `checkValidJwt` behavior). Public GETs remain open.
+- **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open.
