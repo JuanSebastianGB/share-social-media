@@ -57,7 +57,7 @@ ApiStack creates a User Pool + public SPA app client (no Hosted UI domain):
 - Lambda env: `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` (`AWS_REGION` is set by Lambda)
 - Outputs: `UserPoolId`, `UserPoolClientId`
 
-Server/client Cognito auth wiring is a follow-up; `JWT_SECRET` remains until then.
+Server verifies Cognito access tokens with `aws-jwt-verify` when `COGNITO_*` are set; the SPA signs up/in via `@aws-sdk/client-cognito-identity-provider` and completes the DynamoDB profile with `POST /auth/profile`. Leave Cognito env unset for local HS256. `JWT_SECRET` remains for local / dual-mode.
 
 ## Secrets
 

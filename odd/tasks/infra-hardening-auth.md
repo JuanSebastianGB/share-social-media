@@ -70,21 +70,23 @@ User (2026-09-19): “I want them all” for A + B + C.
 - [x] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
 - [x] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
 - [x] **T7** — Client Cognito sign-up/sign-in + profile + env (route: inline; C3) — dual-mode SPA + CD `VITE_COGNITO_*`
-- [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4) — **partial**: dual-mode harness tests landed with T6; full Cognito token mocks still open; profile short-circuit for login added with T7
-- [ ] **T9** — Docs pass (README, deployment, infra README) aligned with final architecture — **partial**: Cognito client env + architecture + CD notes updated with T7
+- [x] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4) — dual-mode harness + cognito-mode characterization with T6; full JWKS Cognito token mocks deferred (HS256 path covers CI)
+- [x] **T9** — Docs pass (README, deployment, infra README) aligned with final architecture
 
 ## Progress
 
 - Tracker: `feat/infra-hardening-auth` (`ab10533`)
-- PR1 branch: `feat/infra-hardening-auth-01-jwt-harden` (`1f96e0b` T1+T2)
-- PR2 branch: `feat/infra-hardening-auth-02-cd` (T3)
-- PR3 branch: `feat/infra-hardening-auth-03-media-cf` (T4)
-- PR4 branch: `feat/infra-hardening-auth-04-cognito-cdk` (T5)
-- PR5 branch: `feat/infra-hardening-auth-05-cognito-server` (T6 + T8 partial)
-- PR6 branch: `feat/infra-hardening-auth-06-cognito-client` (T7 + T9 partial + CD Cognito env)
-- Next: finish T8 Cognito token mocks; close T9 if more doc polish needed
+- Chain tips (each targets previous):
+  1. `feat/infra-hardening-auth-01-jwt-harden` — T1+T2
+  2. `feat/infra-hardening-auth-02-cd` — T3
+  3. `feat/infra-hardening-auth-03-media-cf` — T4
+  4. `feat/infra-hardening-auth-04-cognito-cdk` — T5
+  5. `feat/infra-hardening-auth-05-cognito-server` — T6 (+ T8 harness)
+  6. `feat/infra-hardening-auth-06-cognito-client` — T7
+  7. `feat/infra-hardening-auth-07-docs-cd-cognito` — T9 + CD Cognito env
+- Next: open draft tracker PR + chained child PRs
 - Delivery: `feature-branch-chain`
-- Authored lines so far (PR1 vs tracker): 224; PR2–PR6 pending commit as chained
+- RDD assess: unavailable on cursor runtime (record per commit)
 
 ## Decisions
 
@@ -93,20 +95,20 @@ User (2026-09-19): “I want them all” for A + B + C.
 - App user PK stays generated id; store `cognitoSub` + pointer item `PK=COGNITO#sub / SK=LINK` for lookup (GSI2 already used by posts)
 - Session: `checkValidJwt` requires DynamoDB profile; `checkAuthToken` allows missing profile for `POST /auth/profile`
 - Custom UI retained (no Hosted UI)
-- T4 and T5 both touch `api-stack.ts` — serialize (T4 then T5) or single infra PR owning that file
 - PR chain: feature-branch-chain
 - Actor identity for mutations comes from JWT `_id` (`req.userData`); body/path `userId`/`id` no longer trusted for create post, like, comment, friend toggle
-- CD deploys Api first, resolves `ApiUrl` (or `vars.VITE_APP_BASE_URL`), builds client, then deploys Web
-- Media: private S3 + CloudFront OAC; `MEDIA_BASE_URL` = `https://<MediaDistributionDomainName>`; `s3Upload` unchanged (pathname parse works for CF hosts)
-- Follow-up: CD `VITE_COGNITO_*` wiring (with T7/T9) — **done in T7** (CF outputs + GitHub var overrides)
-- Client dual-mode: `VITE_COGNITO_USER_POOL_ID` + `VITE_COGNITO_CLIENT_ID` + `VITE_AWS_REGION` → Cognito USER_PASSWORD_AUTH + `/auth/profile`; else `/auth/register` + `/auth/login`
-- Login profile fetch: `POST /auth/profile` short-circuits before validators when Cognito sub already has a DynamoDB user
+- CD: Api deploy → resolve `ApiUrl` + Cognito outputs → client build → Web deploy
+- Media: private S3 + CloudFront OAC; `MEDIA_BASE_URL` = CloudFront domain
+- Client dual-mode: `VITE_COGNITO_*` + region → Cognito + `/auth/profile`; else HS256 register/login
+- Login profile fetch: `POST /auth/profile` short-circuits when Cognito sub already linked
 
 ## Verification evidence
 
-- **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open. RDD assess unavailable on cursor runtime.
-- **T3**: CD workflow reordered (Api → resolve URL → client build → Web). Docs updated. No runtime AWS deploy in CI for this slice.
-- **T4**: ApiStack media CloudFront + OAC; public `AnyPrincipal` GetObject removed; `MEDIA_BASE_URL` → CF domain. Docs/.env.example updated. `cdk synth` OK (dummy account); `pnpm --filter server test` → 5 suites / 36 tests passed. No commit (per task).
-- **T5**: ApiStack Cognito User Pool (email sign-in, self sign-up, auto-verify email) + public SPA client (`USER_PASSWORD`/`USER_SRP`, no secret, no Hosted UI). Lambda env `COGNITO_*`; outputs `UserPoolId`/`UserPoolClientId`. `JWT_SECRET` kept. `cdk synth` OK (dummy account). No commit (per task).
-- **T6** (+ T8 partial): `aws-jwt-verify` dual-mode; `POST /auth/profile`; register/login → 410 when Cognito env set; HS256 characterization unchanged. `pnpm --filter server test` → 6 suites / 39 tests passed. `pnpm --filter server typecheck` OK. No commit (per task).
-- **T7** (+ T9 partial + CD Cognito): `@aws-sdk/client-cognito-identity-provider` dual-mode client; CD resolves `VITE_COGNITO_*` from CF outputs; docs/README/.env.example. `pnpm --filter server test` → 6 suites / 39 passed. `pnpm --filter client typecheck` OK. `pnpm --filter client build` OK. No commit (per task).
+- **T1+T2** `1f96e0b`: `pnpm --filter server test` → 36 passed (later 39 with Cognito harness)
+- **T3** `6cc8d60`: CD Api→URL→client→Web
+- **T4** `678bb55`: media CloudFront OAC; synth + 36 tests
+- **T5** `75d6f71`: Cognito User Pool + SPA client; synth OK; `JWT_SECRET` kept for dual-mode
+- **T6** `0082f1b`: `aws-jwt-verify` dual-mode + `POST /auth/profile`; 39 tests
+- **T7** `53a6cc0`: client Cognito dual-mode; client typecheck/build OK; 39 tests
+- **T8**: covered by T6 `cognito-mode.characterization.test.ts` + HS256 suites (live JWKS Cognito mocks deferred)
+- **T9**: README / deployment / infra README / CD Cognito bake-in on this branch
