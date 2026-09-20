@@ -47,8 +47,8 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 - [x] **T2** — domain-tdd — FriendList aggregate + unit (+ property) — route: delegated — commit: `3c1be024fbf33bac988cd07c69fb41ff89fb502d`
 - [x] **T3** — ports-adapters — FriendListRepository + in-memory + Dynamo (USER.friends field) — route: delegated — commit: `dfdea9457e283ce8b3d0e7a694cacaaff8371860`
 - [x] **T4** — use-cases-wire — toggle + list friends; wire controllers/services; strip Identity toggle; characterization green — route: delegated — commit: `e12d0813cbbb47436476775e8c136dde7a73017c`
-- [x] **T5** — integration — DynamoDB Local social specs (friends toggle HTTP/DB) — route: delegated — commit:
-- [x] **T6** — docs-finalize — CONTEXT glossary; standards; guides; mark Done after merge — route: delegated — commit:
+- [x] **T5** — integration — DynamoDB Local social specs (friends toggle HTTP/DB) — route: delegated — commit: `8c28e701b874e2f7a888cc536ba95ce060e88269`
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; guides; mark Done after merge — route: delegated — commit: `8c28e701b874e2f7a888cc536ba95ce060e88269`
 
 ## Acceptance
 
