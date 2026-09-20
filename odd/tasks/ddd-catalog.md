@@ -46,7 +46,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
 - [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: 3d0578e
-- [x] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated — commit: PENDING
+- [x] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated — commit: e4279d4
 - [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
 - [ ] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated
 
@@ -78,7 +78,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
   - RED: `pnpm --filter server test -- --testPathPattern='catalog/application/use-cases'` — suite failed (TS2307 missing use-case modules)
   - GREEN: same pattern — 1 suite / 10 tests; characterization — 1 suite / 9 tests; full `pnpm --filter server test` — 31 suites / 214 tests passed
   - Delivered: CRUD use cases + InMemory tests; `composition.ts` facade (`toLegacyItemRecord`, list/get/create/update/delete services); `services/items.ts` thin re-export; `controllers/items.ts` wired to facade only (keeps ERROR_CREATE_ITEM list quirk); `items.characterization.test.ts` with local `elevateToAdmin` (Dynamo role Update + re-login); legacy `repositories/items.ts` kept for T6
-  - Commit: PENDING
+  - Commit: `e4279d4`
 - Next: T5 integration
 
 ## Delivery
