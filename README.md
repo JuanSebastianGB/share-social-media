@@ -1,89 +1,103 @@
-## Share Social Media fullstack application
+# Share Social Media
 
-![enter image description here](https://github.com/JuanSebastianGB/infinite-scroll-v2/blob/main/Sin%20t%C3%ADtulo.png?raw=true)
+Full-stack social media demo: React client + Express API, modernized for TypeScript, characterization tests, GitHub Actions, and low-cost AWS serverless hosting.
 
-> Share social media is a javascript fullstack application that implements a Social Media Website, consisting of a complete Login/Registration system, User Profile system, of the owners and the other users , and Post system Managment System including Comments.
+## Architecture
 
-![enter image description here](https://github.com/JuanSebastianGB/infinite-scroll-v2/blob/main/structure.png?raw=true)
+```mermaid
+flowchart LR
+  User --> CF[CloudFront]
+  CF --> S3[S3_static_client]
+  User --> APIGW[HttpApi]
+  APIGW --> Lambda[Express_Lambda]
+  Lambda --> DDB[DynamoDB]
+  Lambda --> MediaS3[S3_media]
+  Lambda --> SM[Secrets_Manager]
+```
 
-### Features ☆*: .｡. o(≧▽≦)o .｡.:*☆
+| Layer | Tech |
+|-------|------|
+| Client | React 18, Vite, TypeScript, MUI, Redux |
+| API | Express (TypeScript), JWT, AWS SDK |
+| Media | S3 (`uploads/`) |
+| Data | DynamoDB (on-demand, single-table) |
+| Hosting | S3 + CloudFront (static SPA) |
+| IaC | AWS CDK — HTTP API, Lambda, DynamoDB, S3 (site + media), CloudFront |
+| CI/CD | GitHub Actions (OIDC deploy) |
 
-- ✅ Post Home page
-- ✅ Profile page
-- ✅ Create and list Posts
-- ✅ Infinite scroll
-- ✅ Add Friend
-- ✅ Like Posts
-- ✅ Comment posts.
+## Features
 
-### Installation in development mode
+- Auth (register / login)
+- Profiles and friends
+- Posts with likes, comments, infinite scroll
+- File uploads via S3
 
-**backend**
+## Quick start (local)
 
-    $ cd / server
-    $ pnpm start
+```bash
+pnpm install
+cp server/.env.example server/.env   # fill values
+cp client/.env.example client/.env   # VITE_APP_BASE_URL=http://localhost:3000
 
-**frontend**
+pnpm --filter server dev
+pnpm --filter client dev
+```
 
-    $ cd / client
-    $ pnpm dev
+### Environment
 
-### Required environment variables
+**Server** (`server/.env`):
 
-**backend**
+| Variable | Description |
+|----------|-------------|
+| `PORT` | API port (default 3000) |
+| `TABLE_NAME` | DynamoDB table (default `ShareSocialMedia`) |
+| `DYNAMODB_ENDPOINT` | Optional local endpoint; use `memory` for in-process tests |
+| `AWS_REGION` | AWS region for DynamoDB |
+| `PUBLIC_URL` | Public base URL for stored files |
+| `MEDIA_BUCKET` | S3 bucket for uploads |
+| `MEDIA_BASE_URL` | Public URL prefix for media objects |
+| `MEDIA_ENDPOINT` | Optional; `memory` stubs uploads locally |
+| `JWT_SECRET` | JWT signing secret |
 
-    PORT=<port were server is gonna work>
-    DB_URI=<mongodb+srv>
-    PUBLIC_URL= : ex. http:localhost:5000
-    JWT_SECRET=<random tring to token generation>
-    DEFAULT_IMAGE_ID=<a default mongo storage id must be provided>
+**Client** (`client/.env`):
 
-**frontend**
+| Variable | Description |
+|----------|-------------|
+| `VITE_APP_BASE_URL` | API base URL |
+| `VITE_APP_DEFAULT_IMAGE_ID` | Default storage file id for avatars/posts |
 
-    VITE_APP_BASE_URL=<URL : ex. http:localhost:5000>
-    VITE_APP_DEFAULT_IMAGE_ID=<a default mongo storage id must be provided>
+## Scripts
 
-## Structure
+| Command | Description |
+|---------|-------------|
+| `pnpm lint` | ESLint (client + server) |
+| `pnpm typecheck` | TypeScript across packages |
+| `pnpm test` | Server characterization tests |
+| `pnpm build` | Build packages |
+| `pnpm --filter server dev` | API with hot reload |
+| `pnpm --filter client dev` | Vite dev server |
 
-**backend** 🕶️
+## Documentation
 
-> MVC pattern
+- [Development guide](docs/development.md) — tooling, tests, conventions
+- [Deployment guide](docs/deployment.md) — CDK, secrets, CI/CD, cost notes
+- [Infra README](infra/README.md) — CDK stacks overview
 
-- controllers
-- models
-- routes
-- services
-- storage
-- validators
-- utilities
-- middleweares
-- database
+## Package layout
 
-**frontend**
+```
+client/   React SPA
+server/   Express API (server.ts local, handler.ts Lambda)
+infra/    AWS CDK app
+docs/     Development and deployment guides
+```
 
-> Clean Architecture 🗒️
+## Backlog (not in this modernization pass)
 
-- models
-- components
-- pages
-- hooks
-- services
-- utilities
-- styled-components
-- redux
-- interceptors
-- adapters
-- constants
+- Tighten JWT on comments / likes / deletes (currently characterized as open)
+- OAuth providers, websockets, bookmarks
+- UI redesign
 
-## Future Improvements 🕚
+## Author
 
-- Improve the user interface to make it as friendly as possible.
-- Implement registration using google or facebook.
-- Implement bookmarks or favorites of posts or specific content.
-- Implement features where notifications to the user are contemplated, configuration options, editing and customization of the profile.
-- Implement websockets for chat section.
-- Implement SWR (stale while revalidate) to always have the most up-to-date information.
-
-## Authors
-
-Sebastian Gonzalez | [GitHub](https://github.com/JuanSebastianGB)
+Sebastian Gonzalez — [GitHub](https://github.com/JuanSebastianGB)
