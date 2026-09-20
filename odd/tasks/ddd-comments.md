@@ -48,15 +48,15 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 - [x] T3 ports-adapters — CommentRepository port, in-memory, Dynamo adapter — route: delegated — commit: 9b1df6f5a17f0250af1862b4e038fe56277f7c6c
 - [x] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated — commit: ea0d39cc9e8d50e86aefcab9e4c0c76b3190d2a2
 - [x] T5 integration-docker — DynamoDB Local comment specs (reuse Feed Testcontainers) — route: delegated — commit: 533073d4d2b333d91affaf534d2c0e84fcb91fad
-- [ ] T6 docs-finalize — CONTEXT glossary complete; standards; development_guide cross-links — route: delegated
+- [x] T6 docs-finalize — CONTEXT glossary complete; standards; development_guide cross-links — route: delegated — commit: pending
 
 ## Acceptance
 
-- Characterization comments + posts suites green
-- Domain unit + property tests green
-- Controllers call Comments facade (no direct repo for Comments paths)
-- Create still returns hydrated Post via Feed
-- Optional: integration green with Docker
+- Characterization comments + posts suites green — verified (`pnpm --filter server test` 14 suites / 89 tests)
+- Domain unit + property tests green — verified (Comments module tests in the same suite)
+- Controllers call Comments facade (no direct repo for Comments paths) — verified on branch
+- Create still returns hydrated Post via Feed — verified (characterization + integration)
+- Optional: integration green with Docker — verified (`pnpm --filter server test:integration` 2 suites / 4 tests)
 
 ## Progress
 
@@ -67,9 +67,11 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 - T3: CommentRepository port + InMemory + Dynamo adapters green (`pnpm --filter server test` 13 suites / 77 tests); no `update()` on port; `list()` unsorted (legacy Scan); Dynamo item shape matches `repositories/comments.ts` (`userId` ↔ `authorId`)
 - T4: use cases + composition facade + thin comments/posts controllers; `pnpm --filter server test` 14 suites / 89 tests (characterization green); legacy `repositories/comments.ts` left unused (strangler, like posts); `updateNames` on Comment for legacy name patches; create orchestrates Feed attach via injectable ports
 - T5: `server/tests/comments.integration.spec.ts` mirrors Feed Testcontainers setup; repo + service persist/read-back + POST /comments create-on-post HTTP/DB oracles; `pnpm --filter server test:integration` 2 suites / 4 tests; unit suite still 14 / 89
+- T6: docs-finalize complete — CONTEXT Comments glossary + invariants; backend-standards Comments BC (facade, characterization + module + `comments.integration.spec.ts`, unused `repositories/comments.ts` remnant); development guides mirror Feed test docs; data-model + ADR 0002 cross-links; CONTEXT Comments status remains **In progress** until PR merges (Feed stayed In progress through its own finalize/merge; marked Done later after merge)
+- Feature checklist complete for plan scope on `feat/ddd-comments`
 
 ## Delivery
 
 - Strategy: feature-branch-chain
 - Forecast authored lines: ~800–1200 (similar to Feed slice)
-- Running authored lines: ~1318 (T1–T5; T5 ~200)
+- Running authored lines: ~1318 (T1–T5; T5 ~200) + T6 docs
