@@ -42,7 +42,8 @@ Read, in this order:
   they are unused; forms are Formik + Yup.
 - **Service layer**: Axios via `Api` (multipart) / `ApiJson` (JSON); Cognito behind
   `isCognitoClientEnabled()`. Keep multipart field name **`myFile`**. Preserve calls to
-  `/defaulstorage` spelling unless a coordinated rename is in scope.
+  backend URLs as declared in `docs/api-spec.yml`. If a rename is in
+  scope, coordinate the client with the server in the same PR.
 - **Loading and error states**: Spinner, ErrorContent, toasts — name them explicitly.
 - **Routing**: `BrowserRouter` routes in `App.tsx`, auth redirects via token.
 - **Styling**: MUI + `makeTheme` tokens from `themeConfig.ts`; avoid new hardcoded palettes.
