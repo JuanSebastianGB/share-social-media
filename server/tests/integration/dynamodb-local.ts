@@ -5,10 +5,9 @@ import {
   resetDynamoConnection,
 } from '../../database/dynamo.js';
 import { resetDocClient } from '../../db/client.js';
-import {
-  createStorage,
-  getStorageById,
-} from '../../repositories/storage.js';
+import { MediaFile } from '../../modules/media/domain/media-file.js';
+import { DynamoMediaFileRepository } from '../../modules/media/infrastructure/dynamodb-media-file-repository.js';
+import { getFileService } from '../../services/storage.js';
 
 export type DynamoLocalHandle = {
   container: StartedTestContainer;
@@ -26,14 +25,18 @@ export function getDynamoLocalHandle(): DynamoLocalHandle | undefined {
   return handle;
 }
 
+const mediaFileRepository = new DynamoMediaFileRepository();
+
 async function ensureDefaultStorage() {
-  const file = await getStorageById(DEFAULT_IMAGE_ID);
+  const file = await getFileService(DEFAULT_IMAGE_ID);
   if (!file) {
-    await createStorage({
-      _id: DEFAULT_IMAGE_ID,
-      fileName: 'default-stub',
-      url: 'https://media.local/uploads/default.jpg',
-    });
+    await mediaFileRepository.save(
+      MediaFile.create({
+        id: DEFAULT_IMAGE_ID,
+        fileName: 'default-stub',
+        url: 'https://media.local/uploads/default.jpg',
+      }),
+    );
   }
 }
 

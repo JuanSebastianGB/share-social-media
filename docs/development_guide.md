@@ -162,7 +162,9 @@ Comments DDD tests live under `server/modules/comments/` (`*.test.ts`) and `serv
 
 Identity DDD tests live under `server/modules/identity/` (`*.test.ts`) and `server/tests/identity.integration.spec.ts`.
 
-There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, or Identity invariants.
+Media DDD tests live under `server/modules/media/` (`*.test.ts`) and `server/tests/media.integration.spec.ts`.
+
+There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, Identity, or Media invariants.
 
 ### Frontend Testing
 

@@ -160,7 +160,7 @@ has no `postId` attribute.
 
 ### 5. FILE (storage)
 
-> Status: implemented
+> Status: implemented — Media BC under `server/modules/media/` ([CONTEXT.md](../CONTEXT.md), [ADR 0004](./adr/0004-media-ddd-hexagonal.md))
 
 Metadata for an uploaded media object. Bytes live in S3 (or memory stub); `url` holds the
 public CloudFront/S3/memory URL. Soft delete sets `deleted: true` (reads hide soft-deleted).
@@ -176,7 +176,7 @@ public CloudFront/S3/memory URL. Soft delete sets `deleted: true` (reads hide so
 **Fields:**
 
 - `_id`: File id (24-hex); default avatar id constant `63cf4d2242c5e33c105a87eb` (`DEFAULT_IMAGE_ID`)
-- `fileName` / `filename`: Original name (both may be present for legacy compat)
+- `fileName` / `filename`: Original name (both may be present for legacy compat on read; writes use `fileName`)
 - `url`: Public URL string
 - `deleted`: Boolean (default false)
 - `createdAt` / `updatedAt`: ISO-8601
@@ -279,6 +279,7 @@ erDiagram
 - **Embedded social graph:** friends and likes are attributes, not rows — simplifies demo writes, complicates querying “who liked X” at scale.
 - **Comment linkage is denormalized:** create writes COMMENT item + updates POST.`comments` (Comments BC + Feed attach); deleting a comment does not automatically repair the post array (verify behavior before assuming cascade). See [ADR 0002](./adr/0002-comments-ddd-hexagonal.md).
 - **Identity USER + COGNITO_LINK:** profile and optional Cognito pointer live in the Identity BC (`server/modules/identity/`). See [ADR 0003](./adr/0003-identity-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
+- **Media FILE metadata:** soft/hard delete and object-store side effects live in the Media BC (`server/modules/media/`). See [ADR 0004](./adr/0004-media-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.
 - **Id strategy** remains Mongo-compatible hex for validator compatibility (`isMongoId`).
