@@ -103,7 +103,7 @@ HTTP request
 
 **Identity BC (done / migrated):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns, embedded `friends[]` approach B), application use cases, `UserRepository` port, DynamoDB + in-memory adapters. Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export it for compatibility. Session middleware and Feed assembler use the facade. Legacy `server/repositories/users.ts` (and unused `posts.ts`) were removed after the strangler cleanup.
 
-**Media BC (done / migrated; CONTEXT status In progress until PR merges):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
+**Media BC (done / migrated):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
 
 **Dual entrypoints:**
 
@@ -135,7 +135,7 @@ server/
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
   modules/identity/      Identity BC (hexagonal DDD)
-  modules/media/         Media BC (hexagonal DDD; CONTEXT In progress until PR merges)
+  modules/media/         Media BC (hexagonal DDD)
   repositories/          DynamoDB access still used by Items (`items.ts`) only
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
@@ -199,7 +199,7 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Identity (done / migrated):** the Identity bounded context lives under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later). New identity domain logic belongs in the Identity module.
 
-**Media (done / migrated; CONTEXT status In progress until PR merges):** the Media bounded context lives under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. New media domain logic belongs in the Media module, not in controllers or a revived storage repository.
+**Media (done / migrated):** the Media bounded context lives under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. New media domain logic belongs in the Media module, not in controllers or a revived storage repository.
 
 ### Entities (implemented)
 

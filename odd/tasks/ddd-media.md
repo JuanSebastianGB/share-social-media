@@ -79,7 +79,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
   5. `feat/ddd-media-05-wire` → `feat/ddd-media-04-ports` — T4 — **#56** (~441, size:exception)
   6. `feat/ddd-media-06-integration-docs` → `feat/ddd-media-05-wire` — T5+T6 — **#57** (~418, size:exception)
 - Merge: review children; ship via tracker #51 → main; then mark Media Done in CONTEXT
-- Next: review/merge chain; CONTEXT Media Done follow-up after #51 merges
+- Shipped: tracker #51 merged to main (`216b10c`); children #52–#57 closed as included (#52 also recorded merged)
+- CONTEXT Media marked Done (follow-up docs commit)
 
 ## Applicable checks
 

@@ -25,7 +25,7 @@ Out of scope for this migration: Social graph extract, Catalog (Items), the clie
 
 - New Media work lands in `server/modules/media/`, not in ad-hoc controller → service → repository deepening.
 - Controllers must not contain file metadata create/update/delete business rules once wired; call the Media facade (`modules/media` / thin `services/storage.ts` re-export).
-- Docs (`CONTEXT.md`, backend-standards) describe the Media hexagonal BC; CONTEXT keeps Media **In progress** until the feature PR merges (Comments/Identity stayed In progress through finalize; Feed was marked Done after its merge).
+- Docs (`CONTEXT.md`, backend-standards) describe the Media hexagonal BC; CONTEXT Media is marked **Done** after the feature PR merges (same as Feed/Comments/Identity).
 - Soft-delete stays a domain concern; object-store hard-delete is application/infra orchestration.
 - Legacy `server/repositories/storage.ts` was deleted after Media wire; do not revive it.
 - Characterization (storage/posts/auth that touch media) plus Media module unit/property tests and `media.integration.spec.ts` (DynamoDB Local) lock behavior.
