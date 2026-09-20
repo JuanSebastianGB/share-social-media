@@ -1,0 +1,77 @@
+name: CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      stacks:
+        description: 'CDK stacks to deploy (default: all)'
+        required: false
+        default: '--all'
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'client/**'
+      - 'infra/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/cd.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: cd-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to AWS
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build client
+        run: pnpm --filter client build
+
+      - name: Build server
+        run: pnpm --filter server build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: CDK deploy
+        working-directory: infra
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
+          CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
+        run: |
+          EXTRA_CONTEXT=""
+          if [ -n "$APP_SECRET_ARN" ]; then
+            EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
+          fi
+          pnpm exec cdk deploy ${{ github.event.inputs.stacks || '--all' }} \
+            --require-approval never \
+            $EXTRA_CONTEXT
