@@ -44,8 +44,8 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 
 ## Checklist
 
-- [x] **T1** — docs-scaffold — CONTEXT Identity in-progress; Comments→Done; ADR 0003; module barrels; backend-standards — route: delegated — commit:
-- [ ] **T2** — domain-tdd — User aggregate + unit + property tests (incl. friend toggle) — route: delegated
+- [x] **T1** — docs-scaffold — CONTEXT Identity in-progress; Comments→Done; ADR 0003; module barrels; backend-standards — route: delegated — commit: 2cdb18d2f206cc18fbad46f5d4fdebfc8c887937
+- [x] **T2** — domain-tdd — User aggregate + unit + property tests (incl. friend toggle) — route: delegated — commit:
 - [ ] **T3** — ports-adapters — UserRepository port, in-memory, Dynamo (+ Cognito link) — route: delegated
 - [ ] **T4** — use-cases-wire — auth + users + friends; wire controllers; Feed/session ACL; characterization green — route: delegated
 - [ ] **T5** — integration-docker — DynamoDB Local identity specs — route: delegated
@@ -64,13 +64,14 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 - Branch: `feat/ddd-identity` (from main)
 - Mapping: parent explore (auth/users/session/Feed assembler)
 - Approach B confirmed by user 2026-09-20
-- T1: docs-scaffold complete (route: delegated); commit SHA left blank for parent commit
+- T1: docs-scaffold complete (route: delegated); commit `2cdb18d2f206cc18fbad46f5d4fdebfc8c887937`
+- T2: domain-tdd complete (route: delegated) — `User` aggregate with friends[], `InvalidUserError`, unit + property tests; email normalized `trim().toLowerCase()` on create (matches `emailGsi1Pk`); self-friend rejected; `toggleFriend` mutates this aggregate only (JSDoc); no `updateProfile` yet; T2 commit left blank for parent; suite green 16/108
 
 ## Delivery
 
 - Strategy: **ask-on-risk** (default) — forecast >> 400 lines; will ask chain vs single-PR before first over-budget PR
 - Forecast authored lines: ~1400–1600 (Comments-shaped)
-- Running authored lines: 0
+- Running authored lines: ~0 (T2 not yet committed by parent)
 - Review boundary: branch point = main
 
 ## Applicable checks
