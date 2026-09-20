@@ -72,6 +72,13 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 
 ## Delivery
 
-- Strategy: feature-branch-chain
-- Forecast authored lines: ~800–1200 (similar to Feed slice)
-- Running authored lines: ~1318 (T1–T5; T5 ~200) + T6 docs
+- Strategy: feature-branch-chain (user chose 2026-09-20)
+- Running authored lines: 1492 insertions / 43 deletions vs main
+- Tracker PR: `feat/ddd-comments` → `main` (draft / no-merge until children land; `size:exception` for full tip ~1535)
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-comments-01-docs` → tracker base `main` then retarget — T1 (~140)
+  2. `feat/ddd-comments-02-domain` → `feat/ddd-comments-01-docs` — T2 (~397)
+  3. `feat/ddd-comments-03-ports` → `feat/ddd-comments-02-domain` — T3 (~268)
+  4. `feat/ddd-comments-04-wire` → `feat/ddd-comments-03-ports` — T4 (~508, size:exception cohesive wire)
+  5. `feat/ddd-comments-05-integration-docs` → `feat/ddd-comments-04-wire` — T5+T6 (~284)
+- Merge order: children upward into tracker tip, then tracker → main
