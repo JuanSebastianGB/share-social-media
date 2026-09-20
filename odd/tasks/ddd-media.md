@@ -47,7 +47,7 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 - [x] **T1** — docs-scaffold — CONTEXT Media in-progress; ADR 0004; module barrels; backend-standards — route: delegated — commit: `13247dd77b150e35e56a3737af273581240d4409`
 - [x] **T2** — domain-tdd — Media domain + unit (+ property) — route: delegated — commit: pending (parent)
 - [x] **T3** — ports-adapters — MediaFileRepository + object store ports; in-memory + Dynamo + S3 adapters — route: delegated — commit: pending (parent)
-- [ ] **T4** — use-cases-wire — wire controllers/services; characterization green; leave storage remnant unused or delete if fully replaced
+- [x] **T4** — use-cases-wire — wire controllers/services; characterization green; leave storage remnant unused — route: delegated — commit: pending (parent)
 - [ ] **T5** — integration — memory or Docker path as mapped
 - [ ] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links
 
@@ -67,6 +67,7 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 - T1: docs/scaffold complete (route: delegated); ADR 0004 + `modules/media` barrels; no glossary yet (T6); commit `13247dd77b150e35e56a3737af273581240d4409`
 - T2: MediaFile domain + unit/property tests (route: delegated); domain **2 suites / 13 tests**; full suite **20/139** green; commit pending parent
 - T3: ports + InMemory/Dynamo/S3 adapters (route: delegated); Media module **3 suites / 19 tests**; full suite **21/145** green; commit pending parent
+- T4: use cases + composition + `services/storage` re-export; setup/integration off remnant; full suite **22/158** green; commit pending parent
 ## Applicable checks
 
 - `pnpm --filter server test`
