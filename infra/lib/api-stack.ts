@@ -3,8 +3,9 @@ import { fileURLToPath } from 'node:url';
 import * as cdk from 'aws-cdk-lib';
 import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
@@ -53,23 +54,14 @@ export class ApiStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
-    // User/post media. Public GetObject on uploads/* for simple demo CDN-less URLs.
+    // User/post media. Private bucket; public reads via CloudFront (OAC).
     const mediaBucket = new s3.Bucket(this, 'MediaBucket', {
       encryption: s3.BucketEncryption.S3_MANAGED,
       enforceSSL: true,
-      blockPublicAccess: new s3.BlockPublicAccess({
-        blockPublicAcls: true,
-        ignorePublicAcls: true,
-        blockPublicPolicy: false,
-        restrictPublicBuckets: false,
-      }),
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       cors: [
         {
-          allowedMethods: [
-            s3.HttpMethods.GET,
-            s3.HttpMethods.HEAD,
-            s3.HttpMethods.PUT,
-          ],
+          allowedMethods: [s3.HttpMethods.GET, s3.HttpMethods.HEAD],
           allowedOrigins: ['*'],
           allowedHeaders: ['*'],
         },
@@ -78,13 +70,20 @@ export class ApiStack extends cdk.Stack {
       autoDeleteObjects: true,
     });
 
-    mediaBucket.addToResourcePolicy(
-      new iam.PolicyStatement({
-        sid: 'PublicReadUploads',
-        actions: ['s3:GetObject'],
-        resources: [mediaBucket.arnForObjects('uploads/*')],
-        principals: [new iam.AnyPrincipal()],
-      }),
+    const mediaDistribution = new cloudfront.Distribution(
+      this,
+      'MediaDistribution',
+      {
+        comment: 'share-social-media uploaded media',
+        defaultBehavior: {
+          origin: S3BucketOrigin.withOriginAccessControl(mediaBucket),
+          viewerProtocolPolicy:
+            cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+          cachedMethods: cloudfront.CachedMethods.CACHE_GET_HEAD_OPTIONS,
+          compress: true,
+        },
+      },
     );
 
     const appSecret = props?.appSecretArn
@@ -104,7 +103,7 @@ export class ApiStack extends cdk.Stack {
           },
         });
 
-    const mediaBaseUrl = `https://${mediaBucket.bucketName}.s3.${this.region}.amazonaws.com`;
+    const mediaBaseUrl = `https://${mediaDistribution.distributionDomainName}`;
 
     const environment: Record<string, string> = {
       TABLE_NAME: table.tableName,
@@ -180,12 +179,18 @@ export class ApiStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'MediaBucketName', {
       value: mediaBucket.bucketName,
-      description: 'S3 bucket for uploaded media',
+      description: 'S3 bucket for uploaded media (private; read via CloudFront)',
+    });
+
+    new cdk.CfnOutput(this, 'MediaDistributionDomainName', {
+      value: mediaDistribution.distributionDomainName,
+      description: 'CloudFront domain for uploaded media',
     });
 
     new cdk.CfnOutput(this, 'MediaBaseUrl', {
       value: mediaBaseUrl,
-      description: 'Public base URL for media objects under uploads/',
+      description:
+        'Public base URL for media objects under uploads/ (CloudFront)',
     });
   }
 }

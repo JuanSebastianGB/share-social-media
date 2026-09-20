@@ -6,12 +6,14 @@ Full-stack social media demo: React client + Express API, modernized for TypeScr
 
 ```mermaid
 flowchart LR
-  User --> CF[CloudFront]
+  User --> CF[CloudFront_SPA]
   CF --> S3[S3_static_client]
+  User --> MediaCF[CloudFront_media]
+  MediaCF --> MediaS3[S3_media]
   User --> APIGW[HttpApi]
   APIGW --> Lambda[Express_Lambda]
   Lambda --> DDB[DynamoDB]
-  Lambda --> MediaS3[S3_media]
+  Lambda --> MediaS3
   Lambda --> SM[Secrets_Manager]
 ```
 
@@ -19,7 +21,7 @@ flowchart LR
 |-------|------|
 | Client | React 18, Vite, TypeScript, MUI, Redux |
 | API | Express (TypeScript), JWT, AWS SDK |
-| Media | S3 (`uploads/`) |
+| Media | S3 (private) + CloudFront OAC (`uploads/`) |
 | Data | DynamoDB (on-demand, single-table) |
 | Hosting | S3 + CloudFront (static SPA) |
 | IaC | AWS CDK — HTTP API, Lambda, DynamoDB, S3 (site + media), CloudFront |
@@ -30,7 +32,7 @@ flowchart LR
 - Auth (register / login)
 - Profiles and friends
 - Posts with likes, comments, infinite scroll
-- File uploads via S3
+- File uploads via S3 (served through CloudFront)
 
 ## Quick start (local)
 
@@ -55,7 +57,7 @@ pnpm --filter client dev
 | `AWS_REGION` | AWS region for DynamoDB |
 | `PUBLIC_URL` | Public base URL for stored files |
 | `MEDIA_BUCKET` | S3 bucket for uploads |
-| `MEDIA_BASE_URL` | Public URL prefix for media objects |
+| `MEDIA_BASE_URL` | Public URL prefix for media (CloudFront domain in AWS) |
 | `MEDIA_ENDPOINT` | Optional; `memory` stubs uploads locally |
 | `JWT_SECRET` | JWT signing secret |
 

@@ -37,14 +37,15 @@ Table `ShareSocialMedia`: PK/SK, PAY_PER_REQUEST, GSI1 + GSI2, `DESTROY`.
 
 Lambda env: `TABLE_NAME` (+ read/write IAM).
 
-## Media (S3)
+## Media (S3 + CloudFront)
 
-ApiStack creates a media bucket:
+ApiStack creates a private media bucket + CloudFront distribution (OAC):
 
 - Objects under `uploads/*`
-- Public `s3:GetObject` on that prefix (demo-friendly URLs)
+- Bucket blocks public access (no `AnyPrincipal` GetObject)
+- CloudFront serves reads via Origin Access Control
 - Lambda can Put / Delete / Read
-- Env: `MEDIA_BUCKET`, `MEDIA_BASE_URL`
+- Env: `MEDIA_BUCKET`, `MEDIA_BASE_URL` (= `https://<MediaDistributionDomainName>`)
 
 ## Secrets
 
@@ -67,4 +68,4 @@ cd infra
 pnpm exec cdk deploy --all
 ```
 
-Outputs: `ApiUrl`, `MediaBucketName`, `MediaBaseUrl`, `DistributionDomainName`, `BucketName`, `AppSecretArn`.
+Outputs: `ApiUrl`, `MediaBucketName`, `MediaDistributionDomainName`, `MediaBaseUrl`, `DistributionDomainName`, `BucketName`, `AppSecretArn`.
