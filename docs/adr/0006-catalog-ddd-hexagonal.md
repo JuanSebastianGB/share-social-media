@@ -25,6 +25,6 @@ Out of scope for this migration: the client, domain events, a GSI for list, soft
 
 - New Catalog work lands in `server/modules/catalog/`; legacy `server/repositories/items.ts` was deleted after wire — do not revive it.
 - Controllers must not contain Catalog business rules; call the Catalog facade (`modules/catalog` / thin `services/items.ts` re-exports).
-- Docs (`CONTEXT.md`, backend-standards) describe the Catalog hexagonal BC; CONTEXT Catalog stays **In progress** until the feature PR merges (same strangler pattern as prior BCs).
+- Docs (`CONTEXT.md`, backend-standards) describe the Catalog hexagonal BC; CONTEXT Catalog is marked **Done** after the feature PR merges (same as Feed/Comments/Identity/Media/Social).
 - Dynamo shape stays `ITEM#id` / `META` with Scan list; do not introduce a list GSI or soft-delete in this migration.
 - Characterization (`items` / health list) plus Catalog module unit/property tests and `catalog.integration.spec.ts` (DynamoDB Local) lock behavior.
