@@ -79,7 +79,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
             />
             <IconButton
               onClick={() => {
-                !id && dispatch(searchPosts(search));
+                if (!id) dispatch(searchPosts(search));
                 setMenuOpen(false);
               }}
             >
