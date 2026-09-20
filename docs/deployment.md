@@ -7,8 +7,9 @@ Low-cost serverless target for share-social-media.
 - **API**: API Gateway HTTP API → Lambda (Node 20) running Express via `@codegenie/serverless-express`
 - **Web**: S3 (private) + CloudFront (OAC) serving the Vite `client/dist` build
 - **Database**: DynamoDB single-table (`ShareSocialMedia`), on-demand billing
-- **Media**: S3 bucket (`uploads/*`, public GetObject for demo)
+- **Media**: S3 bucket (private) + CloudFront (OAC) for `uploads/*`
 - **Secrets**: AWS Secrets Manager JSON secret (`JWT_SECRET`, `PUBLIC_URL`)
+- **Auth**: Cognito User Pool + public SPA client (no Hosted UI); Express verifies access tokens when `COGNITO_*` are set
 - **IaC**: AWS CDK TypeScript in [`infra/`](../infra/)
 
 ## One-time AWS setup
@@ -30,6 +31,9 @@ npx cdk bootstrap aws://$ACCOUNT/$REGION
    - **Secret** `AWS_ACCOUNT_ID` — 12-digit account id
    - **Variable** `AWS_REGION` — e.g. `us-east-1`
    - Optional **Secret** `APP_SECRET_ARN` — existing Secrets Manager ARN (otherwise the Api stack creates a placeholder secret)
+   - Optional **Variable** `VITE_APP_BASE_URL` — override API URL for the client build (otherwise CD reads stack output `ApiUrl` after deploying `ShareSocialMediaApi`)
+   - Optional **Variable** `VITE_APP_DEFAULT_IMAGE_ID` — default avatar/storage id baked into the client build
+   - Optional **Variable** `VITE_COGNITO_USER_POOL_ID` / `VITE_COGNITO_CLIENT_ID` / `VITE_AWS_REGION` — override Cognito SPA env (otherwise CD reads `UserPoolId` / `UserPoolClientId` from the Api stack and uses `vars.AWS_REGION`)
 
 ## Application secrets
 
@@ -40,7 +44,7 @@ JSON keys expected by the Lambda (Secrets Manager):
 | `JWT_SECRET` | JWT signing secret |
 | `PUBLIC_URL` | Public API base URL (used by the app for file URLs) |
 
-CDK also injects `TABLE_NAME`, `MEDIA_BUCKET`, `MEDIA_BASE_URL`, and `AWS_REGION` as Lambda environment variables (not secrets).
+CDK also injects `TABLE_NAME`, `MEDIA_BUCKET`, `MEDIA_BASE_URL`, `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID`, and `AWS_REGION` as Lambda environment variables (not secrets).
 
 After first deploy, update the placeholder secret values (stack output `AppSecretArn`) before real traffic.
 
@@ -65,18 +69,27 @@ pnpm exec cdk deploy --all -c appSecretArn=arn:aws:secretsmanager:...
 
 Stack outputs:
 
-- `ApiUrl` — HTTP API endpoint (set client `VITE_APP_BASE_URL` to this for production builds)
+- `ApiUrl` — HTTP API endpoint (CD wires this into the client build; set `vars.VITE_APP_BASE_URL` to override)
+- `UserPoolId` / `UserPoolClientId` — Cognito ids (CD wires `VITE_COGNITO_*`; override with GitHub vars if needed)
+- `MediaBaseUrl` / `MediaDistributionDomainName` — CloudFront URL prefix for uploaded media (`MEDIA_BASE_URL`)
 - `DistributionDomainName` — CloudFront domain for the SPA
 - `AppSecretArn` — secrets ARN
 
-Rebuild the client with the real API URL before a production web deploy:
+### Media URL migration
+
+After deploying this change, new uploads get `secure_url` values under the CloudFront host (`https://<distribution>.cloudfront.net/uploads/...`). Existing DynamoDB rows that still store `https://<bucket>.s3.<region>.amazonaws.com/uploads/...` will break for browser display once public GetObject is removed — re-upload those objects or rewrite stored URLs to the CloudFront base (object keys under `uploads/` are unchanged).
+
+For a local production-like web build outside CD:
 
 ```bash
 # client/.env.production
 VITE_APP_BASE_URL=https://xxxx.execute-api.region.amazonaws.com
-VITE_APP_DEFAULT_IMAGE_ID=<mongo storage id>
+VITE_APP_DEFAULT_IMAGE_ID=<storage id>
+VITE_COGNITO_USER_POOL_ID=<UserPoolId>
+VITE_COGNITO_CLIENT_ID=<UserPoolClientId>
+VITE_AWS_REGION=us-east-1
 pnpm --filter client build
-pnpm --filter infra deploy
+pnpm --filter infra exec cdk deploy ShareSocialMediaWeb
 ```
 
 ## CI / CD
@@ -84,9 +97,19 @@ pnpm --filter infra deploy
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | PR / push to `main` | lint, typecheck, test, build, `cdk synth` |
-| [`.github/workflows/cd.yml`](../.github/workflows/cd.yml) | `workflow_dispatch` or push to `main` (path-filtered) | OIDC → `cdk deploy` |
+| [`.github/workflows/cd.yml`](../.github/workflows/cd.yml) | `workflow_dispatch` or push to `main` (path-filtered) | OIDC → deploy API → build client with `ApiUrl` + Cognito outputs → deploy Web |
 
 CD uses the `production` GitHub Environment. Prefer confirming `workflow_dispatch` for the first production deploy.
+
+CD order:
+
+1. Deploy `ShareSocialMediaApi`
+2. Resolve `VITE_APP_BASE_URL` from `vars.VITE_APP_BASE_URL` or CloudFormation output `ApiUrl`
+3. Resolve `VITE_COGNITO_USER_POOL_ID` / `VITE_COGNITO_CLIENT_ID` / `VITE_AWS_REGION` from GitHub vars or CloudFormation outputs `UserPoolId` / `UserPoolClientId`
+4. Build the Vite client with those env vars
+5. Deploy `ShareSocialMediaWeb` (or the stacks requested via `workflow_dispatch`)
+
+Manual client rebuild with a hard-coded URL is only needed for local/prod experiments outside CD.
 
 ## Cost notes
 

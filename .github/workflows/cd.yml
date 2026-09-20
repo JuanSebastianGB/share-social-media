@@ -37,8 +37,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -49,9 +47,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build client
-        run: pnpm --filter client build
-
       - name: Build server
         run: pnpm --filter server build
 
@@ -61,7 +56,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
-      - name: CDK deploy
+      - name: Deploy API stack
         working-directory: infra
         env:
           CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
@@ -72,6 +67,97 @@ jobs:
           if [ -n "$APP_SECRET_ARN" ]; then
             EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
           fi
-          pnpm exec cdk deploy ${{ github.event.inputs.stacks || '--all' }} \
+          pnpm exec cdk deploy ShareSocialMediaApi \
             --require-approval never \
             $EXTRA_CONTEXT
+
+      - name: Resolve API URL for client build
+        id: api_url
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          VITE_APP_BASE_URL_OVERRIDE: ${{ vars.VITE_APP_BASE_URL }}
+        run: |
+          if [ -n "$VITE_APP_BASE_URL_OVERRIDE" ]; then
+            echo "url=${VITE_APP_BASE_URL_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Using vars.VITE_APP_BASE_URL override"
+            exit 0
+          fi
+          URL=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" \
+            --output text)
+          if [ -z "$URL" ] || [ "$URL" = "None" ]; then
+            echo "::error::Could not resolve ApiUrl. Set vars.VITE_APP_BASE_URL or deploy ShareSocialMediaApi first."
+            exit 1
+          fi
+          echo "url=${URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved ApiUrl=${URL}"
+
+      - name: Resolve Cognito env for client build
+        id: cognito
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          VITE_COGNITO_USER_POOL_ID_OVERRIDE: ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+          VITE_COGNITO_CLIENT_ID_OVERRIDE: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_AWS_REGION_OVERRIDE: ${{ vars.VITE_AWS_REGION }}
+        run: |
+          REGION="${VITE_AWS_REGION_OVERRIDE:-$AWS_REGION}"
+          echo "region=${REGION}" >> "$GITHUB_OUTPUT"
+
+          if [ -n "$VITE_COGNITO_USER_POOL_ID_OVERRIDE" ] && [ -n "$VITE_COGNITO_CLIENT_ID_OVERRIDE" ]; then
+            echo "user_pool_id=${VITE_COGNITO_USER_POOL_ID_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "client_id=${VITE_COGNITO_CLIENT_ID_OVERRIDE}" >> "$GITHUB_OUTPUT"
+            echo "Using vars.VITE_COGNITO_* overrides"
+            exit 0
+          fi
+
+          POOL_ID=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolId'].OutputValue" \
+            --output text)
+          CLIENT_ID=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaApi \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='UserPoolClientId'].OutputValue" \
+            --output text)
+
+          if [ -z "$POOL_ID" ] || [ "$POOL_ID" = "None" ] || [ -z "$CLIENT_ID" ] || [ "$CLIENT_ID" = "None" ]; then
+            echo "::error::Could not resolve Cognito outputs. Set vars.VITE_COGNITO_USER_POOL_ID and vars.VITE_COGNITO_CLIENT_ID or deploy ShareSocialMediaApi with Cognito outputs."
+            exit 1
+          fi
+          echo "user_pool_id=${POOL_ID}" >> "$GITHUB_OUTPUT"
+          echo "client_id=${CLIENT_ID}" >> "$GITHUB_OUTPUT"
+          echo "Resolved UserPoolId=${POOL_ID} UserPoolClientId=${CLIENT_ID}"
+
+      - name: Build client
+        env:
+          VITE_APP_BASE_URL: ${{ steps.api_url.outputs.url }}
+          VITE_APP_DEFAULT_IMAGE_ID: ${{ vars.VITE_APP_DEFAULT_IMAGE_ID }}
+          VITE_COGNITO_USER_POOL_ID: ${{ steps.cognito.outputs.user_pool_id }}
+          VITE_COGNITO_CLIENT_ID: ${{ steps.cognito.outputs.client_id }}
+          VITE_AWS_REGION: ${{ steps.cognito.outputs.region }}
+        run: pnpm --filter client build
+
+      - name: Deploy remaining stacks
+        working-directory: infra
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
+          CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
+        run: |
+          EXTRA_CONTEXT=""
+          if [ -n "$APP_SECRET_ARN" ]; then
+            EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
+          fi
+          STACKS="${{ github.event.inputs.stacks || '--all' }}"
+          if [ "$STACKS" = "--all" ] || [ -z "$STACKS" ]; then
+            pnpm exec cdk deploy ShareSocialMediaWeb \
+              --require-approval never \
+              $EXTRA_CONTEXT
+          else
+            pnpm exec cdk deploy $STACKS \
+              --require-approval never \
+              $EXTRA_CONTEXT
+          fi

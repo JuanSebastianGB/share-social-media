@@ -11,9 +11,24 @@ describe('Comments characterization', () => {
       .send({
         body: 'post for comments',
         type: 'text',
-        userId: user.userId,
       });
     return { user, postId: created.body._id as string };
+  }
+
+  async function createComment(
+    user: Awaited<ReturnType<typeof registerUser>>,
+    postId: string,
+    description: string,
+  ) {
+    return request(app)
+      .post('/comments')
+      .set(authHeader(user.token))
+      .send({
+        postId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        description,
+      });
   }
 
   describe('GET /comments', () => {
@@ -25,17 +40,23 @@ describe('Comments characterization', () => {
     });
   });
 
-  describe('POST /comments (no JWT)', () => {
-    test('returns 200 updated post when creating a comment', async () => {
-      const { user, postId } = await createPostForUser();
-
+  describe('POST /comments', () => {
+    test('returns 401 without Bearer token', async () => {
       const response = await request(app).post('/comments').send({
-        userId: user.userId,
-        postId,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        postId: '507f1f77bcf86cd799439011',
+        firstName: 'A',
+        lastName: 'B',
         description: 'nice post',
       });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 updated post when authenticated', async () => {
+      const { user, postId } = await createPostForUser();
+
+      const response = await createComment(user, postId, 'nice post');
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(
@@ -48,7 +69,11 @@ describe('Comments characterization', () => {
     });
 
     test('returns 403 validation errors when body is incomplete', async () => {
-      const response = await request(app).post('/comments').send({});
+      const user = await registerUser();
+      const response = await request(app)
+        .post('/comments')
+        .set(authHeader(user.token))
+        .send({});
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('errors');
@@ -58,13 +83,7 @@ describe('Comments characterization', () => {
   describe('GET /comments/:id (no JWT)', () => {
     test('returns 200 comment document', async () => {
       const { user, postId } = await createPostForUser();
-      await request(app).post('/comments').send({
-        userId: user.userId,
-        postId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        description: 'fetchable',
-      });
+      await createComment(user, postId, 'fetchable');
 
       const list = await request(app).get('/comments');
       const comment = list.body.find(
@@ -84,16 +103,19 @@ describe('Comments characterization', () => {
     });
   });
 
-  describe('PUT /comments/:id (no JWT)', () => {
-    test('returns 200 update result', async () => {
+  describe('PUT /comments/:id', () => {
+    test('returns 401 without Bearer token', async () => {
+      const response = await request(app)
+        .put('/comments/507f1f77bcf86cd799439011')
+        .send({ description: 'updated text' });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 update result when authenticated', async () => {
       const { user, postId } = await createPostForUser();
-      await request(app).post('/comments').send({
-        userId: user.userId,
-        postId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        description: 'to update',
-      });
+      await createComment(user, postId, 'to update');
 
       const list = await request(app).get('/comments');
       const comment = list.body.find(
@@ -102,6 +124,7 @@ describe('Comments characterization', () => {
 
       const response = await request(app)
         .put(`/comments/${comment._id}`)
+        .set(authHeader(user.token))
         .send({ description: 'updated text' });
 
       expect(response.status).toBe(200);
@@ -114,23 +137,28 @@ describe('Comments characterization', () => {
     });
   });
 
-  describe('DELETE /comments/:id (no JWT)', () => {
-    test('returns 200 delete result', async () => {
+  describe('DELETE /comments/:id', () => {
+    test('returns 401 without Bearer token', async () => {
+      const response = await request(app).delete(
+        '/comments/507f1f77bcf86cd799439011',
+      );
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 delete result when authenticated', async () => {
       const { user, postId } = await createPostForUser();
-      await request(app).post('/comments').send({
-        userId: user.userId,
-        postId,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        description: 'to delete',
-      });
+      await createComment(user, postId, 'to delete');
 
       const list = await request(app).get('/comments');
       const comment = list.body.find(
         (c: { description?: string }) => c.description === 'to delete',
       );
 
-      const response = await request(app).delete(`/comments/${comment._id}`);
+      const response = await request(app)
+        .delete(`/comments/${comment._id}`)
+        .set(authHeader(user.token));
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(
