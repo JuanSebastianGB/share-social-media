@@ -6,4 +6,5 @@ export enum StoreKeys {
 export enum urlServices {
   LOGIN_URL = '/auth/login',
   REGISTER_URL = '/auth/register',
+  PROFILE_URL = '/auth/profile',
 }

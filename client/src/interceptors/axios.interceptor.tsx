@@ -10,8 +10,11 @@ const updateHeader = (
   const auth = JSON.parse(persist.auth);
   const token = auth.token;
   if (!!!token) return request;
-  const newHeaders = {
-    Authorization: `Bearer ${token}`,
+  // Prefer an Authorization already set by the caller (e.g. Cognito profile before Redux persists).
+  const existingAuth = (request.headers as Record<string, string> | undefined)
+    ?.Authorization;
+  const newHeaders: Record<string, string> = {
+    Authorization: existingAuth || `Bearer ${token}`,
     'Content-Type': !isJsonData ? 'multipart/form-data' : 'application/json',
   };
   request.headers = { ...request.headers, ...newHeaders };
