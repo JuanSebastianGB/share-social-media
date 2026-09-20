@@ -90,6 +90,11 @@ User confirmed brownfield classification and authorized investigation + generati
 - No `{{`, `> Fill:`, `OPENSPEC-ONLY`
 - Skipped: openspec-tasks, product-strategy-analyst
 
+## Commit evidence
+
+- Branch: `feat/project-context`
+- Commit: `30ae30d` — `docs(ai): add project-context standards and agent wiring`
+
 ## Next step
 
-User review; commit when requested.
+Push / open PR when the user asks.
