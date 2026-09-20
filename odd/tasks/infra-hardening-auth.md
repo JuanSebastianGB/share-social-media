@@ -69,9 +69,9 @@ User (2026-09-19): “I want them all” for A + B + C.
 - [x] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
 - [x] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
 - [x] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
-- [ ] **T7** — Client Cognito sign-up/sign-in + profile + env (route: delegated; C3)
-- [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4) — **partial**: dual-mode harness tests landed with T6; full Cognito token mocks still open
-- [ ] **T9** — Docs pass (README, deployment, infra README) aligned with final architecture
+- [x] **T7** — Client Cognito sign-up/sign-in + profile + env (route: inline; C3) — dual-mode SPA + CD `VITE_COGNITO_*`
+- [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4) — **partial**: dual-mode harness tests landed with T6; full Cognito token mocks still open; profile short-circuit for login added with T7
+- [ ] **T9** — Docs pass (README, deployment, infra README) aligned with final architecture — **partial**: Cognito client env + architecture + CD notes updated with T7
 
 ## Progress
 
@@ -81,9 +81,10 @@ User (2026-09-19): “I want them all” for A + B + C.
 - PR3 branch: `feat/infra-hardening-auth-03-media-cf` (T4)
 - PR4 branch: `feat/infra-hardening-auth-04-cognito-cdk` (T5)
 - PR5 branch: `feat/infra-hardening-auth-05-cognito-server` (T6 + T8 partial)
-- Next: T7 (client Cognito UI) then finish T8 Cognito token mocks
+- PR6 branch: `feat/infra-hardening-auth-06-cognito-client` (T7 + T9 partial + CD Cognito env)
+- Next: finish T8 Cognito token mocks; close T9 if more doc polish needed
 - Delivery: `feature-branch-chain`
-- Authored lines so far (PR1 vs tracker): 224; PR2–PR5 pending commit as chained
+- Authored lines so far (PR1 vs tracker): 224; PR2–PR6 pending commit as chained
 
 ## Decisions
 
@@ -97,7 +98,9 @@ User (2026-09-19): “I want them all” for A + B + C.
 - Actor identity for mutations comes from JWT `_id` (`req.userData`); body/path `userId`/`id` no longer trusted for create post, like, comment, friend toggle
 - CD deploys Api first, resolves `ApiUrl` (or `vars.VITE_APP_BASE_URL`), builds client, then deploys Web
 - Media: private S3 + CloudFront OAC; `MEDIA_BASE_URL` = `https://<MediaDistributionDomainName>`; `s3Upload` unchanged (pathname parse works for CF hosts)
-- Follow-up: CD `VITE_COGNITO_*` wiring (with T7/T9)
+- Follow-up: CD `VITE_COGNITO_*` wiring (with T7/T9) — **done in T7** (CF outputs + GitHub var overrides)
+- Client dual-mode: `VITE_COGNITO_USER_POOL_ID` + `VITE_COGNITO_CLIENT_ID` + `VITE_AWS_REGION` → Cognito USER_PASSWORD_AUTH + `/auth/profile`; else `/auth/register` + `/auth/login`
+- Login profile fetch: `POST /auth/profile` short-circuits before validators when Cognito sub already has a DynamoDB user
 
 ## Verification evidence
 
@@ -106,3 +109,4 @@ User (2026-09-19): “I want them all” for A + B + C.
 - **T4**: ApiStack media CloudFront + OAC; public `AnyPrincipal` GetObject removed; `MEDIA_BASE_URL` → CF domain. Docs/.env.example updated. `cdk synth` OK (dummy account); `pnpm --filter server test` → 5 suites / 36 tests passed. No commit (per task).
 - **T5**: ApiStack Cognito User Pool (email sign-in, self sign-up, auto-verify email) + public SPA client (`USER_PASSWORD`/`USER_SRP`, no secret, no Hosted UI). Lambda env `COGNITO_*`; outputs `UserPoolId`/`UserPoolClientId`. `JWT_SECRET` kept. `cdk synth` OK (dummy account). No commit (per task).
 - **T6** (+ T8 partial): `aws-jwt-verify` dual-mode; `POST /auth/profile`; register/login → 410 when Cognito env set; HS256 characterization unchanged. `pnpm --filter server test` → 6 suites / 39 tests passed. `pnpm --filter server typecheck` OK. No commit (per task).
+- **T7** (+ T9 partial + CD Cognito): `@aws-sdk/client-cognito-identity-provider` dual-mode client; CD resolves `VITE_COGNITO_*` from CF outputs; docs/README/.env.example. `pnpm --filter server test` → 6 suites / 39 passed. `pnpm --filter client typecheck` OK. `pnpm --filter client build` OK. No commit (per task).

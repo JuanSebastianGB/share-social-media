@@ -2,7 +2,11 @@ import { loginAdapter } from '@/adapters';
 import { loginInitialValues, LoginModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
 import { loginSchema } from '@/schemas';
-import { loginService } from '@/services';
+import {
+  isCognitoClientEnabled,
+  loginService,
+  loginWithCognito,
+} from '@/services';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
@@ -29,6 +33,17 @@ export const useLogin = () => {
       setIsLoading(true);
       setIsError(false);
       setError({});
+
+      if (isCognitoClientEnabled()) {
+        const session = await loginWithCognito(values, { signal });
+        setIsLoading(false);
+        toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
+        dispatch(makeLogin(loginAdapter(session)));
+        setDisplayButton(true);
+        navigate('/home');
+        return;
+      }
+
       const { data } = await loginService(values, { signal });
       setIsLoading(false);
       toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);

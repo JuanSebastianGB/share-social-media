@@ -1,10 +1,18 @@
+import { loginAdapter } from '@/adapters';
 import { RegisterModel } from '@/models';
-import { createDefault, registerService } from '@/services';
+import { makeLogin } from '@/redux/states/authSlice';
+import {
+  createDefault,
+  isCognitoClientEnabled,
+  registerService,
+  registerWithCognito,
+} from '@/services';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
 } from '@/utilities';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -15,21 +23,34 @@ export const useRegister = () => {
   const [displayButton, setDisplayButton] = useState(true);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   let controller = new AbortController();
 
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
     await createDefault();
-    const form = new FormData();
-    // @ts-ignore
-    for (let value in values) form.append(value, values[value]);
-    form.append('picturePath', values.myFile ? values.myFile.name : '');
-
     const { signal } = controller;
 
     try {
       setError(false);
       setIsLoading(true);
       setDisplayButton(false);
+
+      if (isCognitoClientEnabled()) {
+        const session = await registerWithCognito(values, { signal });
+        dispatch(makeLogin(loginAdapter(session)));
+        setIsLoading(false);
+        onSubmitProps.resetForm();
+        toast.success('Registered successfully!', successToastMessageConfig);
+        setDisplayButton(true);
+        navigate('/home');
+        return;
+      }
+
+      const form = new FormData();
+      // @ts-ignore
+      for (let value in values) form.append(value, values[value]);
+      form.append('picturePath', values.myFile ? values.myFile.name : '');
+
       await registerService(form, { signal });
       setIsLoading(false);
       onSubmitProps.resetForm();
