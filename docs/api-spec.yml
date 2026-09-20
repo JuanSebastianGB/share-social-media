@@ -963,12 +963,12 @@ paths:
                   - $ref: "#/components/schemas/ErrorString"
                   - $ref: "#/components/schemas/ValidationErrorBody"
 
-  /defaulstorage:
+  /defaultstorage:
     get:
       tags: [legacy]
       summary: Ensure default avatar FILE row exists
       description: >
-        Legacy typo path (defaulstorage). Creates DEFAULT_IMAGE_ID storage row if missing.
+        Creates DEFAULT_IMAGE_ID storage row if missing.
         Called by the client during register. Do not rename without a coordinated client change.
       operationId: createDefaultStorage
       responses:
