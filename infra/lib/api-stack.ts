@@ -5,6 +5,7 @@ import * as apigwv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import { S3BucketOrigin } from 'aws-cdk-lib/aws-cloudfront-origins';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
@@ -103,12 +104,40 @@ export class ApiStack extends cdk.Stack {
           },
         });
 
+    // Cognito identity (no Hosted UI). JWT_SECRET remains until T6 migrates verify.
+    const userPool = new cognito.UserPool(this, 'UserPool', {
+      selfSignUpEnabled: true,
+      signInAliases: { email: true },
+      autoVerify: { email: true },
+      passwordPolicy: {
+        minLength: 8,
+        requireLowercase: true,
+        requireUppercase: true,
+        requireDigits: true,
+        requireSymbols: false,
+      },
+      accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
+    const userPoolClient = userPool.addClient('SpaClient', {
+      generateSecret: false,
+      authFlows: {
+        userPassword: true,
+        userSrp: true,
+      },
+      preventUserExistenceErrors: true,
+    });
+
     const mediaBaseUrl = `https://${mediaDistribution.distributionDomainName}`;
 
     const environment: Record<string, string> = {
       TABLE_NAME: table.tableName,
       MEDIA_BUCKET: mediaBucket.bucketName,
       MEDIA_BASE_URL: mediaBaseUrl,
+      // AWS_REGION is injected by Lambda; do not set (reserved).
+      COGNITO_USER_POOL_ID: userPool.userPoolId,
+      COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
     };
     for (const key of SECRET_KEYS) {
       environment[key] = appSecret.secretValueFromJson(key).unsafeUnwrap();
@@ -191,6 +220,16 @@ export class ApiStack extends cdk.Stack {
       value: mediaBaseUrl,
       description:
         'Public base URL for media objects under uploads/ (CloudFront)',
+    });
+
+    new cdk.CfnOutput(this, 'UserPoolId', {
+      value: userPool.userPoolId,
+      description: 'Cognito User Pool ID (email sign-in; no Hosted UI)',
+    });
+
+    new cdk.CfnOutput(this, 'UserPoolClientId', {
+      value: userPoolClient.userPoolClientId,
+      description: 'Public SPA Cognito app client ID (no client secret)',
     });
   }
 }
