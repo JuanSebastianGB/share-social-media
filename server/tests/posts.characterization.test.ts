@@ -17,7 +17,6 @@ describe('Posts characterization', () => {
       const response = await request(app).post('/posts').send({
         body: 'hello world',
         type: 'text',
-        userId: '507f1f77bcf86cd799439011',
       });
 
       expect(response.status).toBe(401);
@@ -32,7 +31,6 @@ describe('Posts characterization', () => {
         .send({
           body: 'characterization post body',
           type: 'text',
-          userId: user.userId,
         });
 
       expect(response.status).toBe(200);
@@ -66,7 +64,6 @@ describe('Posts characterization', () => {
         .send({
           body: 'fetch me',
           type: 'text',
-          userId: user.userId,
         });
 
       const response = await request(app).get(`/posts/${created.body._id}`);
@@ -89,8 +86,17 @@ describe('Posts characterization', () => {
     });
   });
 
-  describe('PUT /posts/:id (like — no JWT)', () => {
-    test('returns 200 liked post document', async () => {
+  describe('PUT /posts/:id (like)', () => {
+    test('returns 401 without Bearer token', async () => {
+      const response = await request(app).put(
+        '/posts/507f1f77bcf86cd799439011',
+      );
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 liked post document when authenticated', async () => {
       const author = await registerUser();
       const liker = await registerUser({ firstName: 'Liker' });
       const created = await request(app)
@@ -99,12 +105,11 @@ describe('Posts characterization', () => {
         .send({
           body: 'like me',
           type: 'text',
-          userId: author.userId,
         });
 
       const response = await request(app)
         .put(`/posts/${created.body._id}`)
-        .send({ userId: liker.userId });
+        .set(authHeader(liker.token));
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(
@@ -126,7 +131,6 @@ describe('Posts characterization', () => {
         .send({
           body: 'has comments',
           type: 'text',
-          userId: user.userId,
         });
 
       expect(created.status).toBe(200);
@@ -141,8 +145,17 @@ describe('Posts characterization', () => {
     });
   });
 
-  describe('DELETE /posts/:id (no JWT)', () => {
-    test('returns 200 delete result', async () => {
+  describe('DELETE /posts/:id', () => {
+    test('returns 401 without Bearer token', async () => {
+      const response = await request(app).delete(
+        '/posts/507f1f77bcf86cd799439011',
+      );
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 delete result when authenticated', async () => {
       const user = await registerUser();
       const created = await request(app)
         .post('/posts')
@@ -150,10 +163,11 @@ describe('Posts characterization', () => {
         .send({
           body: 'delete me',
           type: 'text',
-          userId: user.userId,
         });
 
-      const response = await request(app).delete(`/posts/${created.body._id}`);
+      const response = await request(app)
+        .delete(`/posts/${created.body._id}`)
+        .set(authHeader(user.token));
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual(

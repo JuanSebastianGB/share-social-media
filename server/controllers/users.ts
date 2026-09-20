@@ -38,7 +38,8 @@ const getUserFriends: RequestHandler = async (req, res) => {
 };
 
 const toggleRelationFriend: RequestHandler = async (req, res) => {
-  const { id, friendId } = matchedData(req);
+  const { friendId } = matchedData(req);
+  const id = req.userData!._id;
 
   try {
     const userFriends = await toggleRelationFriendService(id, friendId);

@@ -34,7 +34,10 @@ export const createItem: RequestHandler = async (req, res) => {
   try {
     const { postId, ...body } = matchedData(req);
     const post = await getPostById(String(postId));
-    const newItem = await createComment(body);
+    const newItem = await createComment({
+      ...body,
+      userId: req.userData!._id,
+    });
     if (post && !post.comments.includes(newItem._id)) {
       post.comments.push(newItem._id);
       await savePost(post);

@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from './testApp.js';
-import { registerUser } from './helpers.js';
+import { authHeader, registerUser } from './helpers.js';
 
 describe('Users characterization', () => {
   describe('GET /users/:id', () => {
@@ -39,13 +39,25 @@ describe('Users characterization', () => {
   });
 
   describe('PATCH /users/:id/:friendId', () => {
-    test('returns 200 friends list after toggling friendship (no JWT)', async () => {
+    test('returns 401 without Bearer token', async () => {
       const a = await registerUser({ firstName: 'Alice' });
       const b = await registerUser({ firstName: 'Bobby' });
 
       const response = await request(app).patch(
         `/users/${a.userId}/${b.userId}`,
       );
+
+      expect(response.status).toBe(401);
+      expect(response.body).toBe('ERROR_EXPECTED_BEARER');
+    });
+
+    test('returns 200 friends list after toggling friendship when authenticated', async () => {
+      const a = await registerUser({ firstName: 'Alice' });
+      const b = await registerUser({ firstName: 'Bobby' });
+
+      const response = await request(app)
+        .patch(`/users/${a.userId}/${b.userId}`)
+        .set(authHeader(a.token));
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
@@ -61,9 +73,9 @@ describe('Users characterization', () => {
       const a = await registerUser();
       const fakeFriendId = '507f1f77bcf86cd799439011';
 
-      const response = await request(app).patch(
-        `/users/${a.userId}/${fakeFriendId}`,
-      );
+      const response = await request(app)
+        .patch(`/users/${a.userId}/${fakeFriendId}`)
+        .set(authHeader(a.token));
 
       expect(response.status).toBe(404);
       expect(response.body).toBe('ERROR_TOGGLE_FRIEND');
