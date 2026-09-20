@@ -9,6 +9,7 @@ import { DynamoPostRepository } from '../infrastructure/dynamodb-post-repository
 import type { PostAssemblerDeps } from './read/post-assembler.js';
 import { createPost as createPostUseCase } from './use-cases/create-post.js';
 import { deletePost as deletePostUseCase } from './use-cases/delete-post.js';
+import { attachCommentToPost as attachCommentToPostUseCase } from './use-cases/attach-comment-to-post.js';
 import {
   countPosts as countPostsUseCase,
   getPost as getPostUseCase,
@@ -101,4 +102,11 @@ export const countPostsService = () => countPostsUseCase(postRepository);
 
 export async function findPostAggregate(id: string): Promise<Post | null> {
   return postRepository.findById(id);
+}
+
+export async function attachCommentToPostService(
+  postId: string,
+  commentId: string,
+): Promise<Post | null> {
+  return attachCommentToPostUseCase(postRepository, postId, commentId);
 }

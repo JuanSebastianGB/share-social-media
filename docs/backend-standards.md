@@ -498,7 +498,7 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| items/comments skip services | Controllers → repositories | Add services when extending; Comments attaching to posts may still use `repositories/posts` until Comments BC |
+| items/comments skip services | Controllers → repositories for Comment CRUD; attach uses Feed `attachCommentToPostService` | Comments-as-aggregate BC still legacy |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Scan-based lists | users, comments, items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |

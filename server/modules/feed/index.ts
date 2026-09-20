@@ -17,5 +17,6 @@ export {
   getUserPostsService,
   countPostsService,
   findPostAggregate,
+  attachCommentToPostService,
   toLegacyPostRecord,
 } from './application/composition.js';

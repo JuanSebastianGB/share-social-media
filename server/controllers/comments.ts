@@ -1,14 +1,16 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
 import {
+  attachCommentToPostService,
+  getPostService,
+} from '../modules/feed/index.js';
+import {
   createComment,
   deleteComment,
   getCommentById,
   listComments,
   updateComment,
 } from '../repositories/comments.js';
-import { getPostById, savePost } from '../repositories/posts.js';
-import { getPostService } from '../services/posts.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
 export const getItems: RequestHandler = async (_req, res) => {
@@ -33,15 +35,11 @@ export const getItem: RequestHandler = async (req, res) => {
 export const createItem: RequestHandler = async (req, res) => {
   try {
     const { postId, ...body } = matchedData(req);
-    const post = await getPostById(String(postId));
     const newItem = await createComment({
       ...body,
       userId: req.userData!._id,
     });
-    if (post && !post.comments.includes(newItem._id)) {
-      post.comments.push(newItem._id);
-      await savePost(post);
-    }
+    await attachCommentToPostService(String(postId), newItem._id);
     const data = await getPostService(postId);
     return res.json(data[0]);
   } catch {
