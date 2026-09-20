@@ -44,8 +44,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 ## Checklist
 
 - [x] **T0** — remnant-cleanup — delete unused `repositories/{users,comments,posts}.ts`; update standards/ADRs/CONTEXT wording — route: inline — commit: `be2080d3643f225419ef03474465d293c73801de`
-- [x] **T1** — docs-scaffold — CONTEXT Media in-progress; ADR 0004; module barrels; backend-standards — route: inline — commit: pending (parent)
-- [ ] **T2** — domain-tdd — Media domain + unit (+ property if justified)
+- [x] **T1** — docs-scaffold — CONTEXT Media in-progress; ADR 0004; module barrels; backend-standards — route: delegated — commit: `13247dd77b150e35e56a3737af273581240d4409`
+- [x] **T2** — domain-tdd — Media domain + unit (+ property) — route: delegated — commit: pending (parent)
 - [ ] **T3** — ports-adapters — MediaRepository / storage port, in-memory, S3/Dynamo adapter as mapped
 - [ ] **T4** — use-cases-wire — wire controllers/services; characterization green; leave storage remnant unused or delete if fully replaced
 - [ ] **T5** — integration — memory or Docker path as mapped
@@ -64,7 +64,8 @@ Delegated direct after Media legacy map. Per-task routes recorded below.
 - Branch: `feat/ddd-media` (from main @ `3ea8d99`)
 - Mapping (Media): codegraph — live path `controllers/storage` + `services/storage` → `repositories/storage` (FILE# Dynamo); S3 via `utilities/s3Upload` (`req.image.secure_url`); callers of `deleteHardFileService`: posts/auth controllers + Feed composition; test setup imports storage repo for memory seed
 - T0: remnant cleanup complete (route: inline); suite **18/126** green; commit `be2080d3643f225419ef03474465d293c73801de`
-- T1: docs/scaffold complete (route: inline); ADR 0004 + `modules/media` barrels; no glossary yet (T6); commit pending parent
+- T1: docs/scaffold complete (route: delegated); ADR 0004 + `modules/media` barrels; no glossary yet (T6); commit `13247dd77b150e35e56a3737af273581240d4409`
+- T2: MediaFile domain + unit/property tests (route: delegated); domain **2 suites / 13 tests**; full suite **20/139** green; commit pending parent
 ## Applicable checks
 
 - `pnpm --filter server test`
