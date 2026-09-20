@@ -48,8 +48,8 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 - [x] **T2** — domain-tdd — User aggregate + unit + property tests (incl. friend toggle) — route: delegated — commit: f5cc0c24fa27a8d911a3cbcedabbddd41c6fda0e
 - [x] **T3** — ports-adapters — UserRepository port, in-memory, Dynamo (+ Cognito link) — route: delegated — commit: 27a70c6f23fa4e2dbf41fd71cc37a6b90e88872a
 - [x] **T4** — use-cases-wire — auth + users + friends; wire controllers; Feed/session ACL; characterization green — route: delegated — commit: 892f5a5c08a77b7d6a4a2a426f35d9c347c791b5
-- [x] **T5** — integration-docker — DynamoDB Local identity specs — route: delegated — commit: _(parent)_
-- [x] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links — route: delegated — commit: _(parent)_
+- [x] **T5** — integration-docker — DynamoDB Local identity specs — route: delegated — commit: 424b3228f4651606f809e74ffb64b558c9c3da4f
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links — route: delegated — commit: 424b3228f4651606f809e74ffb64b558c9c3da4f
 
 ## Acceptance
 
