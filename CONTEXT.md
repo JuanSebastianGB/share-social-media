@@ -11,7 +11,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Identity | Done (DDD hexagonal) | `server/modules/identity/` |
 | Social graph | Done (DDD hexagonal) | `server/modules/social/` |
 | Media | Done (DDD hexagonal) | `server/modules/media/` |
-| Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
+| Catalog (Items) | In progress (DDD hexagonal) | `server/modules/catalog/` |
 
 ## Feed glossary
 
@@ -99,6 +99,23 @@ This document records the ubiquitous language for the application. Bounded conte
 - Soft-delete is idempotent (already deleted → no-op, no throw).
 - There is no hard-delete or S3 I/O on the aggregate.
 
+## Catalog glossary
+
+| Term | Meaning |
+|------|---------|
+| CatalogItem | Aggregate root for the demo Items CRUD resource. Domain fields: `id`, `name`, `active`, timestamps. Persist shape stays `_id` / `name` / `active` on `ITEM#id` / `META` (no soft-delete). |
+| Catalog facade | Public API of `server/modules/catalog/` (composition services + domain/ports exports). Items HTTP paths call via `services/items.ts` re-exports (`listItemsService` / `getItemService` / `createItemService` / `updateItemService` / `deleteItemService`). |
+| Demo CRUD | Admin-gated create (`POST /items`); public cached list (`GET /items`); JWT on get/update/delete. Create response wraps `{ newItem }`. |
+| Scan list | `list()` uses DynamoDB Scan with `ITEM#` prefix filter (legacy; order not guaranteed). |
+
+## Catalog invariants (domain)
+
+- Catalog item id is required (non-empty after trim) on create.
+- Catalog item name is required (non-empty after trim) on create and rename.
+- HTTP name length (5–20) stays in express-validator; domain only requires non-empty name.
+- There is no soft-delete — delete removes the ITEM row.
+- `active` defaults to `true` on create when omitted.
+
 ## Persistence note
 
-Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. Social graph mutates `friends[]` on those USER items (no separate friendship rows). Media uses `FILE#id` / `META`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, ADR `docs/adr/0003-identity-ddd-hexagonal.md`, ADR `docs/adr/0004-media-ddd-hexagonal.md`, and ADR `docs/adr/0005-social-graph-ddd-hexagonal.md`.
+Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. Social graph mutates `friends[]` on those USER items (no separate friendship rows). Media uses `FILE#id` / `META`. Catalog uses `ITEM#id` / `META` with Scan list. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, ADR `docs/adr/0003-identity-ddd-hexagonal.md`, ADR `docs/adr/0004-media-ddd-hexagonal.md`, ADR `docs/adr/0005-social-graph-ddd-hexagonal.md`, and ADR `docs/adr/0006-catalog-ddd-hexagonal.md`.
