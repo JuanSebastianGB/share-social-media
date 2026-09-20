@@ -1,6 +1,10 @@
 /**
  * Catalog domain barrel.
- * Scaffolding only — CatalogItem aggregate and errors land in later tasks.
  */
 
-export {};
+export { DomainError, InvalidCatalogItemError } from './errors.js';
+export { CatalogItem } from './catalog-item.js';
+export type {
+  CatalogItemSnapshot,
+  CreateCatalogItemInput,
+} from './catalog-item.js';

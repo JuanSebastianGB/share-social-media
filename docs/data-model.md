@@ -188,9 +188,11 @@ public CloudFront/S3/memory URL. Soft delete sets `deleted: true` (reads hide so
 
 ### 6. ITEM
 
-> Status: implemented
+> Status: implemented — Catalog BC under `server/modules/catalog/` ([CONTEXT.md](../CONTEXT.md), [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md))
 
 Demo CRUD entity (admin create). Not part of the social feed domain.
+Catalog `CatalogItem` owns create/rename/`active` invariants; persistence stays
+`ITEM#id` / `META` with Scan list (no soft-delete, no list GSI).
 
 **Keys:**
 
@@ -282,6 +284,7 @@ erDiagram
 - **Identity USER + COGNITO_LINK:** profile and optional Cognito pointer live in the Identity BC (`server/modules/identity/`). See [ADR 0003](./adr/0003-identity-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Social graph `friends[]`:** mutual friendship remains embedded on USER; Social BC (`server/modules/social/`) owns toggle/list mutation via `FriendList`. See [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Media FILE metadata:** soft/hard delete and object-store side effects live in the Media BC (`server/modules/media/`). See [ADR 0004](./adr/0004-media-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
+- **Catalog ITEM demo CRUD:** hard delete only; owned by Catalog BC (`server/modules/catalog/`). See [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.
 - **Id strategy** remains Mongo-compatible hex for validator compatibility (`isMongoId`).
