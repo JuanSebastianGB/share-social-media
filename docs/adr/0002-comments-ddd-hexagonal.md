@@ -25,5 +25,6 @@ Other domains (Identity, Social graph, Media, Items) remain legacy until separat
 
 - New Comments work lands in `server/modules/comments/`, not in ad-hoc controller → repository skips.
 - Controllers must not contain comment create/update business rules or Feed attach orchestration.
-- Docs (`CONTEXT.md`, backend-standards) mark Comments as DDD in progress and Feed as done/migrated.
+- Docs (`CONTEXT.md`, backend-standards) describe the Comments hexagonal BC; CONTEXT keeps Comments **In progress** until the feature PR merges (Feed was marked Done after its merge).
 - Create continues to return a hydrated Post via Feed; Comment records stay linked only through `Post.comments[]`.
+- Legacy `server/repositories/comments.ts` may remain as an unused strangler remnant until deleted in a follow-up.

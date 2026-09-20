@@ -63,6 +63,15 @@ export class Comment {
     this.touch();
   }
 
+  /**
+   * Updates denormalized author display names (legacy PUT may patch these).
+   */
+  updateNames(firstName: string, lastName: string): void {
+    this.props.firstName = firstName;
+    this.props.lastName = lastName;
+    this.touch();
+  }
+
   toSnapshot(): CommentSnapshot {
     return { ...this.props };
   }
