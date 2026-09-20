@@ -59,11 +59,14 @@ pnpm --filter client dev
 
 Characterization tests live under [`server/tests/`](../server/tests/). They lock current HTTP behavior (status codes, auth gaps, response shapes) using Jest + Supertest + an in-memory DynamoDB DocumentClient (`DYNAMODB_ENDPOINT=memory`).
 
+Feed DDD unit/property tests live under [`server/modules/feed/`](../server/modules/feed/). Integration tests (`test:integration`) use DynamoDB Local via Testcontainers and require Docker.
+
 ```bash
 pnpm --filter server test
+pnpm --filter server test:integration   # Docker required
 ```
 
-Seams under test: health, auth, users, posts, comments.
+Seams under test: health, auth, users, posts, comments, Feed domain.
 
 Known quirks documented by the suite:
 

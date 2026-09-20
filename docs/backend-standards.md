@@ -66,9 +66,10 @@ Contract of record for HTTP: [`docs/api-spec.yml`](./api-spec.yml). The in-serve
 |---------|--------|-------|
 | Runner | Jest 29 + `ts-jest` | `NODE_OPTIONS=--experimental-vm-modules` |
 | HTTP | `supertest` | Against Express app (`server/tests/testApp.ts`) |
-| Style | Characterization tests | Lock status codes, auth gaps, shapes |
+| Style | Characterization + Feed domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
 | Coverage threshold | **None** | No gate in CI beyond green suite |
-| Location | `server/tests/*.characterization.test.ts` (+ `health.test.ts`) | |
+| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `*.integration.spec.ts` | |
+| Integration | `pnpm --filter server test:integration` | Testcontainers DynamoDB Local; Docker required; skips if unavailable |
 
 ### Development Tools
 
@@ -91,10 +92,12 @@ HTTP request
   → routes/*.ts          (path + middleware chain)
   → middlewares/*        (JWT, role, cache, validators)
   → controllers/*        (HTTP I/O, matchedData, status codes)
-  → services/*           (orchestration, hydration)   ← required for NEW code
-  → repositories/*       (DynamoDB Get/Put/Query/Scan/Update/Delete)
+  → services/* OR modules/feed  (orchestration; Feed BC is DDD hexagonal)
+  → repositories/* / Dynamo adapters
   → DynamoDB / S3
 ```
+
+**Feed BC (in progress):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
 
 **Dual entrypoints:**
 
@@ -172,7 +175,9 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 ## Domain Modeling
 
-This is **not** a formal DDD codebase. Domain concepts are TypeScript record types plus DynamoDB item shapes.
+**Legacy default:** most domains are still TypeScript record types plus DynamoDB item shapes (layered CRUD).
+
+**Feed (in progress):** the Posts/Feed bounded context is migrating to hexagonal DDD under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
 
 ### Entities (implemented)
 
@@ -332,10 +337,17 @@ server/tests/
   users.characterization.test.ts
   posts.characterization.test.ts
   comments.characterization.test.ts
+  posts.integration.spec.ts
+  integration/               # DynamoDB Local Testcontainers harness
   helpers.ts
   setup.ts
   setup-env.cjs
   testApp.ts
+server/modules/feed/
+  domain/*.test.ts
+  domain/*.property.test.ts
+  application/**/*.test.ts
+  infrastructure/*.test.ts
 ```
 
 ### Test Organization
@@ -486,7 +498,8 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| items/comments skip services | Controllers → repositories | Add services when extending |
+| items/comments skip services | Controllers → repositories for Comment CRUD; attach uses Feed `attachCommentToPostService` | Comments-as-aggregate BC still legacy |
+| Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Scan-based lists | users, comments, items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
 | `/defaulstorage` typo | Real mounted path | Keep path for client compat; do not “fix” spelling without client change |

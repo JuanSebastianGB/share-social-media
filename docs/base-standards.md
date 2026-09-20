@@ -56,7 +56,7 @@ For detailed standards and guidelines specific to different areas of the project
 
 - **Workspace**: pnpm `@9.12.0` — packages `client`, `server`, `infra`. Root `pnpm-lock.yaml` is authoritative; nested `client/pnpm-lock.yaml` / `server/pnpm-lock.yaml` are **legacy** and must not be used for installs.
 - **Node**: engines `>=20`; CI uses Node 20.
-- **No Docker** in this repo.
+- **No Docker** for application runtime or default CI. **Exception:** Docker is allowed for server integration tests (`test:integration` / DynamoDB Local via Testcontainers).
 - **Commits**: Conventional Commits (`feat/`, `ci/`, `docs/`, …). Branches: `feat/<topic>[-NN-slice]`.
 - **CI** (`.github/workflows/ci.yml`): lint, typecheck, server tests, builds, `cdk synth`. **CD**: OIDC deploy on `main`. No Husky.
 - **Prettier** is present (`.prettierrc`) but there is **no format script and no format step in CI**.

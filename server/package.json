@@ -10,6 +10,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --forceExit",
+    "test:integration": "NODE_OPTIONS=--experimental-vm-modules jest --config jest.integration.config.cjs --runInBand --forceExit",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -47,8 +48,10 @@
     "@types/supertest": "^6.0.2",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",
+    "fast-check": "^4.0.0",
     "jest": "^29.3.1",
     "supertest": "^6.3.3",
+    "testcontainers": "^11.0.0",
     "ts-jest": "^29.4.12",
     "tsx": "^4.19.1",
     "typescript": "^5.6.2"
