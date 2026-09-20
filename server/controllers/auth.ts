@@ -1,7 +1,10 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
-import { getUserByCognitoSub } from '../repositories/users.js';
-import { completeProfileService, registerService } from '../services/auth.js';
+import {
+  completeProfileService,
+  getUserByCognitoSubService,
+  registerService,
+} from '../services/auth.js';
 import {
   createFileUploadedRegisterService,
   deleteHardFileService,
@@ -81,7 +84,7 @@ const completeProfile: RequestHandler = async (req, res) => {
   }
 
   if (req.userData?._id) {
-    const existing = await getUserByCognitoSub(cognitoSub);
+    const existing = await getUserByCognitoSubService(cognitoSub);
     if (!existing) {
       return handleHttpErrors(res, 'ERROR_PROFILE_REQUIRED', 401);
     }

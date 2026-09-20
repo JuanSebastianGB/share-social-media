@@ -1,3 +1,4 @@
+/** Strangler remnant — runtime paths use `modules/identity`. Kept for reference. */
 import {
   DeleteCommand,
   GetCommand,

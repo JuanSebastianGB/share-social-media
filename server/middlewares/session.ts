@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { getUserByCognitoSub } from '../repositories/users.js';
+import { getUserByCognitoSubService } from '../services/auth.js';
 import { isCognitoAuthEnabled } from '../utilities/cognitoMode.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { verifyToken } from '../utilities/handleJwt.js';
@@ -25,7 +25,7 @@ async function runSessionCheck(
       return handleHttpErrors(res, 'ERROR_NOT_VALID_SESSION_CREDENTIALS', 401);
 
     if (isCognitoAuthEnabled() && claims.cognitoSub) {
-      const user = await getUserByCognitoSub(claims.cognitoSub);
+      const user = await getUserByCognitoSubService(claims.cognitoSub);
       if (!user) {
         if (options.requireProfile !== false) {
           return handleHttpErrors(res, 'ERROR_PROFILE_REQUIRED', 401);

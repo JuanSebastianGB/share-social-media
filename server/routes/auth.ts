@@ -1,7 +1,7 @@
 import express, { type RequestHandler } from 'express';
 import { completeProfile, login, register } from '../controllers/auth.js';
 import { checkAuthToken } from '../middlewares/session.js';
-import { getUserByCognitoSub } from '../repositories/users.js';
+import { getUserByCognitoSubService } from '../services/auth.js';
 import { isCognitoAuthEnabled } from '../utilities/cognitoMode.js';
 import uploadMiddleware from '../utilities/handleUploadFile.js';
 import s3Upload from '../utilities/s3Upload.js';
@@ -22,7 +22,7 @@ const returnExistingCognitoProfile: RequestHandler = async (req, res, next) => {
   const cognitoSub = req.userData?.cognitoSub;
   if (!cognitoSub || !req.userData?._id) return next();
 
-  const existing = await getUserByCognitoSub(cognitoSub);
+  const existing = await getUserByCognitoSubService(cognitoSub);
   if (!existing) return next();
 
   const { password: _pw, ...safe } = existing;

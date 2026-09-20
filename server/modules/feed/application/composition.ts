@@ -1,4 +1,4 @@
-import { getUserById } from '../../../repositories/users.js';
+import { getUserByIdForAssembler } from '../../identity/index.js';
 import {
   deleteHardFileService,
   getFileService,
@@ -27,21 +27,7 @@ const assemblerDeps: PostAssemblerDeps = {
     if (!file) return null;
     return { _id: String(file._id), url: file.url };
   },
-  getUser: async (userId) => {
-    const user = await getUserById(userId);
-    if (!user) return null;
-    return {
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      friends: user.friends,
-      location: user.location,
-      occupation: user.occupation,
-      viewedProfile: user.viewedProfile,
-      impressions: user.impressions,
-      profileImageId: user.profileImageId,
-    };
-  },
+  getUser: async (userId) => getUserByIdForAssembler(userId),
 };
 
 /** Legacy HTTP shape for non-hydrated post documents. */
