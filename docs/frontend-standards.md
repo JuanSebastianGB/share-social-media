@@ -302,8 +302,8 @@ API must be reachable at `VITE_APP_BASE_URL` (typically `http://localhost:3000`)
 |------|---------|----------|
 | Auth mega-slice | Posts/friends/mode live in `auth` | Prefer small extractions only with clear migration; do not add more unrelated domains casually |
 | `userSlice` unwired | File present, unused in store | Do not import as if live |
-| RHF + resolvers in package.json | Unused | Prefer Formik+Yup |
-| SWR mostly unused | Dependency present | Prefer hooks + services |
+| RHF + resolvers (removed) | Dropped from `client/package.json` | Forms stay Formik+Yup |
+| SWR + dead `useCheckToken` (removed) | Hook and `swr` dependency deleted | Prefer hooks + services |
 | `@ts-ignore` in places | Legacy | Remove only when typing is fixed properly |
 | Nested client lockfile | Legacy | Use root `pnpm-lock.yaml` |
 | `/defaultstorage` client call | Default file bootstrap | Called during register; idempotent (null on subsequent calls) |
