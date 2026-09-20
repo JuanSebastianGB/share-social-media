@@ -1,17 +1,17 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
 import {
-  createItem as createItemRepo,
-  deleteItem as deleteItemRepo,
-  getItemById,
-  listItems,
-  updateItem as updateItemRepo,
-} from '../repositories/items.js';
+  createItemService,
+  deleteItemService,
+  getItemService,
+  listItemsService,
+  updateItemService,
+} from '../services/items.js';
 import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 
 export const getItems: RequestHandler = async (_req, res) => {
   try {
-    const items = await listItems();
+    const items = await listItemsService();
     return res.json(items);
   } catch {
     handleHttpErrors(res, 'ERROR_CREATE_ITEM');
@@ -21,7 +21,7 @@ export const getItems: RequestHandler = async (_req, res) => {
 export const getItem: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const item = await getItemById(id);
+    const item = await getItemService(id);
     return res.json(item);
   } catch {
     handleHttpErrors(res, 'ERROR_GET_ITEM');
@@ -31,7 +31,7 @@ export const getItem: RequestHandler = async (req, res) => {
 export const createItem: RequestHandler = async (req, res) => {
   try {
     const body = matchedData(req);
-    const newItem = await createItemRepo(body);
+    const newItem = await createItemService(body);
     return res.json({ newItem });
   } catch {
     handleHttpErrors(res, 'ERROR_CREATE_ITEM');
@@ -44,7 +44,7 @@ export const updateItem: RequestHandler = async (req, res) => {
       body,
       params: { id },
     } = req;
-    const response = await updateItemRepo(id, body);
+    const response = await updateItemService(id, body);
     return res.json(response);
   } catch {
     handleHttpErrors(res, 'ERROR_UPDATE_ITEM');
@@ -54,7 +54,7 @@ export const updateItem: RequestHandler = async (req, res) => {
 export const deleteItem: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
-    const response = await deleteItemRepo(id);
+    const response = await deleteItemService(id);
     return res.json(response);
   } catch {
     handleHttpErrors(res, 'ERROR_DELETE_ITEM');
