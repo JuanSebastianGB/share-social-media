@@ -2,12 +2,13 @@ import { GetCommand } from '@aws-sdk/lib-dynamodb';
 import request from 'supertest';
 import { getDocClient } from '../db/client.js';
 import { cognitoPk, SK, TABLE_NAME, userPk } from '../db/keys.js';
-import {
-  DynamoUserRepository,
-  getUserFriendsService,
-} from '../modules/identity/index.js';
+import { DynamoUserRepository } from '../modules/identity/index.js';
 import { User } from '../modules/identity/domain/user.js';
-import { toggleFriendship } from '../modules/identity/application/use-cases/toggle-friendship.js';
+import {
+  DynamoFriendListRepository,
+  getUserFriendsService,
+  toggleFriendship,
+} from '../modules/social/index.js';
 import { getIntegrationSkipReason } from './integration/dynamodb-local.js';
 import { app } from './testApp.js';
 import { authHeader, registerUser } from './helpers.js';
@@ -95,12 +96,13 @@ describe('Identity integration (DynamoDB Local)', () => {
 
     const actor = await registerUser({ firstName: 'Actor' });
     const peer = await registerUser({ firstName: 'Friend' });
-    const repo = new DynamoUserRepository();
+    const friendListRepo = new DynamoFriendListRepository();
+    const userRepo = new DynamoUserRepository();
 
-    await toggleFriendship(repo, actor.userId, peer.userId);
+    await toggleFriendship(friendListRepo, actor.userId, peer.userId);
 
-    const actorAfter = await repo.findById(actor.userId);
-    const peerAfter = await repo.findById(peer.userId);
+    const actorAfter = await userRepo.findById(actor.userId);
+    const peerAfter = await userRepo.findById(peer.userId);
     expect(actorAfter!.toSnapshot().friends).toContain(peer.userId);
     expect(peerAfter!.toSnapshot().friends).toContain(actor.userId);
 

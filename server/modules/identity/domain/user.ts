@@ -43,7 +43,8 @@ export type CreateUserInput = {
 
 /**
  * User aggregate root for the Identity bounded context.
- * Approach B: friends[] lives on this aggregate for this slice.
+ * `friends[]` remains on the snapshot for profile/Feed hydration reads;
+ * friendship mutations live in the Social graph `FriendList` aggregate.
  */
 export class User {
   private constructor(private readonly props: UserSnapshot) {}
@@ -86,36 +87,10 @@ export class User {
     });
   }
 
-  /**
-   * Toggles `friendId` on THIS user's friends list only.
-   * Legacy HTTP mutates both peers; the use case (T4) loads each aggregate
-   * and calls `toggleFriend` with the peer id.
-   */
-  toggleFriend(friendId: string): void {
-    if (!friendId.trim()) {
-      throw new InvalidUserError('Friend id is required');
-    }
-    if (friendId === this.props.id) {
-      throw new InvalidUserError('Cannot friend yourself');
-    }
-
-    const index = this.props.friends.indexOf(friendId);
-    if (index >= 0) {
-      this.props.friends.splice(index, 1);
-    } else {
-      this.props.friends.push(friendId);
-    }
-    this.touch();
-  }
-
   toSnapshot(): UserSnapshot {
     return {
       ...this.props,
       friends: [...this.props.friends],
     };
-  }
-
-  private touch(): void {
-    this.props.updatedAt = new Date().toISOString();
   }
 }

@@ -110,17 +110,14 @@ describe('InMemoryUserRepository', () => {
     ]);
   });
 
-  test('domain toggleFriend then save persists friends', async () => {
+  test('friends array on create persists through save', async () => {
     const user = User.create({
       id: '507f1f77bcf86cd799439061',
       email: 'friends@example.com',
+      friends: ['507f1f77bcf86cd799439099'],
       now: '2026-02-01T00:00:00.000Z',
     });
     await repo.save(user);
-
-    const loaded = await repo.findById(user.toSnapshot().id);
-    loaded!.toggleFriend('507f1f77bcf86cd799439099');
-    await repo.save(loaded!);
 
     const found = await repo.findById(user.toSnapshot().id);
     expect(found?.toSnapshot().friends).toEqual([

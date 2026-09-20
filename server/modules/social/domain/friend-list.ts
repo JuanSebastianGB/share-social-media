@@ -44,7 +44,7 @@ export class FriendList {
 
   /**
    * Toggles `friendId` on THIS user's friends list only.
-   * Bidirectional peer mutation belongs in the use case (later slice).
+   * Bidirectional peer mutation belongs in the toggleFriendship use case.
    */
   toggleFriend(friendId: string): void {
     if (!friendId.trim()) {

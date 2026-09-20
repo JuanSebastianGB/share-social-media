@@ -12,25 +12,6 @@ const emailArb = nonBlankEmailLocalArb.map(
 );
 
 describe('User aggregate properties', () => {
-  // Property: for any valid peer id, toggling friend twice restores membership
-  test('toggling friend twice restores friends membership', () => {
-    fc.assert(
-      fc.property(mongoIdArb, mongoIdArb, (id, friendId) => {
-        fc.pre(id !== friendId);
-        const user = User.create({
-          id,
-          email: 'property@example.com',
-          now: '2026-01-01T00:00:00.000Z',
-        });
-        const before = [...user.toSnapshot().friends];
-        user.toggleFriend(friendId);
-        user.toggleFriend(friendId);
-        expect(user.toSnapshot().friends).toEqual(before);
-      }),
-      { numRuns: 100 },
-    );
-  });
-
   // Property: create then reconstitute round-trips identity fields
   test('create round-trips via reconstitute', () => {
     fc.assert(
