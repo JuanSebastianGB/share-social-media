@@ -44,8 +44,8 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 ## Checklist
 
 - [x] **T1** — docs-scaffold — CONTEXT Social in-progress; ADR 0005; module barrels; backend-standards — route: delegated — commit: `3a001093ed7344a6d418f07c47b56f70d23cca6a`
-- [x] **T2** — domain-tdd — FriendList aggregate + unit (+ property) — route: delegated — commit:
-- [ ] **T3** — ports-adapters — FriendListRepository + in-memory + Dynamo (USER.friends field) — route: delegated
+- [x] **T2** — domain-tdd — FriendList aggregate + unit (+ property) — route: delegated — commit: `3c1be024fbf33bac988cd07c69fb41ff89fb502d`
+- [x] **T3** — ports-adapters — FriendListRepository + in-memory + Dynamo (USER.friends field) — route: delegated — commit:
 - [ ] **T4** — use-cases-wire — toggle + list friends; wire controllers/services; strip Identity toggle; characterization green — route: delegated
 - [ ] **T5** — integration — DynamoDB Local social specs (friends toggle HTTP/DB) — route: delegated
 - [ ] **T6** — docs-finalize — CONTEXT glossary; standards; guides; mark Done after merge — route: delegated
@@ -67,7 +67,8 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 - Approach: keep embedded `friends[]` on USER; Social owns FriendList + bidirectional toggle (explore recommendation)
 - T1: docs/scaffold complete (route: delegated); ADR 0005 + `modules/social` barrels; no glossary yet (T6); commit pending parent
 - T2: FriendList domain + unit/property tests green (route: delegated); Identity `User.toggleFriend` still present (T4); commit pending parent
-- Next: T3 ports-adapters
+- T3: FriendListRepository port + InMemory + Dynamo adapters (UpdateCommand SET friends/updatedAt only; no Cognito writes; missing USER throws); in-memory unit tests green; commit SHA blank pending parent
+- Next: T4 use-cases-wire
 
 ## Delivery
 

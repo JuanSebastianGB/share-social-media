@@ -1,6 +1,5 @@
 /**
  * Social graph infrastructure barrel.
- * Scaffolding only — DynamoDB and in-memory adapters land in later tasks.
  */
-
-export {};
+export { DynamoFriendListRepository } from './dynamodb-friend-list-repository.js';
+export { InMemoryFriendListRepository } from './in-memory-friend-list-repository.js';
