@@ -92,14 +92,16 @@ HTTP request
   → routes/*.ts          (path + middleware chain)
   → middlewares/*        (JWT, role, cache, validators)
   → controllers/*        (HTTP I/O, matchedData, status codes)
-  → services/* OR modules/feed OR modules/comments  (orchestration; DDD hexagonal BCs)
+  → services/* OR modules/feed OR modules/comments OR modules/identity  (orchestration; DDD hexagonal BCs)
   → repositories/* / Dynamo adapters
   → DynamoDB / S3
 ```
 
 **Feed BC (done / migrated):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
 
-**Comments BC (done / migrated; CONTEXT status In progress until merge):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` remains as an unused strangler remnant (do not call it).
+**Comments BC (done / migrated):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` remains as an unused strangler remnant (do not call it).
+
+**Identity BC (in progress):** `server/modules/identity/` — hexagonal DDD scaffolding; `User` aggregate includes profile fields, dual-mode auth persistence concerns, and embedded `friends[]` for this slice (approach B). Controllers will call the Identity facade (not deepen legacy service/repo skips).
 
 **Dual entrypoints:**
 
@@ -127,9 +129,10 @@ server/
   routes/                Express routers (auth, users, posts, comments, items, storage)
   middlewares/           session (JWT/Cognito), role, cache
   controllers/           Request handlers
-  services/              auth, users, posts, storage (items: LEGACY — none; comments: modules/comments)
+  services/              auth, users, posts, storage (items: LEGACY — none; comments: modules/comments; identity migrating)
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
+  modules/identity/      Identity BC (hexagonal DDD; in progress)
   repositories/          DynamoDB access (users, posts, storage, items; comments.ts unused remnant)
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
@@ -149,6 +152,8 @@ server/
 **Compliant:** `controllers/posts.ts` → Feed facade (`modules/feed` / `services/posts.ts` re-export) → Dynamo adapter.
 
 **Compliant:** `controllers/comments.ts` (and posts comment list paths) → Comments module facade (`modules/comments`) → Dynamo adapter. Do not call `repositories/comments.ts` (unused strangler remnant).
+
+**Identity (in progress):** prefer `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity`) rather than deepening controller → service → `repositories/users.ts`. Dual-mode auth stays explicit; friends remain embedded on User for this slice.
 
 **Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
@@ -186,6 +191,8 @@ There is **no global Express error middleware**. Controllers catch and call `han
 **Feed (done / migrated):** the Posts/Feed bounded context lives under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
 
 **Comments (done / migrated):** the Comments bounded context lives under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create-on-post orchestrates Feed attach and returns a hydrated Post; Comment items have no `postId`. New comment domain logic belongs in the Comments module, not in controllers or `repositories/comments.ts`.
+
+**Identity (in progress):** the Identity bounded context is migrating to hexagonal DDD under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later).
 
 ### Entities (implemented)
 

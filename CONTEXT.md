@@ -7,9 +7,9 @@ This document records the ubiquitous language for the application. Bounded conte
 | Context | Status | Code |
 |---------|--------|------|
 | Feed | Done (DDD hexagonal) | `server/modules/feed/` |
-| Comments | In progress (DDD hexagonal) | `server/modules/comments/` |
-| Identity | Legacy layered | `server/controllers/auth.ts`, `server/services/auth.ts` |
-| Social graph | Legacy layered | friends on User |
+| Comments | Done (DDD hexagonal) | `server/modules/comments/` |
+| Identity | In progress (DDD hexagonal) | `server/modules/identity/` |
+| Social graph | Legacy layered | friends on User (embedded for this Identity slice — approach B; extract later) |
 | Media | Legacy utilities | `server/services/storage.ts`, S3 upload |
 | Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
 
@@ -46,6 +46,10 @@ This document records the ubiquitous language for the application. Bounded conte
 - Empty `firstName` / `lastName` are allowed (legacy validators: exists + isString).
 - There is no `postId` on the Comment aggregate or COMMENT DynamoDB item.
 
+## Identity glossary (pending)
+
+Full ubiquitous language for Identity lands in T6. Until then: Identity BC migrates auth/profile under `server/modules/identity/` with `User` as aggregate root; friends stay embedded on User for this slice (approach B). See ADR `docs/adr/0003-identity-ddd-hexagonal.md`.
+
 ## Persistence note
 
-Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, and ADR `docs/adr/0002-comments-ddd-hexagonal.md`.
+Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, and ADR `docs/adr/0003-identity-ddd-hexagonal.md`.
