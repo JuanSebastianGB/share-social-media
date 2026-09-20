@@ -172,7 +172,9 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 ## Domain Modeling
 
-This is **not** a formal DDD codebase. Domain concepts are TypeScript record types plus DynamoDB item shapes.
+**Legacy default:** most domains are still TypeScript record types plus DynamoDB item shapes (layered CRUD).
+
+**Feed (in progress):** the Posts/Feed bounded context is migrating to hexagonal DDD under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
 
 ### Entities (implemented)
 
