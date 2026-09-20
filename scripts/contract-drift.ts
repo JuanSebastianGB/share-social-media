@@ -1,9 +1,16 @@
 #!/usr/bin/env tsx
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import express from 'express';
-import YAML from 'js-yaml';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+// Resolve bare imports from the server package (scripts/ is not a workspace
+// package; a local scripts/node_modules symlink is gitignored and absent in CI).
+const requireFromServer = createRequire(
+  new URL('../server/package.json', import.meta.url),
+);
+const express = requireFromServer('express') as typeof import('express');
+const YAML = requireFromServer('js-yaml') as typeof import('js-yaml');
 
 // Swagger UI itself is not part of the API contract.
 const INTERNAL_PREFIXES = ['/documentation', '/documentation.json'];
@@ -123,6 +130,9 @@ async function main(): Promise<void> {
   process.exit(1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+const entry = process.argv[1]
+  ? pathToFileURL(resolve(process.argv[1])).href
+  : '';
+if (entry && import.meta.url === entry) {
   main();
 }
