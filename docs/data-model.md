@@ -24,9 +24,10 @@ Physical table: CDK `ShareSocialMedia` (PK/SK + GSI1 + GSI2), also creatable via
 
 ### 1. USER
 
-> Status: implemented
+> Status: implemented — Identity BC under `server/modules/identity/` ([CONTEXT.md](../CONTEXT.md), [ADR 0003](./adr/0003-identity-ddd-hexagonal.md))
 
-A social profile stored as one item. Friends are an array of peer user ids. Optional
+A social profile stored as one item. Friends are an array of peer user ids (approach B —
+embedded on User for this Identity slice; Social graph extract later). Optional
 `cognitoSub` when identity is managed by Cognito.
 
 **Keys:**
@@ -67,9 +68,10 @@ A social profile stored as one item. Friends are an array of peer user ids. Opti
 
 ### 2. COGNITO_LINK
 
-> Status: implemented
+> Status: implemented — Identity BC Cognito link persistence ([ADR 0003](./adr/0003-identity-ddd-hexagonal.md))
 
 Pointer item mapping Cognito `sub` → application user id (GetItem, no GSI required).
+Owned by Identity `DynamoUserRepository` alongside the USER item when `cognitoSub` is set.
 
 **Keys:**
 
@@ -276,6 +278,7 @@ erDiagram
 - **Single-table design:** all entity types share one table; `entityType` and key prefixes discriminate.
 - **Embedded social graph:** friends and likes are attributes, not rows — simplifies demo writes, complicates querying “who liked X” at scale.
 - **Comment linkage is denormalized:** create writes COMMENT item + updates POST.`comments` (Comments BC + Feed attach); deleting a comment does not automatically repair the post array (verify behavior before assuming cascade). See [ADR 0002](./adr/0002-comments-ddd-hexagonal.md).
+- **Identity USER + COGNITO_LINK:** profile and optional Cognito pointer live in the Identity BC (`server/modules/identity/`). See [ADR 0003](./adr/0003-identity-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.
 - **Id strategy** remains Mongo-compatible hex for validator compatibility (`isMongoId`).

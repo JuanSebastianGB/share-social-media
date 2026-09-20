@@ -47,9 +47,9 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 - [x] **T1** — docs-scaffold — CONTEXT Identity in-progress; Comments→Done; ADR 0003; module barrels; backend-standards — route: delegated — commit: 2cdb18d2f206cc18fbad46f5d4fdebfc8c887937
 - [x] **T2** — domain-tdd — User aggregate + unit + property tests (incl. friend toggle) — route: delegated — commit: f5cc0c24fa27a8d911a3cbcedabbddd41c6fda0e
 - [x] **T3** — ports-adapters — UserRepository port, in-memory, Dynamo (+ Cognito link) — route: delegated — commit: 27a70c6f23fa4e2dbf41fd71cc37a6b90e88872a
-- [x] **T4** — use-cases-wire — auth + users + friends; wire controllers; Feed/session ACL; characterization green — route: delegated — commit: _(parent)_
-- [ ] **T5** — integration-docker — DynamoDB Local identity specs — route: delegated
-- [ ] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links — route: delegated
+- [x] **T4** — use-cases-wire — auth + users + friends; wire controllers; Feed/session ACL; characterization green — route: delegated — commit: 892f5a5c08a77b7d6a4a2a426f35d9c347c791b5
+- [x] **T5** — integration-docker — DynamoDB Local identity specs — route: delegated — commit: _(parent)_
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; development_guide cross-links — route: delegated — commit: _(parent)_
 
 ## Acceptance
 
@@ -67,13 +67,16 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 - T1: docs-scaffold complete (route: delegated); commit `2cdb18d2f206cc18fbad46f5d4fdebfc8c887937`
 - T2: domain-tdd complete (route: delegated) — `User` aggregate with friends[], `InvalidUserError`, unit + property tests; email normalized `trim().toLowerCase()` on create (matches `emailGsi1Pk`); self-friend rejected; `toggleFriend` mutates this aggregate only (JSDoc); no `updateProfile` yet; commit `f5cc0c24fa27a8d911a3cbcedabbddd41c6fda0e`
 - T3: ports-adapters complete (route: delegated) — `UserRepository` port (no `update()`); `InMemoryUserRepository` with email/cognitoSub indexes + clear(); `DynamoUserRepository` mirrors USER item + GSI1 email + Scan list; Cognito link Put without ConditionExpression on save (idempotent re-save); delete removes LINK when cognitoSub present; exported from identity barrel; commit `27a70c6f23fa4e2dbf41fd71cc37a6b90e88872a`; suite 17/115
-- T4: use-cases-wire complete (route: delegated) — use cases (`registerUser`, `completeProfile`, finders, `listUsers`, `toggleFriendship`) + InMemory tests; composition facade (auth + users hydration + Feed assembler); `services/auth.ts` / `services/users.ts` thin re-exports; session/routes/controllers/Feed off `repositories/users`; remnant left unused; suite **18/126** green; commit SHA blank for parent (size:exception cohesive wire like Comments T4)
+- T4: use-cases-wire complete (route: delegated) — use cases (`registerUser`, `completeProfile`, finders, `listUsers`, `toggleFriendship`) + InMemory tests; composition facade (auth + users hydration + Feed assembler); `services/auth.ts` / `services/users.ts` thin re-exports; session/routes/controllers/Feed off `repositories/users`; remnant left unused; suite **18/126** green; commit `892f5a5c08a77b7d6a4a2a426f35d9c347c791b5`
+- T5: `server/tests/identity.integration.spec.ts` mirrors Comments Testcontainers setup; repo round-trip (id/email/cognitoSub + USER/COGNITO_LINK DB oracles) + `toggleFriendship` both peers + PATCH `/users/:id/:friendId` HTTP/DB; `pnpm --filter server test:integration` **3 suites / 7 tests**; unit suite still **18 / 126**; commit SHA blank for parent
+- T6: docs-finalize complete — CONTEXT Identity glossary + invariants; backend-standards Identity BC (facade, characterization + module + `identity.integration.spec.ts`, unused `repositories/users.ts` remnant); development guides mirror Feed/Comments test docs; data-model + ADR 0003 cross-links; CONTEXT Identity status remains **In progress** until PR merges (Comments stayed In progress through finalize; Feed marked Done after merge); commit SHA blank for parent
+- Feature checklist complete for plan scope on `feat/ddd-identity`
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (user 2026-09-20; typed as feature-branch-change)
 - Forecast authored lines: ~1400–1600 (Comments-shaped)
-- Running authored lines: T1–T3 ~1020/+7; T4 wire slice size:exception OK (cohesive; parent records SHA) — expect ~1500–1800 vs main after T4 commit
+- Running authored lines: ~1545/+165 vs main at T4 tip; T5+T6 uncommitted ~+240/−21 (integration ~190 + docs) — expect ~1780–1850 vs main after parent commit
 - Review boundary: branch point = main
 - Planned child slices (mirror Comments):
   1. `feat/ddd-identity-01-docs` — T1
@@ -81,7 +84,7 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
   3. `feat/ddd-identity-03-ports` — T3
   4. `feat/ddd-identity-04-wire` — T4 (size:exception cohesive wire)
   5. `feat/ddd-identity-05-integration-docs` — T5+T6
-- Next: T5 integration-docker
+- Next: parent commits T5+T6; then child slice PRs
 
 ## Applicable checks
 

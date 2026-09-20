@@ -66,9 +66,9 @@ Contract of record for HTTP: [`docs/api-spec.yml`](./api-spec.yml). The in-serve
 |---------|--------|-------|
 | Runner | Jest 29 + `ts-jest` | `NODE_OPTIONS=--experimental-vm-modules` |
 | HTTP | `supertest` | Against Express app (`server/tests/testApp.ts`) |
-| Style | Characterization + Feed/Comments domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
+| Style | Characterization + Feed/Comments/Identity domain unit/property + optional integration | Lock HTTP; drive DDD with unit/property; DynamoDB Local for integration |
 | Coverage threshold | **None** | No gate in CI beyond green suite |
-| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `*.integration.spec.ts` | |
+| Location | `server/tests/*.characterization.test.ts`, `server/modules/feed/**/*.test.ts`, `server/modules/comments/**/*.test.ts`, `server/modules/identity/**/*.test.ts`, `*.integration.spec.ts` | |
 | Integration | `pnpm --filter server test:integration` | Testcontainers DynamoDB Local; Docker required; skips if unavailable |
 
 ### Development Tools
@@ -101,7 +101,7 @@ HTTP request
 
 **Comments BC (done / migrated):** `server/modules/comments/` — domain `Comment` aggregate, application use cases, `CommentRepository` port, DynamoDB + in-memory adapters. Controllers call the Comments facade (`modules/comments`); create-on-post orchestrates Feed attach and returns a hydrated Post. Legacy `server/repositories/comments.ts` remains as an unused strangler remnant (do not call it).
 
-**Identity BC (in progress):** `server/modules/identity/` — hexagonal DDD scaffolding; `User` aggregate includes profile fields, dual-mode auth persistence concerns, and embedded `friends[]` for this slice (approach B). Controllers will call the Identity facade (not deepen legacy service/repo skips).
+**Identity BC (done / migrated; CONTEXT status In progress until PR merges):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns, embedded `friends[]` approach B), application use cases, `UserRepository` port, DynamoDB + in-memory adapters. Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export it for compatibility. Session middleware and Feed assembler use the facade (not the users repo). Legacy `server/repositories/users.ts` remains as an unused strangler remnant (do not call it).
 
 **Dual entrypoints:**
 
@@ -129,11 +129,11 @@ server/
   routes/                Express routers (auth, users, posts, comments, items, storage)
   middlewares/           session (JWT/Cognito), role, cache
   controllers/           Request handlers
-  services/              auth, users, posts, storage (items: LEGACY — none; comments: modules/comments; identity migrating)
+  services/              posts, storage, auth/users thin re-exports (items: LEGACY — none; comments: modules/comments; identity: modules/identity)
   modules/feed/          Feed BC (hexagonal DDD)
   modules/comments/      Comments BC (hexagonal DDD)
-  modules/identity/      Identity BC (hexagonal DDD; in progress)
-  repositories/          DynamoDB access (users, posts, storage, items; comments.ts unused remnant)
+  modules/identity/      Identity BC (hexagonal DDD; CONTEXT In progress until PR merges)
+  repositories/          DynamoDB access (posts, storage, items; users.ts + comments.ts unused remnants)
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -153,7 +153,7 @@ server/
 
 **Compliant:** `controllers/comments.ts` (and posts comment list paths) → Comments module facade (`modules/comments`) → Dynamo adapter. Do not call `repositories/comments.ts` (unused strangler remnant).
 
-**Identity (in progress):** prefer `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity`) rather than deepening controller → service → `repositories/users.ts`. Dual-mode auth stays explicit; friends remain embedded on User for this slice.
+**Compliant:** `controllers/auth.ts` / `controllers/users.ts` → Identity module facade (`modules/identity` / `services/auth.ts` + `services/users.ts` re-exports) → Dynamo adapter. Do not call `repositories/users.ts` (unused strangler remnant). Dual-mode auth stays explicit; friends remain embedded on User for this slice (approach B).
 
 **Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
 
@@ -192,7 +192,7 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Comments (done / migrated):** the Comments bounded context lives under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create-on-post orchestrates Feed attach and returns a hydrated Post; Comment items have no `postId`. New comment domain logic belongs in the Comments module, not in controllers or `repositories/comments.ts`.
 
-**Identity (in progress):** the Identity bounded context is migrating to hexagonal DDD under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later).
+**Identity (done / migrated; CONTEXT status In progress until PR merges):** the Identity bounded context lives under `server/modules/identity/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0003](./adr/0003-identity-ddd-hexagonal.md). Dual-mode auth stays explicit; friends remain embedded on the User aggregate for this slice (approach B — Social graph extract later). New identity domain logic belongs in the Identity module, not in controllers or `repositories/users.ts`.
 
 ### Entities (implemented)
 
@@ -354,6 +354,7 @@ server/tests/
   comments.characterization.test.ts
   posts.integration.spec.ts
   comments.integration.spec.ts
+  identity.integration.spec.ts
   integration/               # DynamoDB Local Testcontainers harness
   helpers.ts
   setup.ts
@@ -365,6 +366,11 @@ server/modules/feed/
   application/**/*.test.ts
   infrastructure/*.test.ts
 server/modules/comments/
+  domain/*.test.ts
+  domain/*.property.test.ts
+  application/**/*.test.ts
+  infrastructure/*.test.ts
+server/modules/identity/
   domain/*.test.ts
   domain/*.property.test.ts
   application/**/*.test.ts
@@ -520,8 +526,10 @@ Documented so agents do not “clean up” blindly without tests and product int
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
 | comments repo unused remnant | `repositories/comments.ts` unused after Comments BC wire; controllers → `modules/comments` facade; create attaches via Feed | Do not revive the remnant; new comment logic in `server/modules/comments/` (ADR 0002) |
+| users repo unused remnant | `repositories/users.ts` unused after Identity BC wire; controllers → `modules/identity` facade; session/Feed use facade | Do not revive the remnant; new identity logic in `server/modules/identity/` (ADR 0003) |
 | items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
+| Auth/users services are Identity facade | `server/services/auth.ts` / `users.ts` re-export `modules/identity` | New Identity domain logic goes in `server/modules/identity/` |
 | Scan-based lists | users, comments (Comments `list()`), items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
 | `/defaulstorage` typo | Real mounted path | Keep path for client compat; do not “fix” spelling without client change |

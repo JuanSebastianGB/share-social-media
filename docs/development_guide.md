@@ -141,7 +141,7 @@ Integration suite (`pnpm --filter server test:integration`): requires **Docker**
 
 ```bash
 pnpm --filter server test
-# Feed + Comments domain unit/property + characterization (memory DynamoDB)
+# Feed + Comments + Identity domain unit/property + characterization (memory DynamoDB)
 
 pnpm --filter server test:integration
 # HTTP + real DynamoDB Local (Docker required)
@@ -160,7 +160,9 @@ Feed DDD tests live under `server/modules/feed/` (`*.test.ts`) and `server/tests
 
 Comments DDD tests live under `server/modules/comments/` (`*.test.ts`) and `server/tests/comments.integration.spec.ts`.
 
-There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed or Comments invariants.
+Identity DDD tests live under `server/modules/identity/` (`*.test.ts`) and `server/tests/identity.integration.spec.ts`.
+
+There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, or Identity invariants.
 
 ### Frontend Testing
 
