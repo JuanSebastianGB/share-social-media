@@ -44,7 +44,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 ## Checklist
 
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
-- [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: PENDING
+- [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
 - [ ] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated
 - [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
 - [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
