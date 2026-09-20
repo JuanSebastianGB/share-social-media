@@ -92,12 +92,14 @@ HTTP request
   → routes/*.ts          (path + middleware chain)
   → middlewares/*        (JWT, role, cache, validators)
   → controllers/*        (HTTP I/O, matchedData, status codes)
-  → services/* OR modules/feed  (orchestration; Feed BC is DDD hexagonal)
+  → services/* OR modules/feed OR modules/comments  (orchestration; DDD hexagonal BCs)
   → repositories/* / Dynamo adapters
   → DynamoDB / S3
 ```
 
-**Feed BC (in progress):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
+**Feed BC (done / migrated):** `server/modules/feed/` — domain `Post` aggregate, application use cases, `PostRepository` port, DynamoDB adapter. Controllers call the Feed facade; `server/services/posts.ts` re-exports it for compatibility.
+
+**Comments BC (in progress):** `server/modules/comments/` — hexagonal DDD scaffolding; create will orchestrate Feed attach. Controllers will call the Comments facade (not repositories directly).
 
 **Dual entrypoints:**
 
@@ -142,9 +144,11 @@ server/
 
 ### Prefer controller → service → repository (new code)
 
-**Compliant:** `controllers/posts.ts` → `services/posts.ts` → `repositories/posts.ts`.
+**Compliant:** `controllers/posts.ts` → Feed facade (`modules/feed` / `services/posts.ts` re-export) → Dynamo adapter.
 
-**Violating (legacy, do not copy):** `controllers/comments.ts` and `controllers/items.ts` call repositories directly. When touching those domains, introduce a service layer rather than deepening the skip.
+**Comments (in progress):** prefer `controllers/comments.ts` → Comments module facade (`modules/comments`) rather than controller → repository. Do not deepen the legacy skip while the BC migrates.
+
+**Violating (legacy, do not copy):** `controllers/items.ts` (and current comments until wired) call repositories directly.
 
 ### Keep DynamoDB keys centralized
 
@@ -177,7 +181,9 @@ There is **no global Express error middleware**. Controllers catch and call `han
 
 **Legacy default:** most domains are still TypeScript record types plus DynamoDB item shapes (layered CRUD).
 
-**Feed (in progress):** the Posts/Feed bounded context is migrating to hexagonal DDD under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
+**Feed (done / migrated):** the Posts/Feed bounded context lives under `server/modules/feed/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0001](./adr/0001-feed-ddd-hexagonal.md). New Posts domain logic belongs in the Feed module, not in ad-hoc service functions.
+
+**Comments (in progress):** the Comments bounded context is migrating to hexagonal DDD under `server/modules/comments/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0002](./adr/0002-comments-ddd-hexagonal.md). Create orchestrates Feed attach; Comment items have no `postId`.
 
 ### Entities (implemented)
 
@@ -498,7 +504,8 @@ Documented so agents do not “clean up” blindly without tests and product int
 
 | Debt | Reality | Guidance for new work |
 |------|---------|------------------------|
-| items/comments skip services | Controllers → repositories for Comment CRUD; attach uses Feed `attachCommentToPostService` | Comments-as-aggregate BC still legacy |
+| comments skip services (until wired) | Controllers → repositories for Comment CRUD; attach uses Feed `attachCommentToPostService` | Migrate via `server/modules/comments/` facade (ADR 0002) |
+| items skip services | Controllers → repositories | Introduce a service or BC when touching Items |
 | Posts service is Feed facade | `server/services/posts.ts` re-exports `modules/feed` | New Posts domain logic goes in `server/modules/feed/` |
 | Scan-based lists | users, comments, items, storage | Prefer Query + GSI |
 | `express.static('storage')` | On-disk legacy | Prefer S3 + CloudFront media |
