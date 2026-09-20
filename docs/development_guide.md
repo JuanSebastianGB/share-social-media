@@ -18,7 +18,7 @@ Related docs (do not discard):
 | Node.js | **20+** (CI uses 20; `engines.node` `>=20`) |
 | pnpm | **9.12.0** (see root `packageManager`) |
 | Git | any recent |
-| Docker | **Not required** (not used in this repo) |
+| Docker | Optional — **required only** for `pnpm --filter server test:integration` (DynamoDB Local via Testcontainers). Not used for app runtime or default tests. |
 | AWS CLI / CDK | Optional for local AWS deploys — see `deployment.md` |
 
 Use the **root** `pnpm-lock.yaml` only. Nested `client/pnpm-lock.yaml` and `server/pnpm-lock.yaml` are legacy leftovers.
@@ -131,7 +131,9 @@ Vite prints the local URL (typically `http://localhost:5173`). Ensure `VITE_APP_
 
 ### 7. Test Tooling Setup
 
-No browsers or containers required. Jest uses the memory DynamoDB adapter and media stubs via test setup files under `server/tests/`.
+Default suite (`pnpm --filter server test`): no browsers or containers. Jest uses the memory DynamoDB adapter and media stubs under `server/tests/`.
+
+Integration suite (`pnpm --filter server test:integration`): requires **Docker**. Starts DynamoDB Local via Testcontainers; skips cleanly if Docker is unavailable.
 
 ## Testing
 
@@ -139,8 +141,10 @@ No browsers or containers required. Jest uses the memory DynamoDB adapter and me
 
 ```bash
 pnpm --filter server test
-# or from root:
-pnpm test
+# Feed domain unit + property + characterization (memory DynamoDB)
+
+pnpm --filter server test:integration
+# HTTP + real DynamoDB Local (Docker required)
 ```
 
 Characterization suites live in `server/tests/`:
@@ -152,7 +156,9 @@ Characterization suites live in `server/tests/`:
 - `posts.characterization.test.ts`
 - `comments.characterization.test.ts`
 
-There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior.
+Feed DDD tests live under `server/modules/feed/` (`*.test.ts`) and `server/tests/posts.integration.spec.ts`.
+
+There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed invariants.
 
 ### Frontend Testing
 

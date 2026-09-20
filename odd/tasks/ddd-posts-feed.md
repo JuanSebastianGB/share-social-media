@@ -32,27 +32,27 @@ User-authorized critical task: DDD + robust tests (qa-expert strategy); Docker a
 
 ## Route
 
-Delegated/direct hybrid: parent orchestrates; implementation inline after exploration (plan already mapped).
+Direct implementation after plan exploration (mapping done in plan mode).
 
 ## Checklist
 
-- [ ] T1 docs-scaffold — CONTEXT.md, ADR, module barrels, backend-standards Feed in-progress
-- [ ] T2 domain-tdd — Post aggregate + unit + fast-check
-- [ ] T3 ports-adapters — port, memory fake, Dynamo adapter
-- [ ] T4 use-cases-wire — use cases + wire controllers; characterization green
-- [ ] T5 integration-docker — Testcontainers + integration specs + script
-- [ ] T6 docs-finalize — development_guide + standards Docker-for-tests
+- [x] T1 docs-scaffold — CONTEXT.md, ADR, module barrels, backend-standards Feed in-progress — `0ae004e`
+- [x] T2 domain-tdd — Post aggregate + unit + fast-check — `501e6b1`
+- [x] T3 ports-adapters — port, memory fake, Dynamo adapter — (included in `4a12295`)
+- [x] T4 use-cases-wire — use cases + wire controllers; characterization green — `4a12295`
+- [x] T5 integration-docker — Testcontainers + integration specs + script — pending commit
+- [x] T6 docs-finalize — development_guide + standards Docker-for-tests — pending commit
 
 ## Acceptance
 
-See plan acceptance criteria.
+See plan acceptance criteria — verified: characterization 54 passed; domain tests passed; integration 1 passed with Docker.
 
 ## Progress
 
-- Created feature branch `feat/ddd-posts-feed`
-- Next: T1 docs-scaffold
+- Feature branch `feat/ddd-posts-feed`
+- All plan todos complete pending final docs/integration commit
 
 ## Delivery
 
 - Strategy: ask-on-risk
-- Forecast: ~800–1200 authored lines (multi-slice; expect chain if over ~400)
+- Running authored lines: multi-commit feature branch
