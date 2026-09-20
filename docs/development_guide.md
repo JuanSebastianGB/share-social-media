@@ -166,7 +166,9 @@ Media DDD tests live under `server/modules/media/` (`*.test.ts`) and `server/tes
 
 Social DDD tests live under `server/modules/social/` (`*.test.ts`) and `server/tests/social.integration.spec.ts`.
 
-There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, Identity, Media, or Social invariants.
+Catalog DDD tests live under `server/modules/catalog/` (`*.test.ts`) and `server/tests/catalog.integration.spec.ts`.
+
+There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, Identity, Media, Social, or Catalog invariants.
 
 ### Frontend Testing
 

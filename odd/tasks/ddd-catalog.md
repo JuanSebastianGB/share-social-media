@@ -47,8 +47,8 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
 - [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: 3d0578e
 - [x] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated — commit: e4279d4
-- [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
-- [ ] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated
+- [x] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated — commit:
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated — commit:
 
 ## Acceptance
 
@@ -74,18 +74,16 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
   - GREEN: in-memory adapter — 1 suite / 5 tests; full `pnpm --filter server test` — 29 suites / 195 tests passed
   - Delivered: `CatalogItemRepository` port (save/findById/list/delete); `InMemoryCatalogItemRepository` + unit tests; `DynamoCatalogItemRepository` Put-based save + ITEM# Scan list; barrels updated; no controller wire; legacy `repositories/items.ts` kept
   - Commit: `3d0578e`
-- T4: use-cases-wire complete (route: delegated)
-  - RED: `pnpm --filter server test -- --testPathPattern='catalog/application/use-cases'` — suite failed (TS2307 missing use-case modules)
-  - GREEN: same pattern — 1 suite / 10 tests; characterization — 1 suite / 9 tests; full `pnpm --filter server test` — 31 suites / 214 tests passed
-  - Delivered: CRUD use cases + InMemory tests; `composition.ts` facade (`toLegacyItemRecord`, list/get/create/update/delete services); `services/items.ts` thin re-export; `controllers/items.ts` wired to facade only (keeps ERROR_CREATE_ITEM list quirk); `items.characterization.test.ts` with local `elevateToAdmin` (Dynamo role Update + re-login); legacy `repositories/items.ts` kept for T6
-  - Commit: `e4279d4`
-- Next: T5 integration
+- T4: use-cases-wire complete (route: delegated); commit `e4279d4`
+- T5: `catalog.integration.spec.ts` (repo save/find/list/delete, composition CRUD, HTTP GET/POST/PUT/DELETE + ITEM# oracles); commit SHA blank pending parent
+- T6: CONTEXT Catalog glossary + invariants (status remains **In progress**); data-model / backend-standards / development_guide / ADR 0006 consequences updated; `server/repositories/items.ts` deleted; commit SHA blank pending parent
+- Next: parent commit T5+T6; open PR chain; mark CONTEXT Done only after merge
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Social/Media)
 - Forecast authored lines: ~900–1300
-- Running authored lines: ~1100 (T1–T4)
+- Running authored lines: ~1400 (T1–T6)
 - Review boundary: branch point = main
 - Tracker / child PRs: open after T1–T6 on branch
 
