@@ -40,8 +40,8 @@ Direct implementation after plan exploration (mapping done in plan mode).
 - [x] T2 domain-tdd — Post aggregate + unit + fast-check — `501e6b1`
 - [x] T3 ports-adapters — port, memory fake, Dynamo adapter — (included in `4a12295`)
 - [x] T4 use-cases-wire — use cases + wire controllers; characterization green — `4a12295`
-- [x] T5 integration-docker — Testcontainers + integration specs + script — pending commit
-- [x] T6 docs-finalize — development_guide + standards Docker-for-tests — pending commit
+- [x] T5 integration-docker — Testcontainers + integration specs + script — `a7239b8`
+- [x] T6 docs-finalize — development_guide + standards Docker-for-tests — `a7239b8`
 
 ## Acceptance
 
@@ -49,8 +49,8 @@ See plan acceptance criteria — verified: characterization 54 passed; domain te
 
 ## Progress
 
-- Feature branch `feat/ddd-posts-feed`
-- All plan todos complete pending final docs/integration commit
+- Feature branch `feat/ddd-posts-feed` complete for plan scope
+- Commits: `0ae004e` → `501e6b1` → `4a12295` → `a7239b8`
 
 ## Delivery
 
