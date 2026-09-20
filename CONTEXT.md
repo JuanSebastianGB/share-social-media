@@ -11,7 +11,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Identity | Done (DDD hexagonal) | `server/modules/identity/` |
 | Social graph | Done (DDD hexagonal) | `server/modules/social/` |
 | Media | Done (DDD hexagonal) | `server/modules/media/` |
-| Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
+| Catalog (Items) | In progress (DDD hexagonal) | `server/modules/catalog/` |
 
 ## Feed glossary
 

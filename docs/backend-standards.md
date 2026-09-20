@@ -92,7 +92,7 @@ HTTP request
   → routes/*.ts          (path + middleware chain)
   → middlewares/*        (JWT, role, cache, validators)
   → controllers/*        (HTTP I/O, matchedData, status codes)
-  → services/* OR modules/feed OR modules/comments OR modules/identity OR modules/media OR modules/social  (orchestration; DDD hexagonal BCs)
+  → services/* OR modules/feed OR modules/comments OR modules/identity OR modules/media OR modules/social OR modules/catalog  (orchestration; DDD hexagonal BCs)
   → repositories/* / Dynamo adapters
   → DynamoDB / S3
 ```
@@ -106,6 +106,8 @@ HTTP request
 **Media BC (done / migrated):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
 
 **Social BC (done / migrated):** `server/modules/social/` — hexagonal DDD; domain `FriendList` aggregate, `FriendListRepository` port, DynamoDB + in-memory adapters, `toggleFriendship` + list-friends composition. Controllers call the Social facade for toggle/list friends (`modules/social`; `services/users.ts` re-exports friends paths). Friends remain `friends[]` on USER items (no `FRIEND#` edges). Safety nets: `users.characterization.test.ts`, Social module unit/property tests, and `social.integration.spec.ts`.
+
+**Catalog BC (in progress):** `server/modules/catalog/` — hexagonal DDD scaffolding; `CatalogItem` aggregate planned. Controllers will call the Catalog facade once wired (T4). Until then, `controllers/items.ts` → `repositories/items.ts` remains the documented layering violation; keep `repositories/items.ts` until wire. Dynamo stays `ITEM#` / `META` with Scan list; cache on `GET /items` and admin on `POST` unchanged.
 
 **Dual entrypoints:**
 
@@ -139,7 +141,8 @@ server/
   modules/identity/      Identity BC (hexagonal DDD)
   modules/media/         Media BC (hexagonal DDD)
   modules/social/        Social graph BC (hexagonal DDD)
-  repositories/          DynamoDB access still used by Items (`items.ts`) only
+  modules/catalog/       Catalog (Items) BC (hexagonal DDD; in progress)
+  repositories/          DynamoDB access still used by Items (`items.ts`) only — until Catalog T4 wire
   validators/            express-validator chains
   db/                    client, memoryClient, keys, ids
   database/              Optional local Dynamo table bootstrap helpers
@@ -165,7 +168,7 @@ server/
 
 **Compliant:** `controllers/users.ts` friends paths → Social module facade (`modules/social` / `services/users.ts` friends re-exports) → Dynamo adapter on USER.`friends`. Keep `friends[]` on USER; keep `/users/:id/:friendId` and `/users/:id/friends` HTTP contracts unchanged. Do not reintroduce Identity `toggleFriend`.
 
-**Violating (legacy, do not copy):** `controllers/items.ts` calls repositories directly.
+**Violating (legacy until Catalog T4 wire, do not copy):** `controllers/items.ts` calls `repositories/items.ts` directly. Prefer Controllers → Catalog facade (`modules/catalog`) once wired; keep `repositories/items.ts` until then.
 
 ### Keep DynamoDB keys centralized
 
@@ -207,6 +210,8 @@ There is **no global Express error middleware**. Controllers catch and call `han
 **Media (done / migrated):** the Media bounded context lives under `server/modules/media/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0004](./adr/0004-media-ddd-hexagonal.md). Domain owns `MediaFile` metadata and soft-delete; S3/memory object I/O stays infrastructure. New media domain logic belongs in the Media module, not in controllers or a revived storage repository.
 
 **Social (done / migrated):** the Social graph bounded context lives under `server/modules/social/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md). Domain owns `FriendList`; persistence stays `friends[]` on USER (no `FRIEND#` edges). Controllers call the Social facade; Identity no longer owns friendship mutation.
+
+**Catalog (in progress):** the Catalog (Items) bounded context is migrating to hexagonal DDD under `server/modules/catalog/`. See [CONTEXT.md](../CONTEXT.md) and [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md). Domain will own `CatalogItem`; persistence stays `ITEM#` / `META` with Scan list. Controllers still call `repositories/items.ts` until T4 wire.
 
 ### Entities (implemented)
 
