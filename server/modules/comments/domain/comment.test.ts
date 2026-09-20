@@ -158,6 +158,27 @@ describe('Comment aggregate', () => {
     });
   });
 
+  describe('updateNames', () => {
+    test('when names change — updates firstName and lastName and touches updatedAt', () => {
+      const comment = Comment.create({
+        id: commentId,
+        description: 'original',
+        authorId,
+        firstName: 'Ada',
+        lastName: 'Lovelace',
+        now: '2026-01-01T00:00:00.000Z',
+      });
+
+      comment.updateNames('Grace', 'Hopper');
+
+      expect(comment.toSnapshot().firstName).toBe('Grace');
+      expect(comment.toSnapshot().lastName).toBe('Hopper');
+      expect(comment.toSnapshot().updatedAt).not.toBe(
+        '2026-01-01T00:00:00.000Z',
+      );
+    });
+  });
+
   describe('toSnapshot', () => {
     test('when snapshot is mutated — aggregate state is unchanged', () => {
       const comment = Comment.create({

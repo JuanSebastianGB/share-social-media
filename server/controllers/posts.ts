@@ -1,7 +1,7 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
-import { getCommentById } from '../repositories/comments.js';
 import { MONGO_IMAGE_ID } from '../constants/constants.js';
+import { getCommentService } from '../modules/comments/index.js';
 import {
   countPostsService,
   createPostService,
@@ -132,7 +132,7 @@ export const getPostComments: RequestHandler = async (req, res) => {
     const post = await findPostAggregate(id);
     const result = await Promise.all(
       (post?.toSnapshot().comments || []).map(
-        async (commentId: string) => await getCommentById(commentId),
+        async (commentId: string) => await getCommentService(commentId),
       ),
     );
     return res.json(result);
