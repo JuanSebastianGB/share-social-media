@@ -1,6 +1,11 @@
 /**
  * Catalog (Items) bounded context public facade.
- * Scaffolding only — domain lands in T2+; use cases and adapters wire later.
+ * Domain aggregate lands in T2; use cases and adapters wire later.
  */
 
-export {};
+export { DomainError, InvalidCatalogItemError } from './domain/errors.js';
+export { CatalogItem } from './domain/catalog-item.js';
+export type {
+  CatalogItemSnapshot,
+  CreateCatalogItemInput,
+} from './domain/catalog-item.js';

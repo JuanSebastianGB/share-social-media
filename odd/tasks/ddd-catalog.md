@@ -44,7 +44,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 ## Checklist
 
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
-- [ ] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated
+- [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: PENDING
 - [ ] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated
 - [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
 - [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
@@ -65,13 +65,18 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - Mapping: `routes/items` → `controllers/items` → `repositories/items` → `ITEM#` / Scan; no cross-BC coupling; public cached list; admin POST
 - Approach: module `catalog/`, aggregate `CatalogItem` (CONTEXT language)
 - T1: docs/scaffold complete (route: delegated); ADR 0006 + `modules/catalog` barrels; no glossary yet (T6); commit `2442cd0`
-- Next: T2 domain-tdd
+- T2: domain-tdd complete (route: delegated)
+  - RED: `pnpm --filter server test -- --testPathPattern='catalog/domain/catalog-item'` — 2 suites failed (TS2307 Cannot find module `./catalog-item.js` / `./errors.js`)
+  - GREEN: same pattern — 2 suites / 18 tests passed; full `pnpm --filter server test` — 28 suites / 190 tests passed
+  - Delivered: `errors.ts`, `catalog-item.ts` (create/reconstitute/rename/setActive/toSnapshot), unit + fast-check property tests; barrels export aggregate + errors + types; no applyPatch; no HTTP 5–20 length in domain
+  - Commit: PENDING
+- Next: T3 ports-adapters
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Social/Media)
 - Forecast authored lines: ~900–1300
-- Running authored lines: ~120 (T1)
+- Running authored lines: ~450 (T1+T2)
 - Review boundary: branch point = main
 - Tracker / child PRs: open after T1–T6 on branch
 
