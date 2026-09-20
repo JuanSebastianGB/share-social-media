@@ -47,8 +47,8 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
 - [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: 3d0578e
 - [x] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated — commit: e4279d4
-- [x] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated — commit:
-- [x] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated — commit:
+- [x] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated — commit: `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- [x] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated — commit: `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
 
 ## Acceptance
 
@@ -75,9 +75,9 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
   - Delivered: `CatalogItemRepository` port (save/findById/list/delete); `InMemoryCatalogItemRepository` + unit tests; `DynamoCatalogItemRepository` Put-based save + ITEM# Scan list; barrels updated; no controller wire; legacy `repositories/items.ts` kept
   - Commit: `3d0578e`
 - T4: use-cases-wire complete (route: delegated); commit `e4279d4`
-- T5: `catalog.integration.spec.ts` (repo save/find/list/delete, composition CRUD, HTTP GET/POST/PUT/DELETE + ITEM# oracles); commit SHA blank pending parent
-- T6: CONTEXT Catalog glossary + invariants (status remains **In progress**); data-model / backend-standards / development_guide / ADR 0006 consequences updated; `server/repositories/items.ts` deleted; commit SHA blank pending parent
-- Next: parent commit T5+T6; open PR chain; mark CONTEXT Done only after merge
+- T5: `catalog.integration.spec.ts` (repo save/find/list/delete, composition CRUD, HTTP GET/POST/PUT/DELETE + ITEM# oracles); commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- T6: CONTEXT Catalog glossary + invariants (status remains **In progress**); data-model / backend-standards / development_guide / ADR 0006 consequences updated; `server/repositories/items.ts` deleted; commit `ea6361de4b59baaf4543e8371c1f4ae3df25ea7e`
+- Next: open PR chain; mark CONTEXT Done only after merge
 
 ## Delivery
 
