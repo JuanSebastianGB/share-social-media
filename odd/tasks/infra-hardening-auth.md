@@ -66,7 +66,7 @@ User (2026-09-19): “I want them all” for A + B + C.
 - [x] **T1** — Auth harden routes + bind `userId` from JWT; JWT before S3 on `/posts/file` (route: delegated; A1)
 - [x] **T2** — Update characterization tests for T1 (route: delegated; A2)
 - [x] **T3** — CD wire `VITE_APP_BASE_URL` (Api output / GitHub var → client build → Web) (route: inline; CD1)
-- [ ] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
+- [x] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
 - [ ] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
 - [ ] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
 - [ ] **T7** — Client Cognito sign-up/sign-in + profile + env (route: delegated; C3)
@@ -78,9 +78,10 @@ User (2026-09-19): “I want them all” for A + B + C.
 - Tracker: `feat/infra-hardening-auth` (`ab10533`)
 - PR1 branch: `feat/infra-hardening-auth-01-jwt-harden` (`1f96e0b` T1+T2)
 - PR2 branch: `feat/infra-hardening-auth-02-cd` (T3)
-- Next: T4 (media CloudFront)
+- PR3 branch: `feat/infra-hardening-auth-03-media-cf` (T4)
+- Next: T5 (Cognito User Pool in ApiStack)
 - Delivery: `feature-branch-chain`
-- Authored lines so far (PR1 vs tracker): 224; PR2 pending commit
+- Authored lines so far (PR1 vs tracker): 224; PR2/PR3 pending commit
 
 ## Decisions
 
@@ -90,8 +91,10 @@ User (2026-09-19): “I want them all” for A + B + C.
 - PR chain: feature-branch-chain
 - Actor identity for mutations comes from JWT `_id` (`req.userData`); body/path `userId`/`id` no longer trusted for create post, like, comment, friend toggle
 - CD deploys Api first, resolves `ApiUrl` (or `vars.VITE_APP_BASE_URL`), builds client, then deploys Web
+- Media: private S3 + CloudFront OAC; `MEDIA_BASE_URL` = `https://<MediaDistributionDomainName>`; `s3Upload` unchanged (pathname parse works for CF hosts)
 
 ## Verification evidence
 
 - **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open. RDD assess unavailable on cursor runtime.
 - **T3**: CD workflow reordered (Api → resolve URL → client build → Web). Docs updated. No runtime AWS deploy in CI for this slice.
+- **T4**: ApiStack media CloudFront + OAC; public `AnyPrincipal` GetObject removed; `MEDIA_BASE_URL` → CF domain. Docs/.env.example updated. `cdk synth` OK (dummy account); `pnpm --filter server test` → 5 suites / 36 tests passed. No commit (per task).

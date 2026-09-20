@@ -7,7 +7,7 @@ Low-cost serverless target for share-social-media.
 - **API**: API Gateway HTTP API → Lambda (Node 20) running Express via `@codegenie/serverless-express`
 - **Web**: S3 (private) + CloudFront (OAC) serving the Vite `client/dist` build
 - **Database**: DynamoDB single-table (`ShareSocialMedia`), on-demand billing
-- **Media**: S3 bucket (`uploads/*`, public GetObject for demo)
+- **Media**: S3 bucket (private) + CloudFront (OAC) for `uploads/*`
 - **Secrets**: AWS Secrets Manager JSON secret (`JWT_SECRET`, `PUBLIC_URL`)
 - **IaC**: AWS CDK TypeScript in [`infra/`](../infra/)
 
@@ -68,8 +68,13 @@ pnpm exec cdk deploy --all -c appSecretArn=arn:aws:secretsmanager:...
 Stack outputs:
 
 - `ApiUrl` — HTTP API endpoint (CD wires this into the client build; set `vars.VITE_APP_BASE_URL` to override)
+- `MediaBaseUrl` / `MediaDistributionDomainName` — CloudFront URL prefix for uploaded media (`MEDIA_BASE_URL`)
 - `DistributionDomainName` — CloudFront domain for the SPA
 - `AppSecretArn` — secrets ARN
+
+### Media URL migration
+
+After deploying this change, new uploads get `secure_url` values under the CloudFront host (`https://<distribution>.cloudfront.net/uploads/...`). Existing DynamoDB rows that still store `https://<bucket>.s3.<region>.amazonaws.com/uploads/...` will break for browser display once public GetObject is removed — re-upload those objects or rewrite stored URLs to the CloudFront base (object keys under `uploads/` are unchanged).
 
 For a local production-like web build outside CD:
 
