@@ -44,7 +44,7 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 ## Checklist
 
 - [x] T1 docs-scaffold — CONTEXT Comments in-progress; Feed status update; ADR 0002; module barrels; backend-standards — route: delegated — commit: 114ea055ba30e8af06d60a0c7eb4f0a502507bc9
-- [ ] T2 domain-tdd — Comment aggregate + unit + fast-check — route: delegated
+- [x] T2 domain-tdd — Comment aggregate + unit + fast-check — route: delegated — commit: pending
 - [ ] T3 ports-adapters — CommentRepository port, in-memory, Dynamo adapter — route: delegated
 - [ ] T4 use-cases-wire — CRUD + create orchestrates Feed attach; wire controllers; characterization green — route: delegated
 - [ ] T5 integration-docker — DynamoDB Local comment specs (reuse Feed Testcontainers) — route: delegated
@@ -63,9 +63,10 @@ Delegated direct after explore mapping (Comments legacy map). Per-task routes re
 - Branch: `feat/ddd-comments` from `main` @ `2ece34c`
 - Mapping: explore agent (Comments feature map)
 - T1: docs-scaffold complete (route: delegated); commit SHA recorded on checklist after commit
+- T2: Comment aggregate + unit/property tests green (`pnpm --filter server test` 12 suites / 72 tests); empty names allowed (validators: exists+isString); no postId on aggregate
 
 ## Delivery
 
 - Strategy: ask-on-risk
 - Forecast authored lines: ~800–1200 (similar to Feed slice; may hit ~400 budget → ask chain strategy when exceeded)
-- Running authored lines: 0
+- Running authored lines: ~350 (T1+T2 estimate; exact from commits)
