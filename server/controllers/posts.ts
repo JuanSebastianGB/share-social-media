@@ -1,18 +1,18 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
 import { getCommentById } from '../repositories/comments.js';
-import { getPostById } from '../repositories/posts.js';
 import { MONGO_IMAGE_ID } from '../constants/constants.js';
 import {
   countPostsService,
   createPostService,
   deletePostService,
+  findPostAggregate,
   getPostService,
   getPostsPaginationService,
   getPostsService,
   getUserPostsService,
   toggleLikePostService,
-} from '../services/posts.js';
+} from '../modules/feed/index.js';
 import {
   createFileUploadedRegisterService,
   deleteHardFileService,
@@ -129,9 +129,9 @@ export const toggleLikePost: RequestHandler = async (req, res) => {
 export const getPostComments: RequestHandler = async (req, res) => {
   const { id } = req.params;
   try {
-    const post = await getPostById(id);
+    const post = await findPostAggregate(id);
     const result = await Promise.all(
-      (post?.comments || []).map(
+      (post?.toSnapshot().comments || []).map(
         async (commentId: string) => await getCommentById(commentId),
       ),
     );
