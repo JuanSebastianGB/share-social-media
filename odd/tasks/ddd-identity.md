@@ -86,7 +86,8 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
   4. `feat/ddd-identity-04-wire` → `feat/ddd-identity-03-ports` — T4 — **#48** (~702, size:exception)
   5. `feat/ddd-identity-05-integration-docs` → `feat/ddd-identity-04-wire` — T5+T6 — **#49** (~275)
 - Merge: review children; ship via tracker #44 → main; then mark Identity Done in CONTEXT
-- Next: wait for review / CI; merge tracker when ready
+- Shipped: tracker #44 merged to main (`4c93251`); children #45 merged, #46–#49 closed as included
+- CONTEXT Identity marked Done (follow-up docs commit)
 
 ## Applicable checks
 
