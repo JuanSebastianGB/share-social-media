@@ -45,7 +45,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 
 - [x] **T1** — docs-scaffold — CONTEXT Catalog in-progress; ADR 0006; module barrels; backend-standards — route: delegated — commit: 2442cd0
 - [x] **T2** — domain-tdd — CatalogItem aggregate + unit (+ property) — route: delegated — commit: bb5932f
-- [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: PENDING
+- [x] **T3** — ports-adapters — CatalogItemRepository + in-memory + Dynamo (`ITEM#`) — route: delegated — commit: 3d0578e
 - [ ] **T4** — use-cases-wire — CRUD facade; thin controller; expand characterization; keep cache/role — route: delegated
 - [ ] **T5** — integration — `catalog.integration.spec.ts` DynamoDB Local — route: delegated
 - [ ] **T6** — docs-finalize — CONTEXT glossary; standards; delete `repositories/items.ts`; mark Done after merge — route: delegated
@@ -73,7 +73,7 @@ Delegated direct after Catalog legacy map (explore agent). Per-task routes recor
 - T3: ports-adapters complete (route: delegated)
   - GREEN: in-memory adapter — 1 suite / 5 tests; full `pnpm --filter server test` — 29 suites / 195 tests passed
   - Delivered: `CatalogItemRepository` port (save/findById/list/delete); `InMemoryCatalogItemRepository` + unit tests; `DynamoCatalogItemRepository` Put-based save + ITEM# Scan list; barrels updated; no controller wire; legacy `repositories/items.ts` kept
-  - Commit: PENDING
+  - Commit: `3d0578e`
 - Next: T4 use-cases-wire
 
 ## Delivery
