@@ -1,6 +1,9 @@
 /**
  * Social graph domain barrel.
- * Scaffolding only — FriendList aggregate and errors land in later tasks.
  */
-
-export {};
+export { DomainError, InvalidFriendListError } from './errors.js';
+export { FriendList } from './friend-list.js';
+export type {
+  FriendListSnapshot,
+  CreateFriendListInput,
+} from './friend-list.js';
