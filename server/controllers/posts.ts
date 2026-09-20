@@ -67,6 +67,7 @@ export const createUserPostFile: RequestHandler = async (req, res) => {
     const body = matchedData(req);
     const newPost = await createPostService({
       ...body,
+      userId: req.userData!._id,
       fileId: savedFileRegister._id,
     });
     const newData = await getPostService(newPost._id);
@@ -82,6 +83,7 @@ export const createUserPost: RequestHandler = async (req, res) => {
     const body = matchedData(req);
     const newPost = await createPostService({
       ...body,
+      userId: req.userData!._id,
       fileId: MONGO_IMAGE_ID,
     });
     const newData = await getPostService(newPost._id);
@@ -115,8 +117,8 @@ export const deletePost: RequestHandler = async (req, res) => {
 
 export const toggleLikePost: RequestHandler = async (req, res) => {
   try {
-    const { id, userId } = matchedData(req);
-    const response = await toggleLikePostService(id, userId);
+    const { id } = matchedData(req);
+    const response = await toggleLikePostService(id, req.userData!._id);
     return res.json(response);
   } catch (error) {
     console.log(error);

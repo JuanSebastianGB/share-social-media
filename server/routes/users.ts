@@ -6,6 +6,7 @@ import {
   getUsers,
   toggleRelationFriend,
 } from '../controllers/users.js';
+import { checkValidJwt } from '../middlewares/session.js';
 import {
   validatorGetItem,
   validatorToggleFriend,
@@ -97,6 +98,11 @@ router.get('/:id', validatorGetItem, getUser);
  */
 router.get('/:id/friends', validatorGetItem, getUserFriends);
 router.get('/:id/posts', validatorGetItem, getUserPosts);
-router.patch('/:id/:friendId', validatorToggleFriend, toggleRelationFriend);
+router.patch(
+  '/:id/:friendId',
+  checkValidJwt,
+  validatorToggleFriend,
+  toggleRelationFriend,
+);
 
 export default router;

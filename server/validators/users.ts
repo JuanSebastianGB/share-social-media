@@ -8,7 +8,6 @@ const validatorGetItem = [
 ];
 
 const validatorToggleFriend = [
-  check('id').exists().isMongoId(),
   check('friendId').exists().isMongoId(),
   ((req, res, next) => validateResults(req, res, next)) as RequestHandler,
 ];
