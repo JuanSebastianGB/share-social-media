@@ -1,18 +1,18 @@
-import type { User } from '../../domain/user.js';
-import type { UserRepository } from '../ports/user-repository.js';
+import type { FriendList } from '../../domain/friend-list.js';
+import type { FriendListRepository } from '../ports/friend-list-repository.js';
 
 /**
  * Bidirectional friend toggle matching legacy `toggleRelationFriendService`.
- * Throws `USER_OR_FRIEND_NOT_FOUND` when either aggregate is missing
+ * Throws `USER_OR_FRIEND_NOT_FOUND` when either FriendList is missing
  * (controller maps to ERROR_TOGGLE_FRIEND 404).
  */
 export async function toggleFriendship(
-  repo: UserRepository,
+  repo: FriendListRepository,
   actorId: string,
   friendId: string,
-): Promise<User> {
-  const actor = await repo.findById(actorId);
-  const friend = await repo.findById(friendId);
+): Promise<FriendList> {
+  const actor = await repo.findByUserId(actorId);
+  const friend = await repo.findByUserId(friendId);
   if (!actor || !friend) {
     throw new Error('USER_OR_FRIEND_NOT_FOUND');
   }

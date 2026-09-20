@@ -5,7 +5,6 @@ import { findUserByEmail } from './find-user-by-email.js';
 import { findUserById } from './find-user-by-id.js';
 import { listUsers } from './list-users.js';
 import { registerUser } from './register-user.js';
-import { toggleFriendship } from './toggle-friendship.js';
 
 describe('Identity use cases', () => {
   const repo = new InMemoryUserRepository();
@@ -108,27 +107,5 @@ describe('Identity use cases', () => {
       'one@example.com',
       'two@example.com',
     ]);
-  });
-
-  test('toggleFriendship — when either missing — throws USER_OR_FRIEND_NOT_FOUND', async () => {
-    await registerUser(repo, { id: userId, email: 'a@example.com' });
-    await expect(toggleFriendship(repo, userId, friendId)).rejects.toThrow(
-      'USER_OR_FRIEND_NOT_FOUND',
-    );
-  });
-
-  test('toggleFriendship — adds then removes on both peers', async () => {
-    await registerUser(repo, { id: userId, email: 'a@example.com' });
-    await registerUser(repo, { id: friendId, email: 'b@example.com' });
-
-    const afterAdd = await toggleFriendship(repo, userId, friendId);
-    expect(afterAdd.toSnapshot().friends).toEqual([friendId]);
-    expect((await repo.findById(friendId))!.toSnapshot().friends).toEqual([
-      userId,
-    ]);
-
-    const afterRemove = await toggleFriendship(repo, userId, friendId);
-    expect(afterRemove.toSnapshot().friends).toEqual([]);
-    expect((await repo.findById(friendId))!.toSnapshot().friends).toEqual([]);
   });
 });

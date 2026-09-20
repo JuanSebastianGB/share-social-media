@@ -116,66 +116,6 @@ describe('User aggregate', () => {
     });
   });
 
-  describe('toggleFriend', () => {
-    test('when friend is not present — adds friendId', () => {
-      const user = User.create({
-        id: userId,
-        email: 'ada@example.com',
-        now: '2026-01-01T00:00:00.000Z',
-      });
-
-      user.toggleFriend(friendId);
-
-      expect(user.toSnapshot().friends).toEqual([friendId]);
-    });
-
-    test('when friend is already present — removes friendId', () => {
-      const user = User.create({
-        id: userId,
-        email: 'ada@example.com',
-        friends: [friendId],
-        now: '2026-01-01T00:00:00.000Z',
-      });
-
-      user.toggleFriend(friendId);
-
-      expect(user.toSnapshot().friends).toEqual([]);
-    });
-
-    test('when friendId is blank — throws InvalidUserError', () => {
-      const user = User.create({
-        id: userId,
-        email: 'ada@example.com',
-      });
-
-      expect(() => user.toggleFriend('   ')).toThrow(InvalidUserError);
-    });
-
-    test('when friendId is self — throws InvalidUserError', () => {
-      const user = User.create({
-        id: userId,
-        email: 'ada@example.com',
-      });
-
-      expect(() => user.toggleFriend(userId)).toThrow(InvalidUserError);
-    });
-
-    test('when friends change — touches updatedAt', () => {
-      const user = User.create({
-        id: userId,
-        email: 'ada@example.com',
-        now: '2026-01-01T00:00:00.000Z',
-      });
-
-      user.toggleFriend(friendId);
-
-      expect(user.toSnapshot().updatedAt).not.toBe(
-        '2026-01-01T00:00:00.000Z',
-      );
-      expect(user.toSnapshot().createdAt).toBe('2026-01-01T00:00:00.000Z');
-    });
-  });
-
   describe('toSnapshot', () => {
     test('when friends array is mutated — aggregate state is unchanged', () => {
       const user = User.create({

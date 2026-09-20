@@ -14,8 +14,6 @@ export {
   getUsersService,
   getUserService,
   getUserFromEmailService,
-  getUserFriendsService,
-  toggleRelationFriendService,
   getUserByIdForAssembler,
   toLegacyUserRecord,
 } from './application/composition.js';

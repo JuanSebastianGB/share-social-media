@@ -9,7 +9,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Feed | Done (DDD hexagonal) | `server/modules/feed/` |
 | Comments | Done (DDD hexagonal) | `server/modules/comments/` |
 | Identity | Done (DDD hexagonal) | `server/modules/identity/` |
-| Social graph | Legacy layered | friends on User (embedded for this Identity slice — approach B; extract later) |
+| Social graph | In progress (DDD hexagonal) | `server/modules/social/` |
 | Media | Done (DDD hexagonal) | `server/modules/media/` |
 | Catalog (Items) | Legacy demo | `server/controllers/items.ts` |
 
@@ -50,9 +50,8 @@ This document records the ubiquitous language for the application. Bounded conte
 
 | Term | Meaning |
 |------|---------|
-| User | Aggregate root for identity/profile. Owns email, display fields, optional password hash (local auth), optional `cognitoSub`, and embedded `friends[]` for this slice (approach B). Domain `id` ↔ persistence `_id`. |
+| User | Aggregate root for identity/profile. Owns email, display fields, optional password hash (local auth), optional `cognitoSub`, and embedded `friends[]` on the snapshot for profile/Feed hydration reads. Domain `id` ↔ persistence `_id`. Friendship **mutation** lives in Social graph (`FriendList`). |
 | Cognito link | Persistence pointer item (`COGNITO#sub` / `LINK`) mapping Cognito access-token `sub` → application user id. Created/updated with USER when `cognitoSub` is set; looked up via `findByCognitoSub`. |
-| Friends toggle | Bidirectional mutual friendship on two User aggregates. Domain `toggleFriend` mutates one aggregate; use case `toggleFriendship` loads both peers, toggles each, and saves both. |
 | Dual-mode auth | HS256 local/Jest register+login when Cognito env is unset; Cognito JWT + `POST /auth/profile` (complete profile / idempotent lookup) when Cognito env is set. HTTP contracts unchanged. |
 | Identity facade | Public API of `server/modules/identity/` (composition services + domain/ports exports). Controllers and Feed assembler call the facade. |
 
@@ -60,11 +59,26 @@ This document records the ubiquitous language for the application. Bounded conte
 
 - Email is required (non-empty after `trim().toLowerCase()`) on create.
 - User id is required (non-empty after trim) on create.
+- Password hashing is outside the domain (caller supplies opaque hash for local auth).
+- `friends[]` may appear on User snapshots for reads; Identity does **not** own friendship toggle mutation (see Social graph).
+
+## Social graph glossary
+
+| Term | Meaning |
+|------|---------|
+| FriendList | Aggregate root for one user’s friendship membership. Domain fields: `userId`, `friends` (peer user ids), timestamps. Persist shape stays embedded `friends[]` on the USER PROFILE item (no `FRIEND#` edges). |
+| Mutual toggle | Application use case `toggleFriendship`: load both peers’ FriendLists, toggle each side, save both. Aggregate `toggleFriend` mutates **this** list only. |
+| Social facade | Public API of `server/modules/social/` (composition services + domain/ports exports). Friends HTTP paths call via `services/users.ts` re-exports (`getUserFriendsService` / `toggleRelationFriendService`). |
+| Hydrated friends | `getUserFriendsService` resolves FriendList peer ids through Identity `getUserService` (legacy GET `/users/:id/friends` response shape). |
+
+## Social graph invariants (domain)
+
+- User id is required (non-empty after trim) on FriendList create.
 - Self-friend is rejected (`Cannot friend yourself`).
 - Empty friend id is rejected.
-- `toggleFriend` mutates **this** aggregate’s `friends[]` only; bidirectional HTTP behavior is application orchestration.
-- Password hashing is outside the domain (caller supplies opaque hash for local auth).
+- `toggleFriend` mutates **this** aggregate’s `friends[]` only; bidirectional HTTP behavior is application orchestration (`toggleFriendship`).
 - There is no Friend entity — friends remain `string[]` of peer user ids on USER.
+- Social must not create USER profiles; saving a FriendList when the USER row is missing fails.
 
 ## Media glossary
 
@@ -87,4 +101,4 @@ This document records the ubiquitous language for the application. Bounded conte
 
 ## Persistence note
 
-Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. Media uses `FILE#id` / `META`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, ADR `docs/adr/0003-identity-ddd-hexagonal.md`, and ADR `docs/adr/0004-media-ddd-hexagonal.md`.
+Feed persistence uses the existing DynamoDB single-table design (`POST#id` / `META`, GSI1 feed, GSI2 by user). Comments use `COMMENT#id` / `META`. Identity uses `USER#id` / `PROFILE` and optional `COGNITO#sub` / `LINK`. Social graph mutates `friends[]` on those USER items (no separate friendship rows). Media uses `FILE#id` / `META`. See `docs/data-model.md`, ADR `docs/adr/0001-feed-ddd-hexagonal.md`, ADR `docs/adr/0002-comments-ddd-hexagonal.md`, ADR `docs/adr/0003-identity-ddd-hexagonal.md`, ADR `docs/adr/0004-media-ddd-hexagonal.md`, and ADR `docs/adr/0005-social-graph-ddd-hexagonal.md`.

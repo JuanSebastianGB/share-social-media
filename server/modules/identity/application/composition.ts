@@ -8,7 +8,6 @@ import { findUserByEmail as findUserByEmailUseCase } from './use-cases/find-user
 import { findUserById as findUserByIdUseCase } from './use-cases/find-user-by-id.js';
 import { listUsers as listUsersUseCase } from './use-cases/list-users.js';
 import { registerUser as registerUserUseCase } from './use-cases/register-user.js';
-import { toggleFriendship as toggleFriendshipUseCase } from './use-cases/toggle-friendship.js';
 
 const userRepository = new DynamoUserRepository();
 
@@ -168,24 +167,6 @@ export async function getUserFromEmailService(email: string) {
     ...legacy,
     picturePath: fileInfo?.url,
   };
-}
-
-export async function getUserFriendsService(id: string) {
-  const user = await findUserByIdUseCase(userRepository, id);
-  if (!user) return [];
-  return await Promise.all(
-    user.toSnapshot().friends.map(async (friendId: string) =>
-      getUserService(friendId),
-    ),
-  );
-}
-
-export async function toggleRelationFriendService(
-  id: string,
-  friendId: string,
-) {
-  await toggleFriendshipUseCase(userRepository, id, friendId);
-  return await getUserFriendsService(id);
 }
 
 /**
