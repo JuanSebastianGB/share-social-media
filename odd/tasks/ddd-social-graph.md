@@ -66,16 +66,24 @@ Delegated direct after explore mapping (Social legacy map). Per-task routes reco
 - Mapping: `PATCH /users/:id/:friendId` → `controllers/users.toggleRelationFriend` → `services/users` → Social `toggleRelationFriendService` → `toggleFriendship` → `FriendList.toggleFriend` ×2 → USER `friends[]`
 - Approach: keep embedded `friends[]` on USER; Social owns FriendList + bidirectional toggle (explore recommendation)
 - T1–T4: complete on branch; T4 commit `e12d0813cbbb47436476775e8c136dde7a73017c`
-- T5: `social.integration.spec.ts` (repo round-trip, toggleFriendship peers, HTTP PATCH/GET + USER.friends oracles); friends cases removed from `identity.integration.spec.ts`; commit SHA blank pending parent
-- T6: CONTEXT Social glossary + invariants (status remains **In progress**); backend-standards / development_guide / data-model / ADR 0005 consequences updated; commit SHA blank pending parent
-- Next: parent commit T5+T6; open PR chain; mark CONTEXT Done only after merge
+- T5: `social.integration.spec.ts` (repo round-trip, toggleFriendship peers, HTTP PATCH/GET + USER.friends oracles); friends cases removed from `identity.integration.spec.ts`; commit `8c28e701b874e2f7a888cc536ba95ce060e88269`
+- T6: CONTEXT Social glossary + invariants (status remains **In progress**); backend-standards / development_guide / data-model / ADR 0005 consequences updated; commit `8c28e701b874e2f7a888cc536ba95ce060e88269`
+- Next: review/merge child chain; ship tracker #60 → main; mark CONTEXT Social Done
 
 ## Delivery
 
 - Strategy: **feature-branch-chain** (mirror Identity/Media/Comments)
 - Forecast authored lines: ~1000–1400
+- Running authored lines: ~965 insertions / ~294 deletions vs main
 - Review boundary: branch point = main
-- Tracker / child PRs: open after T1–T6 on branch (same nested-slice pattern as prior BCs)
+- Tracker PR: **#60** `feat/ddd-social-graph` → `main` (draft / no-merge until children reviewed)
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-social-graph-01-docs` → `main` — T1 — **#61** (~168)
+  2. `feat/ddd-social-graph-02-domain` → `feat/ddd-social-graph-01-docs` — T2 — **#62** (~353)
+  3. `feat/ddd-social-graph-03-ports` → `feat/ddd-social-graph-02-domain` — T3 — **#63** (~205)
+  4. `feat/ddd-social-graph-04-wire` → `feat/ddd-social-graph-03-ports` — T4 — **#64** (~291)
+  5. `feat/ddd-social-graph-05-integration-docs` → `feat/ddd-social-graph-04-wire` — T5+T6 — **#65** (~350)
+- Merge: review children; ship via tracker #60 → main; then mark Social Done in CONTEXT
 
 ## Applicable checks
 
