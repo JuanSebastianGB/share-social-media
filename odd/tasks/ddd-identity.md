@@ -76,15 +76,17 @@ Delegated direct after explore mapping (Identity legacy map). Per-task routes re
 
 - Strategy: **feature-branch-chain** (user 2026-09-20; typed as feature-branch-change)
 - Forecast authored lines: ~1400–1600 (Comments-shaped)
-- Running authored lines: ~1545/+165 vs main at T4 tip; T5+T6 uncommitted ~+240/−21 (integration ~190 + docs) — expect ~1780–1850 vs main after parent commit
+- Running authored lines: ~1778 insertions / ~175 deletions vs main
 - Review boundary: branch point = main
-- Planned child slices (mirror Comments):
-  1. `feat/ddd-identity-01-docs` — T1
-  2. `feat/ddd-identity-02-domain` — T2
-  3. `feat/ddd-identity-03-ports` — T3
-  4. `feat/ddd-identity-04-wire` — T4 (size:exception cohesive wire)
-  5. `feat/ddd-identity-05-integration-docs` — T5+T6
-- Next: parent commits T5+T6; then child slice PRs
+- Tracker PR: **#44** `feat/ddd-identity` → `main` (draft / no-merge until children reviewed)
+- Child review slices (nested bases for clean diffs):
+  1. `feat/ddd-identity-01-docs` → `main` — T1 — **#45** (~141)
+  2. `feat/ddd-identity-02-domain` → `feat/ddd-identity-01-docs` — T2 — **#46** (~456)
+  3. `feat/ddd-identity-03-ports` → `feat/ddd-identity-02-domain` — T3 — **#47** (~443)
+  4. `feat/ddd-identity-04-wire` → `feat/ddd-identity-03-ports` — T4 — **#48** (~702, size:exception)
+  5. `feat/ddd-identity-05-integration-docs` → `feat/ddd-identity-04-wire` — T5+T6 — **#49** (~275)
+- Merge: review children; ship via tracker #44 → main; then mark Identity Done in CONTEXT
+- Next: wait for review / CI; merge tracker when ready
 
 ## Applicable checks
 
