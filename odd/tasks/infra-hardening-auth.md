@@ -68,9 +68,9 @@ User (2026-09-19): “I want them all” for A + B + C.
 - [x] **T3** — CD wire `VITE_APP_BASE_URL` (Api output / GitHub var → client build → Web) (route: inline; CD1)
 - [x] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
 - [x] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
-- [ ] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
+- [x] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
 - [ ] **T7** — Client Cognito sign-up/sign-in + profile + env (route: delegated; C3)
-- [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4)
+- [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4) — **partial**: dual-mode harness tests landed with T6; full Cognito token mocks still open
 - [ ] **T9** — Docs pass (README, deployment, infra README) aligned with final architecture
 
 ## Progress
@@ -80,19 +80,24 @@ User (2026-09-19): “I want them all” for A + B + C.
 - PR2 branch: `feat/infra-hardening-auth-02-cd` (T3)
 - PR3 branch: `feat/infra-hardening-auth-03-media-cf` (T4)
 - PR4 branch: `feat/infra-hardening-auth-04-cognito-cdk` (T5)
-- Next: T6 (server Cognito verify + profile path)
+- PR5 branch: `feat/infra-hardening-auth-05-cognito-server` (T6 + T8 partial)
+- Next: T7 (client Cognito UI) then finish T8 Cognito token mocks
 - Delivery: `feature-branch-chain`
-- Authored lines so far (PR1 vs tracker): 224; PR2/PR3 pending commit
+- Authored lines so far (PR1 vs tracker): 224; PR2–PR5 pending commit as chained
 
 ## Decisions
 
 - Cognito verification in Express via `aws-jwt-verify` (not API GW authorizer) — preserves public GETs + local Jest against Express
+- Dual-mode: `COGNITO_USER_POOL_ID` + `COGNITO_CLIENT_ID` both set → Cognito access-token verify; else HS256 `JWT_SECRET` (Jest/memory)
+- App user PK stays generated id; store `cognitoSub` + pointer item `PK=COGNITO#sub / SK=LINK` for lookup (GSI2 already used by posts)
+- Session: `checkValidJwt` requires DynamoDB profile; `checkAuthToken` allows missing profile for `POST /auth/profile`
 - Custom UI retained (no Hosted UI)
 - T4 and T5 both touch `api-stack.ts` — serialize (T4 then T5) or single infra PR owning that file
 - PR chain: feature-branch-chain
 - Actor identity for mutations comes from JWT `_id` (`req.userData`); body/path `userId`/`id` no longer trusted for create post, like, comment, friend toggle
 - CD deploys Api first, resolves `ApiUrl` (or `vars.VITE_APP_BASE_URL`), builds client, then deploys Web
 - Media: private S3 + CloudFront OAC; `MEDIA_BASE_URL` = `https://<MediaDistributionDomainName>`; `s3Upload` unchanged (pathname parse works for CF hosts)
+- Follow-up: CD `VITE_COGNITO_*` wiring (with T7/T9)
 
 ## Verification evidence
 
@@ -100,3 +105,4 @@ User (2026-09-19): “I want them all” for A + B + C.
 - **T3**: CD workflow reordered (Api → resolve URL → client build → Web). Docs updated. No runtime AWS deploy in CI for this slice.
 - **T4**: ApiStack media CloudFront + OAC; public `AnyPrincipal` GetObject removed; `MEDIA_BASE_URL` → CF domain. Docs/.env.example updated. `cdk synth` OK (dummy account); `pnpm --filter server test` → 5 suites / 36 tests passed. No commit (per task).
 - **T5**: ApiStack Cognito User Pool (email sign-in, self sign-up, auto-verify email) + public SPA client (`USER_PASSWORD`/`USER_SRP`, no secret, no Hosted UI). Lambda env `COGNITO_*`; outputs `UserPoolId`/`UserPoolClientId`. `JWT_SECRET` kept. `cdk synth` OK (dummy account). No commit (per task).
+- **T6** (+ T8 partial): `aws-jwt-verify` dual-mode; `POST /auth/profile`; register/login → 410 when Cognito env set; HS256 characterization unchanged. `pnpm --filter server test` → 6 suites / 39 tests passed. `pnpm --filter server typecheck` OK. No commit (per task).

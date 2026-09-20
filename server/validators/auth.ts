@@ -17,4 +17,15 @@ const validatorLogin = [
   check('password').exists(),
   ((req, res, next) => validateResults(req, res, next)) as RequestHandler,
 ];
-export { validatorRegister, validatorLogin };
+
+/** Cognito profile completion — same fields as register, no password. */
+const validatorProfile = [
+  check('firstName').exists().isLength({ min: 5, max: 30 }),
+  check('lastName').exists().isLength({ min: 5, max: 30 }),
+  check('email').exists().isEmail().isLength({ min: 5, max: 30 }).notEmpty(),
+  check('location').exists().isLength({ min: 5, max: 100 }),
+  check('occupation').exists().isLength({ min: 5, max: 100 }),
+  ((req, res, next) => validateResults(req, res, next)) as RequestHandler,
+];
+
+export { validatorRegister, validatorLogin, validatorProfile };

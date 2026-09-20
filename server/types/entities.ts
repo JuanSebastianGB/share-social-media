@@ -13,6 +13,8 @@ export type UserRecord = {
   viewedProfile?: number;
   impressions?: number;
   profileImageId?: string;
+  /** Cognito access-token `sub` when identity is managed by Cognito. */
+  cognitoSub?: string;
   createdAt?: string;
   updatedAt?: string;
 };
