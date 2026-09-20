@@ -6,7 +6,11 @@ module.exports = {
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
-  testMatch: ['**/tests/**/*.test.ts'],
+  testMatch: [
+    '**/tests/**/*.test.ts',
+    '**/modules/**/*.test.ts',
+  ],
+  testPathIgnorePatterns: ['/node_modules/', '\\.integration\\.spec\\.ts$'],
   setupFiles: ['<rootDir>/tests/setup-env.cjs'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   transform: {
