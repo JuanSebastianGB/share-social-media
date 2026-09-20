@@ -151,6 +151,9 @@ importers:
       '@codegenie/serverless-express':
         specifier: ^4.15.0
         version: 4.17.1
+      aws-jwt-verify:
+        specifier: ^5.2.1
+        version: 5.2.1
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
@@ -1820,6 +1823,10 @@ packages:
     resolution: {integrity: sha512-gNOeii+avTJmOwfR8tVgraZ5A2EBC/529EXg7e+yBp8Zl608dAv5CtFRoJt8QoKiruiCwYr4HF6ClNAse/NkSg==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
+
+  aws-jwt-verify@5.2.1:
+    resolution: {integrity: sha512-J+buA4M+qvQDk58WXFBLkDodkEX3DDL1ac5XFQPW3opxAsaLXYu5hYnlSHsaBRDBUXBAn695kE/cw/mdyJKwJg==}
+    engines: {node: '>=18.0.0'}
 
   axios@1.20.0:
     resolution: {integrity: sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==}
@@ -5326,6 +5333,8 @@ snapshots:
       constructs: 10.8.1
 
   aws-cdk@2.1142.0: {}
+
+  aws-jwt-verify@5.2.1: {}
 
   axios@1.20.0:
     dependencies:

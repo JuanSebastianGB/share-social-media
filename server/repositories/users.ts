@@ -8,6 +8,7 @@ import {
 import { getDocClient } from '../db/client.js';
 import { generateId } from '../db/ids.js';
 import {
+  cognitoPk,
   emailGsi1Pk,
   SK,
   TABLE_NAME,
@@ -41,6 +42,7 @@ function toUser(item: Record<string, unknown> | undefined): UserRecord | null {
     profileImageId: item.profileImageId
       ? String(item.profileImageId)
       : undefined,
+    cognitoSub: item.cognitoSub ? String(item.cognitoSub) : undefined,
     createdAt: item.createdAt as string | undefined,
     updatedAt: item.updatedAt as string | undefined,
   };
@@ -53,6 +55,7 @@ export async function createUser(
   const id = data._id ? String(data._id) : generateId();
   const now = new Date().toISOString();
   const email = String(data.email ?? '');
+  const cognitoSub = data.cognitoSub ? String(data.cognitoSub) : undefined;
 
   const item: UserItem = {
     PK: userPk(id),
@@ -72,6 +75,7 @@ export async function createUser(
     viewedProfile: data.viewedProfile,
     impressions: data.impressions,
     profileImageId: data.profileImageId ? String(data.profileImageId) : undefined,
+    cognitoSub,
     GSI1PK: emailGsi1Pk(email),
     GSI1SK: SK.USER,
     createdAt: now,
@@ -85,6 +89,23 @@ export async function createUser(
       ConditionExpression: 'attribute_not_exists(PK)',
     }),
   );
+
+  if (cognitoSub) {
+    await doc.send(
+      new PutCommand({
+        TableName: TABLE_NAME,
+        Item: {
+          PK: cognitoPk(cognitoSub),
+          SK: SK.LINK,
+          entityType: 'COGNITO_LINK',
+          userId: id,
+          cognitoSub,
+          createdAt: now,
+        },
+        ConditionExpression: 'attribute_not_exists(PK)',
+      }),
+    );
+  }
 
   return toUser(item)!;
 }
@@ -116,6 +137,21 @@ export async function getUserByEmail(email: string): Promise<UserRecord | null> 
   );
   const item = result.Items?.[0] as Record<string, unknown> | undefined;
   return toUser(item);
+}
+
+export async function getUserByCognitoSub(
+  cognitoSub: string,
+): Promise<UserRecord | null> {
+  const doc = getDocClient();
+  const link = await doc.send(
+    new GetCommand({
+      TableName: TABLE_NAME,
+      Key: { PK: cognitoPk(cognitoSub), SK: SK.LINK },
+    }),
+  );
+  const userId = link.Item?.userId;
+  if (!userId) return null;
+  return getUserById(String(userId));
 }
 
 export async function listUsers(): Promise<UserRecord[]> {
@@ -157,6 +193,7 @@ export async function saveUser(user: UserRecord): Promise<UserRecord> {
     viewedProfile: user.viewedProfile,
     impressions: user.impressions,
     profileImageId: user.profileImageId,
+    cognitoSub: user.cognitoSub,
     GSI1PK: emailGsi1Pk(user.email),
     GSI1SK: SK.USER,
     createdAt: user.createdAt,
@@ -197,5 +234,13 @@ export async function deleteUser(id: string): Promise<DeleteResult> {
       Key: { PK: userPk(id), SK: SK.PROFILE },
     }),
   );
+  if (existing.cognitoSub) {
+    await doc.send(
+      new DeleteCommand({
+        TableName: TABLE_NAME,
+        Key: { PK: cognitoPk(existing.cognitoSub), SK: SK.LINK },
+      }),
+    );
+  }
   return { acknowledged: true, deletedCount: 1 };
 }
