@@ -4,7 +4,7 @@ TypeScript CDK app with two stacks:
 
 | Stack | Resources |
 | --- | --- |
-| `ShareSocialMediaApi` | HTTP API + Lambda (Node 20) + DynamoDB + **media S3** + Secrets Manager |
+| `ShareSocialMediaApi` | HTTP API + Lambda (Node 20) + DynamoDB + **media S3/CloudFront** + Cognito User Pool + Secrets Manager |
 | `ShareSocialMediaWeb` | S3 site bucket + CloudFront + BucketDeployment |
 
 ## Prerequisites
@@ -47,6 +47,18 @@ ApiStack creates a private media bucket + CloudFront distribution (OAC):
 - Lambda can Put / Delete / Read
 - Env: `MEDIA_BUCKET`, `MEDIA_BASE_URL` (= `https://<MediaDistributionDomainName>`)
 
+## Cognito
+
+ApiStack creates a User Pool + public SPA app client (no Hosted UI domain):
+
+- Sign-in: email alias; self sign-up enabled; email auto-verified (demo)
+- Password policy: min length 8 (upper / lower / digit; symbols not required)
+- App client: `generateSecret: false`; auth flows `USER_PASSWORD_AUTH` + `USER_SRP_AUTH`
+- Lambda env: `COGNITO_USER_POOL_ID`, `COGNITO_CLIENT_ID` (`AWS_REGION` is set by Lambda)
+- Outputs: `UserPoolId`, `UserPoolClientId`
+
+Server/client Cognito auth wiring is a follow-up; `JWT_SECRET` remains until then.
+
 ## Secrets
 
 Placeholder secret JSON keys:
@@ -68,4 +80,4 @@ cd infra
 pnpm exec cdk deploy --all
 ```
 
-Outputs: `ApiUrl`, `MediaBucketName`, `MediaDistributionDomainName`, `MediaBaseUrl`, `DistributionDomainName`, `BucketName`, `AppSecretArn`.
+Outputs: `ApiUrl`, `MediaBucketName`, `MediaDistributionDomainName`, `MediaBaseUrl`, `UserPoolId`, `UserPoolClientId`, `DistributionDomainName`, `BucketName`, `AppSecretArn`.

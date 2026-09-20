@@ -67,7 +67,7 @@ User (2026-09-19): “I want them all” for A + B + C.
 - [x] **T2** — Update characterization tests for T1 (route: delegated; A2)
 - [x] **T3** — CD wire `VITE_APP_BASE_URL` (Api output / GitHub var → client build → Web) (route: inline; CD1)
 - [x] **T4** — Media CloudFront + OAC in Api stack; remove public policy; env/docs (route: delegated; B1+B2)
-- [ ] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
+- [x] **T5** — CDK Cognito User Pool + app client + outputs/env (route: delegated; C1 — serialize vs T4 on `api-stack.ts`)
 - [ ] **T6** — Server Cognito verify + profile signup path; retire password login (route: delegated; C2)
 - [ ] **T7** — Client Cognito sign-up/sign-in + profile + env (route: delegated; C3)
 - [ ] **T8** — Test harness + auth characterization for Cognito (route: delegated; C4)
@@ -79,7 +79,8 @@ User (2026-09-19): “I want them all” for A + B + C.
 - PR1 branch: `feat/infra-hardening-auth-01-jwt-harden` (`1f96e0b` T1+T2)
 - PR2 branch: `feat/infra-hardening-auth-02-cd` (T3)
 - PR3 branch: `feat/infra-hardening-auth-03-media-cf` (T4)
-- Next: T5 (Cognito User Pool in ApiStack)
+- PR4 branch: `feat/infra-hardening-auth-04-cognito-cdk` (T5)
+- Next: T6 (server Cognito verify + profile path)
 - Delivery: `feature-branch-chain`
 - Authored lines so far (PR1 vs tracker): 224; PR2/PR3 pending commit
 
@@ -98,3 +99,4 @@ User (2026-09-19): “I want them all” for A + B + C.
 - **T1+T2** commit `1f96e0b`: `pnpm --filter server test` → 5 suites / 36 tests passed. Unauthenticated mutations return `401` + `ERROR_EXPECTED_BEARER`. Public GETs remain open. RDD assess unavailable on cursor runtime.
 - **T3**: CD workflow reordered (Api → resolve URL → client build → Web). Docs updated. No runtime AWS deploy in CI for this slice.
 - **T4**: ApiStack media CloudFront + OAC; public `AnyPrincipal` GetObject removed; `MEDIA_BASE_URL` → CF domain. Docs/.env.example updated. `cdk synth` OK (dummy account); `pnpm --filter server test` → 5 suites / 36 tests passed. No commit (per task).
+- **T5**: ApiStack Cognito User Pool (email sign-in, self sign-up, auto-verify email) + public SPA client (`USER_PASSWORD`/`USER_SRP`, no secret, no Hosted UI). Lambda env `COGNITO_*`; outputs `UserPoolId`/`UserPoolClientId`. `JWT_SECRET` kept. `cdk synth` OK (dummy account). No commit (per task).
