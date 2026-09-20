@@ -30,13 +30,21 @@ This document records the ubiquitous language for the application. Bounded conte
 - Comment ids on a Post are unique; attaching an existing id is a no-op.
 - Likes and comments are part of the Post aggregate; there is no Friend or Like entity.
 
-## Comments glossary (stub)
+## Comments glossary
 
 | Term | Meaning |
 |------|---------|
-| Comment | Aggregate root for a comment body and author display fields. Fields: `description`, `authorId`/`userId`, `firstName`, `lastName`. |
-| Author | The user that wrote the Comment (`userId` / planned `authorId`). |
-| Link to Post | Association is **only** via `Post.comments[]` (comment ids). Comment items do **not** store `postId`. |
+| Comment | Aggregate root for a comment body and author display fields. Domain fields: `description`, `authorId`, `firstName`, `lastName`. Persistence maps `authorId` ↔ legacy `userId`. |
+| Author | The user that wrote the Comment (`authorId` / legacy HTTP `userId`). |
+| Link to Post | Association is **only** via `Post.comments[]` (comment ids). Comment items do **not** store `postId`. Feed owns attach (`attachCommentId` / `attachCommentToPostService`). |
+| Create-on-post | Application orchestration: persist Comment, attach id on the Feed Post, return the hydrated Post (legacy create response). |
+
+## Comments invariants (domain)
+
+- Description is required (non-empty after trim) on create and description update.
+- Author id is required (non-empty after trim) on create.
+- Empty `firstName` / `lastName` are allowed (legacy validators: exists + isString).
+- There is no `postId` on the Comment aggregate or COMMENT DynamoDB item.
 
 ## Persistence note
 
