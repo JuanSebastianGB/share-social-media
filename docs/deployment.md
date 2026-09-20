@@ -22,18 +22,30 @@ cd infra
 npx cdk bootstrap aws://$ACCOUNT/$REGION
 ```
 
-3. Create a GitHub OIDC role for CD (recommended — no long-lived keys in the repo):
-   - Trust `token.actions.githubusercontent.com`
-   - Allow `sts:AssumeRoleWithWebIdentity` for this repository
-   - Permissions: enough for CloudFormation, Lambda, API Gateway, DynamoDB, S3, CloudFront, Secrets Manager, IAM roles created by CDK
-4. In the GitHub repo, configure:
-   - **Secret** `AWS_ROLE_ARN` — OIDC role ARN
+3. Create the GitHub Actions OIDC role (no long-lived AWS keys in the repo). Prefer the checked-in template:
+
+   ```bash
+   aws cloudformation deploy \
+     --stack-name ShareSocialMediaGithubOidc \
+     --template-file infra/github-oidc.yaml \
+     --capabilities CAPABILITY_NAMED_IAM \
+     --parameter-overrides GitHubOrg=<org> GitHubRepo=share-social-media
+   ```
+
+   The role may only assume CDK bootstrap roles (`cdk-hnb659fds-*`) and read stack outputs / bootstrap SSM parameters. Trust is limited to this repository (`main` + `production` / `Production` environments).
+
+4. In the GitHub repo, configure (set via `gh secret set` / `gh variable set` — **never commit values**):
+   - **Secret** `AWS_ROLE_ARN` — output `RoleArn` from `ShareSocialMediaGithubOidc`
    - **Secret** `AWS_ACCOUNT_ID` — 12-digit account id
    - **Variable** `AWS_REGION` — e.g. `us-east-1`
    - Optional **Secret** `APP_SECRET_ARN` — existing Secrets Manager ARN (otherwise the Api stack creates a placeholder secret)
    - Optional **Variable** `VITE_APP_BASE_URL` — override API URL for the client build (otherwise CD reads stack output `ApiUrl` after deploying `ShareSocialMediaApi`)
    - Optional **Variable** `VITE_APP_DEFAULT_IMAGE_ID` — default avatar/storage id baked into the client build
    - Optional **Variable** `VITE_COGNITO_USER_POOL_ID` / `VITE_COGNITO_CLIENT_ID` / `VITE_AWS_REGION` — override Cognito SPA env (otherwise CD reads `UserPoolId` / `UserPoolClientId` from the Api stack and uses `vars.AWS_REGION`)
+
+### Leaving Vercel
+
+Production hosting is **S3 + CloudFront** (`ShareSocialMediaWeb`), deployed by CD. `vercel.json` disables Vercel Git deployments for this repo. Also disconnect the project in the Vercel dashboard (Git integration / remove project) so preview status checks stop. Do not store AWS or app secrets in Vercel.
 
 ## Application secrets
 
