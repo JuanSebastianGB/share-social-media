@@ -40,7 +40,7 @@ Delegated mapping (explore). Per-task: T1 inline; T2–T4 delegated writer (2+ n
 - [x] **T1** — Remove unused RHF/resolvers/SWR + dead `useCheckToken` — route: inline — `e82eef2`
 - [x] **T2** — Extract `postsSlice` (`posts`, `page`, `search`) + persist migrate for posts fields — route: delegated — `1e67fbc`
 - [x] **T3** — Extract `friendsSlice` — route: delegated — `3b757c5`
-- [x] **T4** — Extract `themeSlice` (`mode`); finalize persist migrate; update frontend-standards — route: delegated — `c59f9a9`
+- [x] **T4** — Extract `themeSlice` (`mode`); finalize persist migrate; update frontend-standards — route: delegated — `93b6183`
 
 ## Acceptance
 
