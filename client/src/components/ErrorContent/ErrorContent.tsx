@@ -15,7 +15,7 @@ const looksTechnical = (value?: string): boolean => {
   if (!trimmed) return true;
   if (/^[A-Z0-9_]+$/.test(trimmed)) return true;
   if (/^ERROR[_-]/.test(trimmed)) return true;
-  if (/^[{\[]/.test(trimmed)) return true;
+  if (/^[[{]/.test(trimmed)) return true;
   return false;
 };
 
