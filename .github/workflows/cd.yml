@@ -50,6 +50,15 @@ jobs:
       - name: Build server
         run: pnpm --filter server build
 
+      # CDK app synthesizes both stacks; WebStack requires client/dist at synth time.
+      # Real Vite build happens after ApiUrl/Cognito are resolved (below).
+      - name: Ensure client/dist placeholder for CDK synth
+        run: |
+          mkdir -p client/dist
+          if [ ! -f client/dist/index.html ]; then
+            printf '%s\n' '<!doctype html><title>build pending</title>' > client/dist/index.html
+          fi
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
