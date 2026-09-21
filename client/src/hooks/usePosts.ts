@@ -1,5 +1,5 @@
 import { AppStore } from '@/models';
-import { growPostList, setPosts } from '@/redux/states/authSlice';
+import { growPostList, setPosts } from '@/redux/states/postsSlice';
 import { fetchPostsService, fetchUserPostsService } from '@/services';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,12 +9,12 @@ import { useDispatch, useSelector } from 'react-redux';
  * @returns The response object is being returned.
  */
 export const usePosts = (isProfile: boolean, id: string | undefined) => {
-  const page = useSelector((store: AppStore) => store.auth.page);
+  const page = useSelector((store: AppStore) => store.posts.page);
   const [error, setError] = useState({});
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasNextPage, setHasNextPage] = useState(false);
-  const { posts, search } = useSelector((store: AppStore) => store.auth);
+  const { posts, search } = useSelector((store: AppStore) => store.posts);
 
   const dispatch = useDispatch();
 

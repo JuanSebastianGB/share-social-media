@@ -1,6 +1,6 @@
 import { useFriends, usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
-import { incrementPage } from '@/redux/states/authSlice';
+import { incrementPage } from '@/redux/states/postsSlice';
 import { ErrorBoundary } from '@/utilities';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';

@@ -1,5 +1,6 @@
 import { AppStore } from '@/models';
-import { makeLogout, toggleMode } from '@/redux/states/authSlice';
+import { makeLogout } from '@/redux/states/authSlice';
+import { toggleMode } from '@/redux/states/themeSlice';
 import {
   DarkMode,
   Help,
@@ -33,7 +34,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   const handleLogout = () => {
     dispatch(makeLogout({}));
   };
-  const mode = useSelector((store: AppStore) => store.auth?.mode);
+  const mode = useSelector((store: AppStore) => store.theme?.mode);
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
   const theme = useTheme();

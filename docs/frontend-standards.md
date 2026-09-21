@@ -23,7 +23,7 @@ alwaysApply: true
 
 The Share Social Media client is a React 18 single-page application built with Vite and TypeScript. It talks to the Express API via Axios (`Api` for multipart, `ApiJson` for JSON) using `VITE_APP_BASE_URL`. Auth is dual-mode: local register/login against `/auth/*` when Cognito Vite env is unset, or AWS Cognito Identity Provider SDK + `POST /auth/profile` when `VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`, and `VITE_AWS_REGION` are all set.
 
-UI is Material UI (MUI) 5 with a custom theme from `client/src/utilities/themeConfig.ts` (`makeTheme`). Global client state is a Redux Toolkit store with **redux-persist**, dominated by a single **auth mega-slice** that also holds posts, friends, pagination, and theme mode.
+UI is Material UI (MUI) 5 with a custom theme from `client/src/utilities/themeConfig.ts` (`makeTheme`). Global client state is a Redux Toolkit store with **redux-persist**: session-only `auth` (`user`, `token`), plus focused `posts`, `friends`, and `theme` slices.
 
 Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align adapters and models with that file and with hydrated post/user responses from the server.
 
@@ -46,7 +46,7 @@ Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align 
 |---------|--------|-------|
 | Component library | MUI 5.18.x | `@mui/material` + `@mui/icons-material` |
 | Styling | MUI `sx` + Emotion + styled-components helpers | `client/src/styled-components/` |
-| Theme | `makeTheme(mode)` | Light/dark via `auth.mode`; Rubik/Montserrat fonts |
+| Theme | `makeTheme(mode)` | Light/dark via `theme.mode`; Rubik/Montserrat fonts |
 | Toasts | react-toastify | Mounted in `App.tsx` |
 | Dropzone | react-dropzone | Posts and register avatar flows |
 
@@ -56,11 +56,12 @@ Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align 
 
 | Kind | Tool | Rule |
 |------|------|------|
-| Session + feed UI state | Redux Toolkit `authSlice` + redux-persist | Token, user, posts, friends, page, search, mode |
+| Auth session | Redux Toolkit `authSlice` + redux-persist | `user`, `token` only |
+| Feed UI | `postsSlice` | Posts list, page, search |
+| Friends list | `friendsSlice` | Session friends |
+| Theme | `themeSlice` | Color mode (`light` / `dark`) |
 | Local UI state | React `useState` / `useRef` | Modals, form draft fields, observers |
-| Server fetch | Service functions + hooks (`usePosts`, `useFriends`, `useUser`, …) | Call Axios services; dispatch into auth slice when feed updates |
-| SWR | In `package.json` | **Mostly unused** — do not expand without decision |
-| React Hook Form | In `package.json` | **UNUSED** — forms use **Formik + Yup** |
+| Server fetch | Service functions + hooks (`usePosts`, `useFriends`, `useUser`, …) | Call Axios services; dispatch into the matching slice |
 
 `userSlice.ts` exists under `redux/states/` but is **unwired** from the store — do not assume it is active.
 
@@ -101,8 +102,11 @@ client/
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
-      store.ts               persist + configureStore
-      states/authSlice.ts    Dominant slice
+      store.ts               persist + configureStore (versioned migrate)
+      states/authSlice.ts    Session only (`user`, `token`)
+      states/postsSlice.ts   Feed (`posts`, `page`, `search`)
+      states/friendsSlice.ts Friends list
+      states/themeSlice.ts   Color mode
       states/userSlice.ts    LEGACY unwired
     interceptors/            Api / ApiJson axios instances
     utilities/               themeConfig, ErrorBoundary, toast configs, dates
@@ -139,12 +143,12 @@ client/
 
 ### State Management
 
-**Put in Redux `auth` slice when:**
+**Put in Redux when:**
 
-- Auth session (user, token)
-- Feed posts list, page, search
-- Friends list for the session
-- Color mode
+- Auth session (`auth`: user, token)
+- Feed posts list, page, search (`posts`)
+- Friends list for the session (`friends`)
+- Color mode (`theme`)
 
 **Keep local when:**
 
@@ -156,7 +160,7 @@ client/
 
 - Introduce a second global store library
 - Wire `userSlice` without an explicit cleanup/migration task
-- Reach for SWR/RHF just because they are in `package.json`
+- Stuff unrelated domains back into `auth`
 
 ### Service Layer Architecture
 
@@ -164,7 +168,7 @@ client/
 Component / Hook
   → services/*.ts          (Api / ApiJson / Cognito SDK)
   → adapters/*.ts          (normalize login/register payloads)
-  → dispatch(authSlice)    (when global feed/session must update)
+  → dispatch(matchingSlice) (auth / posts / friends / theme as needed)
 ```
 
 - `Api`: default multipart `Content-Type` via interceptor (for FormData uploads).
@@ -179,7 +183,7 @@ Component / Hook
 
 - Wrap the tree in `ThemeProvider theme={makeTheme(mode)}` (already in `App.tsx`).
 - Use MUI components (`Box`, `Typography`, `TextField`, `Avatar`, `Dialog`, …) as the default kit.
-- Toggle mode through `toggleMode` in the auth slice (Navbar).
+- Toggle mode through `toggleMode` in `themeSlice` (Navbar).
 - Brand title in unauthenticated header: `"social media share"` (existing copy).
 
 ### Form Handling
@@ -300,10 +304,10 @@ API must be reachable at `VITE_APP_BASE_URL` (typically `http://localhost:3000`)
 
 | Debt | Reality | Guidance |
 |------|---------|----------|
-| Auth mega-slice | Posts/friends/mode live in `auth` | Prefer small extractions only with clear migration; do not add more unrelated domains casually |
+| Auth mega-slice (resolved) | Split complete: `auth` session-only; `posts` / `friends` / `theme` dedicated | Keep new domains in their own slices; persist via versioned migrate |
 | `userSlice` unwired | File present, unused in store | Do not import as if live |
-| RHF + resolvers in package.json | Unused | Prefer Formik+Yup |
-| SWR mostly unused | Dependency present | Prefer hooks + services |
+| RHF + resolvers (removed) | Dropped from `client/package.json` | Forms stay Formik+Yup |
+| SWR + dead `useCheckToken` (removed) | Hook and `swr` dependency deleted | Prefer hooks + services |
 | `@ts-ignore` in places | Legacy | Remove only when typing is fixed properly |
 | Nested client lockfile | Legacy | Use root `pnpm-lock.yaml` |
 | `/defaultstorage` client call | Default file bootstrap | Called during register; idempotent (null on subsequent calls) |

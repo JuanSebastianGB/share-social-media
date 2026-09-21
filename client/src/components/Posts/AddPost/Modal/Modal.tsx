@@ -1,6 +1,6 @@
 import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
-import { createPost } from '@/redux/states/authSlice';
+import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '@/services';
 import {
   Avatar,
