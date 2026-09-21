@@ -89,7 +89,12 @@ const Friends: React.FC<Props> = ({ user }) => {
 
   return (
     <ErrorBoundary
-      fallBackComponent={<>Couldn't display friends.</>}
+      fallBackComponent={
+        <ErrorContent
+          message="Couldn't display friends."
+          sx={{ width: '100%', minHeight: '120px', flex: 'unset', margin: '0' }}
+        />
+      }
       resetCondition={friends}
     >
       <Box
@@ -103,6 +108,16 @@ const Friends: React.FC<Props> = ({ user }) => {
         <Typography variant="h5" color={theme.palette.primary.main}>
           Friends
         </Typography>
+        {hasFriends && (
+          <Typography
+            variant="caption"
+            color={theme.palette.neutral.main}
+            display="block"
+            sx={{ mt: '0.15rem', mb: '0.25rem' }}
+          >
+            {friends.length} friends
+          </Typography>
+        )}
         <Divider />
         {!hasFriends ? (
           <Box sx={{ py: '1rem' }}>
@@ -119,32 +134,38 @@ const Friends: React.FC<Props> = ({ user }) => {
             </Typography>
           </Box>
         ) : (
-          friends.map((friend, index: number) => (
-            <Box key={friend._id}>
-              <Box sx={{ m: '1rem 0 0.5rem' }}>
-                <SpaceBetween>
-                  <AvatarWithTitles
-                    key={friend._id}
-                    profileImage={friend?.picturePath}
-                    title={`${friend?.firstName} ${friend?.lastName}`}
-                    subTitle={friend?.location}
-                    userId={friend._id}
-                  />
-                  {!isProfile && (
-                    <IconButton
-                      aria-label="remove-friend"
-                      color="warning"
-                      disabled={isPending}
-                      onClick={() => setConfirmFriend(friend)}
-                    >
-                      <PersonRemove fontSize="small" />
-                    </IconButton>
-                  )}
-                </SpaceBetween>
+          friends.map((friend, index: number) => {
+            const friendName =
+              `${friend?.firstName ?? ''} ${friend?.lastName ?? ''}`.trim() ||
+              'friend';
+            return (
+              <Box key={friend._id}>
+                <Box sx={{ m: '1rem 0 0.5rem' }}>
+                  <SpaceBetween>
+                    <AvatarWithTitles
+                      key={friend._id}
+                      profileImage={friend?.picturePath}
+                      title={`${friend?.firstName} ${friend?.lastName}`}
+                      subTitle={friend?.location}
+                      userId={friend._id}
+                    />
+                    {!isProfile && (
+                      <IconButton
+                        aria-label={`Remove ${friendName}`}
+                        title={`Remove ${friendName}`}
+                        color="warning"
+                        disabled={isPending}
+                        onClick={() => setConfirmFriend(friend)}
+                      >
+                        <PersonRemove fontSize="small" />
+                      </IconButton>
+                    )}
+                  </SpaceBetween>
+                </Box>
+                {index < friends.length - 1 && <Divider />}
               </Box>
-              {index < friends.length - 1 && <Divider />}
-            </Box>
-          ))
+            );
+          })
         )}
       </Box>
 

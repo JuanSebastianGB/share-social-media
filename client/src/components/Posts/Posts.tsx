@@ -1,10 +1,10 @@
 import { useFriends, usePosts } from '@/hooks';
-import { PostApiModel, UserApiModel } from '@/models';
-import { incrementPage } from '@/redux/states/postsSlice';
+import { AppStore, PostApiModel, UserApiModel } from '@/models';
+import { incrementPage, searchPosts } from '@/redux/states/postsSlice';
 import { ErrorBoundary } from '@/utilities';
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Button, Typography, useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ErrorContent } from '../ErrorContent';
 import { SpaceBetween } from '../Navbar';
 import { Spinner } from '../Spinner';
@@ -18,6 +18,8 @@ export interface Props {
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
+  const searchQuery = useSelector((store: AppStore) => store.posts.search);
+  const isSearchActive = !isProfile && searchQuery.trim().length > 0;
   // @ts-ignore
   const { friends } = useFriends(id);
   const { posts, hasNextPage, isError, isLoading } = usePosts(isProfile, id);
@@ -57,13 +59,25 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
         }}
       >
         <Typography variant="h6" color={theme.palette.primary.main} gutterBottom>
-          No posts yet
+          {isSearchActive ? 'No matching posts' : 'No posts yet'}
         </Typography>
         <Typography variant="body2" color={theme.palette.neutral.dark}>
           {isProfile
             ? 'This profile has no posts to show.'
-            : 'Share your first post above to start the feed.'}
+            : isSearchActive
+              ? 'Try another search or clear the filter.'
+              : 'Share your first post above to start the feed.'}
         </Typography>
+        {isSearchActive && (
+          <Button
+            size="small"
+            onClick={() => dispatch(searchPosts(''))}
+            aria-label="Clear search"
+            sx={{ mt: '0.75rem' }}
+          >
+            Clear
+          </Button>
+        )}
       </Box>
     );
   }
@@ -89,9 +103,43 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
 
   return (
     <ErrorBoundary
-      fallBackComponent={<>Couldn't display posts.</>}
+      fallBackComponent={
+        <ErrorContent
+          message="Couldn't display posts."
+          sx={{ width: '100%', minHeight: '120px', flex: 'unset', margin: '0' }}
+        />
+      }
       resetCondition={posts}
     >
+      {isSearchActive && (
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.paper,
+            borderRadius: '10px',
+            padding: '0.5rem 1rem',
+            mb: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.75rem',
+          }}
+        >
+          <Typography
+            variant="caption"
+            color={theme.palette.neutral.main}
+            sx={{ minWidth: 0 }}
+          >
+            Matching &quot;{searchQuery.trim()}&quot;
+          </Typography>
+          <Button
+            size="small"
+            onClick={() => dispatch(searchPosts(''))}
+            aria-label="Clear search"
+          >
+            Clear
+          </Button>
+        </Box>
+      )}
       {content}
       {isLoading && (
         <SpaceBetween>
