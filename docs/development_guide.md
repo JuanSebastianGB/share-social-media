@@ -170,9 +170,18 @@ Catalog DDD tests live under `server/modules/catalog/` (`*.test.ts`) and `server
 
 There is **no coverage threshold** and no watch script documented in `package.json`. Prefer extending characterization tests when changing HTTP behavior; prefer domain unit/property tests when changing Feed, Comments, Identity, Media, Social, or Catalog invariants.
 
-### Frontend Testing
+### Client Testing
 
-> Status: not implemented — the client package has no `test` script and no test files.
+```bash
+pnpm --filter client test
+# Vitest + jsdom + Testing Library — colocated *.characterization.spec.ts,
+# *.component.spec.tsx, *.property.spec.ts under client/src
+
+pnpm --filter client test:watch
+# Interactive Vitest watch mode
+```
+
+Strategy: global **qa-expert** decision tree — characterization for legacy client seams, component specs for UI, property-based for schema invariants, e2e deferred. See `docs/frontend-standards.md` and `client/tests/docs/TEST-STRATEGY.md`.
 
 ## Root quality commands
 
