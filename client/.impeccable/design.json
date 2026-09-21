@@ -1,0 +1,309 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-21T00:28:00.000Z",
+  "title": "Design System: Share Social Media",
+  "extensions": {
+    "colorMeta": {
+      "ember-vermillion": {
+        "role": "primary",
+        "displayName": "Ember Vermillion",
+        "canonical": "#dc2f02",
+        "tonalRamp": [
+          "#370617",
+          "#6a040f",
+          "#9d0208",
+          "#d00000",
+          "#dc2f02",
+          "#e85d04",
+          "#f48c06",
+          "#ffba08"
+        ]
+      },
+      "ember-light": {
+        "role": "primary",
+        "displayName": "Ember Light",
+        "canonical": "#faa307",
+        "tonalRamp": [
+          "#370617",
+          "#6a040f",
+          "#9d0208",
+          "#d00000",
+          "#e85d04",
+          "#faa307",
+          "#ffba08",
+          "#ffe08a"
+        ]
+      },
+      "ember-deep": {
+        "role": "primary",
+        "displayName": "Ember Deep",
+        "canonical": "#370617",
+        "tonalRamp": [
+          "#03071e",
+          "#370617",
+          "#6a040f",
+          "#9d0208",
+          "#d00000",
+          "#dc2f02",
+          "#e85d04",
+          "#faa307"
+        ]
+      },
+      "cool-paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#f8f9fa",
+        "tonalRamp": [
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#e9ecef",
+          "#f8f9fa"
+        ]
+      },
+      "soft-canvas": {
+        "role": "neutral",
+        "displayName": "Soft Canvas",
+        "canonical": "#e9ecef",
+        "tonalRamp": [
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#dee2e6",
+          "#e9ecef"
+        ]
+      },
+      "neutral-ink": {
+        "role": "neutral",
+        "displayName": "Neutral Ink",
+        "canonical": "#343a40",
+        "tonalRamp": [
+          "#000000",
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#f8f9fa"
+        ]
+      },
+      "neutral-muted": {
+        "role": "neutral",
+        "displayName": "Neutral Muted",
+        "canonical": "#6c757d",
+        "tonalRamp": [
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#dee2e6",
+          "#f8f9fa"
+        ]
+      },
+      "neutral-line": {
+        "role": "neutral",
+        "displayName": "Neutral Line",
+        "canonical": "#ced4da",
+        "tonalRamp": [
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#dee2e6",
+          "#e9ecef",
+          "#f8f9fa",
+          "#ffffff"
+        ]
+      },
+      "error-signal": {
+        "role": "primary",
+        "displayName": "Error Signal",
+        "canonical": "#d32f2f",
+        "tonalRamp": [
+          "#7f1d1d",
+          "#991b1b",
+          "#b91c1c",
+          "#d32f2f",
+          "#ef4444",
+          "#f87171",
+          "#fca5a5",
+          "#fecaca"
+        ]
+      },
+      "dark-canvas": {
+        "role": "neutral",
+        "displayName": "Dark Canvas",
+        "canonical": "#495057",
+        "tonalRamp": [
+          "#000000",
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#e9ecef"
+        ]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Dark Paper",
+        "canonical": "#212529",
+        "tonalRamp": [
+          "#000000",
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6c757d",
+          "#adb5bd",
+          "#ced4da",
+          "#f8f9fa"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Auth brand line and major section titles (MUI h5)."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel headings and profile name (MUI h6, often primary-colored)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Form copy and general reading text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Meta counts, captions, muted actions (MUI caption/subtitle2)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "auth-sheet-lift",
+        "value": "MUI Paper elevation 7",
+        "purpose": "Structural lift for login/register sheets only."
+      }
+    ],
+    "motion": [],
+    "breakpoints": [
+      { "name": "auth-stack", "value": "800px" },
+      { "name": "feed-stack", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "MUI contained primary — Ember Vermillion fill for form submits.",
+      "html": "<button class=\"ds-btn-primary\" type=\"button\">Register</button>",
+      "css": ".ds-btn-primary { background: #dc2f02; color: #ffffff; border: none; border-radius: 7px; padding: 8px 16px; font-family: Rubik, Montserrat, sans-serif; font-weight: 500; cursor: pointer; transition: background 0.2s ease; } .ds-btn-primary:hover { background: #370617; } .ds-btn-primary:focus-visible { outline: 2px solid #faa307; outline-offset: 2px; }"
+    },
+    {
+      "name": "Post Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Flat Cool Paper feed card with soft corners and standard padding.",
+      "html": "<article class=\"ds-card\"><h3 class=\"ds-card-title\">Post</h3><p class=\"ds-card-body\">What is in your mind</p></article>",
+      "css": ".ds-card { background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 10px; font-family: Rubik, Montserrat, sans-serif; } .ds-card-title { margin: 0 0 0.5rem; color: #dc2f02; font-size: 1.25rem; font-weight: 700; } .ds-card-body { margin: 0; color: #343a40; font-size: 1rem; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Standard MUI-like field used across auth forms.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Email</span><input class=\"ds-field-input\" type=\"email\" placeholder=\"Email\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.25rem; font-family: Rubik, Montserrat, sans-serif; width: 100%; } .ds-field-label { font-size: 0.75rem; color: #6c757d; } .ds-field-input { background: #f8f9fa; color: #343a40; border: 1px solid #ced4da; border-radius: 10px; padding: 10px 12px; font-size: 1rem; } .ds-field-input:focus-visible { outline: 2px solid #dc2f02; outline-offset: 1px; border-color: #dc2f02; }"
+    },
+    {
+      "name": "Navbar",
+      "kind": "nav",
+      "refersTo": "navbar-bar",
+      "description": "Cool Paper top bar with soft 5px radius.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav-brand\">S.S.Media</span><button class=\"ds-nav-action\" type=\"button\">Menu</button></nav>",
+      "css": ".ds-nav { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 5px; padding: 0.2rem 0.5rem; font-family: Rubik, Montserrat, sans-serif; } .ds-nav-brand { font-weight: 700; color: #370617; } .ds-nav-action { background: transparent; border: none; color: #343a40; cursor: pointer; padding: 0.5rem; border-radius: 5px; } .ds-nav-action:hover { background: #e9ecef; } .ds-nav-action:focus-visible { outline: 2px solid #dc2f02; outline-offset: 2px; }"
+    },
+    {
+      "name": "Auth Sheet",
+      "kind": "card",
+      "refersTo": "auth-sheet",
+      "description": "Elevated login/register paper — the only intentional structural lift.",
+      "html": "<section class=\"ds-auth\"><h2 class=\"ds-auth-title\">Login</h2><p class=\"ds-auth-link\">Already have an account?</p></section>",
+      "css": ".ds-auth { width: min(50%, 28rem); margin: 3rem auto 0; padding: 2rem; background: #f8f9fa; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); font-family: Rubik, Montserrat, sans-serif; } .ds-auth-title { margin: 0 0 1rem; color: #370617; font-size: 1.5rem; font-weight: 700; } .ds-auth-link { color: #faa307; text-decoration: none; text-align: center; } .ds-auth-link:hover { text-decoration: underline; }"
+    },
+    {
+      "name": "Dropzone",
+      "kind": "custom",
+      "refersTo": "input-field",
+      "description": "Profile photo drop target with Neutral Line border and error swap.",
+      "html": "<div class=\"ds-dropzone\" role=\"button\" tabindex=\"0\"><span class=\"ds-dropzone-title\">Add profile Photo</span><span class=\"ds-dropzone-hint\">Or Drag</span></div>",
+      "css": ".ds-dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0.5rem; min-height: 7rem; cursor: pointer; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 10px; font-family: Rubik, Montserrat, sans-serif; color: #6c757d; } .ds-dropzone:hover { border-color: #dc2f02; } .ds-dropzone:focus-visible { outline: 2px solid #dc2f02; outline-offset: 2px; } .ds-dropzone-title { font-size: 1rem; } .ds-dropzone-hint { font-size: 0.75rem; } .ds-dropzone.is-error { border-color: #d32f2f; color: #d32f2f; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Signed-In Proof",
+    "overview": "This system documents the incumbent client UI: a utilitarian, dense, functional MUI social shell. Personality comes from a warm vermillion accent on cool grey paper panels, not from decorative chrome. The aesthetic philosophy is straightforward: prioritize the signed-in social loop (auth → feed → profile → friends → media) so portfolio visitors and friends experience a real product, not a marketing façade.\n\nConfirmed visual anti-reference: do not dress surfaces as a marketing landing page or a fake SaaS dashboard. Keep the look honest to an operable social app.",
+    "keyCharacteristics": [
+      "Warm ember accent on cool neutral paper/canvas layers",
+      "Rubik + Montserrat sans pairing via MUI typography variants",
+      "Softly rounded paper panels (~10px) stacked on a grey canvas",
+      "Tonal depth first; Material elevation reserved for auth sheets",
+      "Light/dark palette modes wired through the same token roles"
+    ],
+    "rules": [
+      {
+        "name": "The One Ember Rule",
+        "body": "Ember Vermillion is for action and hierarchy highlights only — never flood large backgrounds with the primary ramp.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper-on-Canvas Rule",
+        "body": "Content lives on Cool Paper; the page reads Soft Canvas. Do not invert that relationship casually.",
+        "section": "colors"
+      },
+      {
+        "name": "The Variant Honesty Rule",
+        "body": "Prefer MUI typography variants (h5, h6, caption, subtitle2) over one-off pixel sizes so density stays consistent across feed and profile.",
+        "section": "typography"
+      },
+      {
+        "name": "The Feed-First Column Rule",
+        "body": "On desktop, the posts column is the widest flex share; side panels never overpower the feed.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Flat Feed Rule",
+        "body": "Feed and profile cards stay flat at rest. Do not add decorative card shadows to match the auth sheet.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Soft Panel Rule",
+        "body": "Prefer ~10px radius for content panels; reserve sharper ~5px for chrome like the navbar.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep Ember Vermillion scarce — actions, titles, liked state.",
+      "Do stack Cool Paper panels on Soft Canvas with ~10px radius and ~1rem padding.",
+      "Do use MUI typography variants and the Rubik/Montserrat stack already loaded.",
+      "Do collapse multi-column layouts near 900px (feed) and 800px (auth)."
+    ],
+    "donts": [
+      "Don't restyle the product as a marketing landing page or fake SaaS dashboard.",
+      "Don't flood backgrounds with the primary ramp or invent a second accent family.",
+      "Don't add decorative shadows to feed/profile cards to \"match\" auth elevation.",
+      "Don't use the header copy \"social media share\" — brand is Share Social Media / S.S.Media."
+    ]
+  }
+}
