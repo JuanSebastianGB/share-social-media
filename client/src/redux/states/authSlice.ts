@@ -16,13 +16,9 @@ const authSlice = createSlice({
       user: userEmptyState,
       token: '',
     }),
-    toggleMode: (state, action) => ({
-      ...state,
-      mode: action.payload.mode === 'dark' ? 'light' : 'dark',
-    }),
   },
 });
 
-export const { makeLogin, makeLogout, toggleMode } = authSlice.actions;
+export const { makeLogin, makeLogout } = authSlice.actions;
 
 export default authSlice.reducer;

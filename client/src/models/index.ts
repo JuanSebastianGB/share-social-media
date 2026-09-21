@@ -5,4 +5,5 @@ export * from './friends.model';
 export * from './post.model';
 export * from './posts.model';
 export * from './store.model';
+export * from './theme.model';
 export * from './user.model';

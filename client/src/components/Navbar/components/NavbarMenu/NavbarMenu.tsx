@@ -1,6 +1,7 @@
 import { AppStore } from '@/models';
-import { makeLogout, toggleMode } from '@/redux/states/authSlice';
+import { makeLogout } from '@/redux/states/authSlice';
 import { searchPosts } from '@/redux/states/postsSlice';
+import { toggleMode } from '@/redux/states/themeSlice';
 import {
   Close,
   DarkMode,
@@ -30,7 +31,7 @@ export interface Props {
 }
 
 const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
-  const mode = useSelector((store: AppStore) => store.auth?.mode);
+  const mode = useSelector((store: AppStore) => store.theme?.mode);
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
   const theme = useTheme();
