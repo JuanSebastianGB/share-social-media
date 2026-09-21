@@ -60,9 +60,8 @@ User authorized continuing the full Impeccable UI/UX refactor after PR #84 merge
 ## Progress
 
 - T1–T11 done. Scores: 27 → 30 → 31 → **32/40 Good**.
-- Snapshot: `.impeccable/critique/2026-09-21T02-22-36Z__client-src-pages-home.md`.
-- Uncommitted on `feat/impeccable-home-push-good` until user asks.
-- Remaining P1: category surface authorship (Amplify ceiling).
+- **Merged to main:** PR #85 (`e0fe556`). Feature branch deleted locally.
+- Remaining P1 (future): category surface authorship beyond Amplify.
 
 ## Verification evidence
 
