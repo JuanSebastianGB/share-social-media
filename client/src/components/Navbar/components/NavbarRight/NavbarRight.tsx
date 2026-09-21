@@ -1,14 +1,7 @@
 import { AppStore } from '@/models';
 import { makeLogout } from '@/redux/states/authSlice';
 import { toggleMode } from '@/redux/states/themeSlice';
-import {
-  DarkMode,
-  Help,
-  LightMode,
-  Menu,
-  Message,
-  Notifications,
-} from '@mui/icons-material';
+import { DarkMode, LightMode, Menu } from '@mui/icons-material';
 import {
   FormControl,
   IconButton,
@@ -49,21 +42,16 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
     );
   return (
     <StyledFlexBetween sx={{ gap: '3rem' }}>
-      <IconButton
-        onClick={() => dispatch(toggleMode({ mode }))}
-        sx={{ fontSize: '25px' }}
-      >
+      <IconButton onClick={() => dispatch(toggleMode({ mode }))}>
         {mode === 'dark' ? (
-          <DarkMode sx={{ fontSize: '25px' }} />
+          <DarkMode fontSize="small" />
         ) : (
           <LightMode
-            sx={{ color: theme.palette.neutral.dark, fontSize: '25px' }}
+            fontSize="small"
+            sx={{ color: theme.palette.neutral.dark }}
           />
         )}
       </IconButton>
-      <Message className="icon" />
-      <Help className="icon" />
-      <Notifications className="icon" />
       <FormControl>
         <Select
           value={user.name}
@@ -71,7 +59,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
           sx={{
             backgroundColor: theme.palette.neutral.light,
             width: '150px',
-            borderRadius: '0.25rem',
+            borderRadius: '5px',
             p: '0.25rem 1rem',
             '& .MuiSvgIcon-root': {
               pr: '0.25rem',
@@ -90,7 +78,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
             <small>{user.name}</small>
           </MenuItem>
           <MenuItem onClick={handleLogout}>
-            <small>Log Out</small>
+            <small>Log out</small>
           </MenuItem>
         </Select>
       </FormControl>

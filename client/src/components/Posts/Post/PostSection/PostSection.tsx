@@ -10,6 +10,7 @@ export interface Props {
   isFriend: boolean;
   handleClick: () => void;
   body: string;
+  disabled?: boolean;
 }
 
 const PostSection: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const PostSection: React.FC<Props> = ({
   isFriend,
   handleClick,
   body,
+  disabled = false,
 }) => {
   const theme = useTheme();
 
@@ -37,16 +39,18 @@ const PostSection: React.FC<Props> = ({
                 aria-label="remove-friend"
                 color="warning"
                 onClick={handleClick}
+                disabled={disabled}
               >
-                <PersonRemove sx={{ fontSize: '18px' }} />
+                <PersonRemove fontSize="small" />
               </IconButton>
             ) : (
               <IconButton
                 aria-label="add-friend"
                 color="warning"
                 onClick={handleClick}
+                disabled={disabled}
               >
-                <PersonAdd sx={{ fontSize: '18px' }} />
+                <PersonAdd fontSize="small" />
               </IconButton>
             )}
           </Fragment>

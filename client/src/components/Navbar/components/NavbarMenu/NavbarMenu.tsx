@@ -2,15 +2,7 @@ import { AppStore } from '@/models';
 import { makeLogout } from '@/redux/states/authSlice';
 import { searchPosts } from '@/redux/states/postsSlice';
 import { toggleMode } from '@/redux/states/themeSlice';
-import {
-  Close,
-  DarkMode,
-  Help,
-  LightMode,
-  Message,
-  Notifications,
-  Search,
-} from '@mui/icons-material';
+import { Close, DarkMode, LightMode, Search } from '@mui/icons-material';
 import {
   Box,
   FormControl,
@@ -69,14 +61,14 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
         {isMobileScreen && (
           <StyledFlexBetween>
             <InputBase
-              placeholder="search..."
+              placeholder="Search posts…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               sx={{
                 color: theme.palette.neutral.dark,
                 backgroundColor: theme.palette.background.default,
                 p: '0 0.5rem',
-                borderRadius: '0.5rem',
+                borderRadius: '10px',
               }}
             />
             <IconButton
@@ -89,19 +81,13 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
             </IconButton>
           </StyledFlexBetween>
         )}
-        <IconButton
-          onClick={() => dispatch(toggleMode({ mode }))}
-          sx={{ fontSize: '25px' }}
-        >
+        <IconButton onClick={() => dispatch(toggleMode({ mode }))}>
           {mode === 'dark' ? (
-            <DarkMode sx={{ fontSize: '25px' }} />
+            <DarkMode fontSize="small" />
           ) : (
-            <LightMode sx={{ fontSize: '25px' }} />
+            <LightMode fontSize="small" />
           )}
         </IconButton>
-        <Message className="icon" />
-        <Notifications className="icon" />
-        <Help className="icon" />
         <FormControl sx={{ width: '100%', alignItems: 'center' }}>
           <Select
             value={user.email}
@@ -109,7 +95,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
               backgroundColor: theme.palette.background.default,
               color: 'whitesmoke',
               width: '80%',
-              borderRadius: '0.25rem',
+              borderRadius: '5px',
               p: '0.25rem 1rem',
               '& .MuiSvgIcon-root': {
                 pr: '0.25rem',
@@ -125,7 +111,7 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
               <small>{user.email}</small>
             </MenuItem>
             <MenuItem onClick={() => dispatch(makeLogout({}))}>
-              <small>Log Out</small>
+              <small>Log out</small>
             </MenuItem>
           </Select>
         </FormControl>

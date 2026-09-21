@@ -2,6 +2,7 @@ import { useFriends, usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
 import { incrementPage } from '@/redux/states/postsSlice';
 import { ErrorBoundary } from '@/utilities';
+import { Typography } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { SpaceBetween } from '../Navbar';
@@ -16,10 +17,7 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const dispatch = useDispatch();
   // @ts-ignore
   const { friends } = useFriends(id);
-  const { posts, error, hasNextPage, isError, isLoading } = usePosts(
-    isProfile,
-    id
-  );
+  const { posts, hasNextPage, isError, isLoading } = usePosts(isProfile, id);
   const intObserver = useRef<any>();
   const lastPostRef = useCallback(
     (post: PostApiModel) => {
@@ -27,7 +25,6 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
       if (intObserver.current) intObserver.current.disconnect();
       intObserver.current = new IntersectionObserver((posts) => {
         if (posts[0].isIntersecting && hasNextPage) {
-          console.log('Almost there...');
           dispatch(incrementPage({}));
         }
       });
@@ -36,7 +33,12 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
     [isLoading, hasNextPage]
   );
 
-  if (isError) return <p> {JSON.stringify(error)}</p>;
+  if (isError)
+    return (
+      <Typography variant="body2" color="error" align="center" sx={{ py: 2 }}>
+        Couldn't load posts. Try refreshing the page.
+      </Typography>
+    );
 
   const content = posts.map((post, index) => {
     const idPostUser = post.user._id;

@@ -1,5 +1,5 @@
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import React, { useEffect, useState } from 'react';
 export interface Props {
@@ -7,7 +7,8 @@ export interface Props {
 }
 
 const Scroll: React.FC<Props> = ({ showBelow = 300 }) => {
-  const [show, setShow] = useState(!!showBelow);
+  const theme = useTheme();
+  const [show, setShow] = useState(false);
   const handleClick = () => {
     window['scrollTo']({ top: 0, behavior: 'smooth' });
   };
@@ -25,6 +26,9 @@ const Scroll: React.FC<Props> = ({ showBelow = 300 }) => {
       return () => window.removeEventListener('scroll', handleScroll);
     }
   }, []);
+
+  if (!show) return null;
+
   return (
     <Box>
       <IconButton
@@ -32,15 +36,15 @@ const Scroll: React.FC<Props> = ({ showBelow = 300 }) => {
           position: 'fixed',
           right: '2%',
           bottom: '2vh',
-          backgroundColor: '#DCDCDC',
-          color: 'black',
+          backgroundColor: theme.palette.background.paper,
+          color: theme.palette.neutral.dark,
           '&:hover, &.MuiFocusVisible': {
             transition: '0.3s',
-            color: '#397ba6',
-            backgroundColor: '#DCDCDC',
+            color: theme.palette.primary.main,
+            backgroundColor: theme.palette.background.paper,
           },
         }}
-        aria-label="up"
+        aria-label="Back to top"
         onClick={handleClick}
       >
         <ArrowUpwardIcon />

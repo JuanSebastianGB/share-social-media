@@ -22,10 +22,12 @@ const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
   return (
     <StyledFlexBetween sx={{ gap: '2rem' }}>
       <Typography
+        variant="h5"
         fontWeight="bold"
-        fontSize="clamp(1rem, 2rem, 2.25rem)"
         color={theme.palette.primary.dark}
         onClick={() => navigate('/home')}
+        aria-label="Share Social Media"
+        title="Share Social Media"
         sx={{
           '&:hover': {
             color: theme.palette.primary.light,
@@ -34,19 +36,19 @@ const NavbarLeft: React.FC<Props> = ({ isMobileScreen }) => {
           whiteSpace: 'nowrap',
         }}
       >
-        S. Social M.
+        S.S.Media
       </Typography>
       {!isMobileScreen && (
         <StyledFlexBetween>
           <InputBase
-            placeholder="search..."
+            placeholder="Search posts…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             sx={{
               color: theme.palette.neutral.dark,
               backgroundColor: theme.palette.background.default,
               p: '0 0.5rem',
-              borderRadius: '0.5rem',
+              borderRadius: '10px',
             }}
           />
           <IconButton onClick={() => !id && dispatch(searchPosts(search))}>

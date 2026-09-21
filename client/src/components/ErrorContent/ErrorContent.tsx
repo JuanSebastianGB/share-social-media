@@ -1,37 +1,58 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material';
 import React from 'react';
 export interface Props {
-  message: string;
-  data: string;
+  message?: string;
+  data?: string;
   sx?: object;
 }
 
-const ErrorContent: React.FC<Props> = ({ message, data, sx }) => {
+const looksTechnical = (value?: string): boolean => {
+  if (!value) return true;
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  if (/^[A-Z0-9_]+$/.test(trimmed)) return true;
+  if (/^ERROR[_-]/.test(trimmed)) return true;
+  if (/^[{\[]/.test(trimmed)) return true;
+  return false;
+};
+
+const ErrorContent: React.FC<Props> = ({
+  message = 'Something went wrong.',
+  data,
+  sx,
+}) => {
+  const theme = useTheme();
+  const showData = typeof data === 'string' && !looksTechnical(data);
+
   return (
     <Box
       sx={{
         minHeight: '200px',
-        bgcolor: '#f44336',
+        bgcolor: theme.palette.background.paper,
         width: '50%',
         margin: '2rem auto',
-        padding: 'rem',
+        padding: '1rem',
         borderRadius: '10px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        '& > *': {
-          padding: '2rem',
-        },
+        gap: '0.5rem',
         flex: 0.5,
         ...sx,
       }}
     >
-      <Typography align="center" variant="body1" color="white">
+      <Typography align="center" variant="body1" color="error">
         {message}
       </Typography>
-      <Typography align="center" variant="caption" color="white">
-        {data}
-      </Typography>
+      {showData && (
+        <Typography
+          align="center"
+          variant="caption"
+          color={theme.palette.neutral.main}
+        >
+          {data}
+        </Typography>
+      )}
     </Box>
   );
 };

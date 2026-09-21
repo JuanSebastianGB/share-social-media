@@ -3,9 +3,11 @@ import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '@/services';
 import {
+  Alert,
   Avatar,
   Box,
   Button,
+  CircularProgress,
   DialogContent,
   InputBase,
   Typography,
@@ -26,7 +28,7 @@ interface ModalProps {
 }
 
 const validationSchema = yup.object().shape({
-  body: yup.string().required(),
+  body: yup.string().required('Post body is required'),
 });
 
 const initialValues = { body: '', myFile: File };
@@ -39,11 +41,13 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
-  const [showButton, setShowButton] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const dispatch = useDispatch();
 
   const onSubmit = async ({ body, myFile }: any, { resetForm }: any) => {
-    setShowButton(false);
+    setLoading(true);
+    setSubmitError(null);
     const form = new FormData();
     form.append('body', body);
     form.append('userId', id);
@@ -58,16 +62,23 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
         form.append('type', 'comment');
         newPost = await makePostService(form);
       }
-      setShowButton(true);
       dispatch(createPost(newPost));
       handleClose();
       resetForm();
-    } catch (error) {
-      setShowButton(true);
+    } catch {
+      setSubmitError("Couldn't publish your post. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const { getFieldProps, setFieldValue, handleSubmit } = useFormik({
+  const {
+    getFieldProps,
+    setFieldValue,
+    handleSubmit,
+    touched,
+    errors,
+  } = useFormik({
     onSubmit,
     initialValues,
     validationSchema,
@@ -118,18 +129,35 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
                   width: '100%',
                   justifyContent: 'center',
                 }}
-                placeholder={`what is in your mind  ${user?.firstName}`}
+                placeholder={`What's on your mind, ${user?.firstName}?`}
               />
+              {touched.body && errors.body && (
+                <Typography variant="caption" color="error" display="block" mb={1}>
+                  {errors.body}
+                </Typography>
+              )}
+              {submitError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {submitError}
+                </Alert>
+              )}
             </Box>
             {addAction === 'file/video' && (
               <DropzoneAddPost setFieldValue={setFieldValue} />
             )}
 
-            {showButton && (
-              <Button variant="text" type="submit" color="primary" fullWidth>
-                Publish
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              type="submit"
+              color="primary"
+              fullWidth
+              disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={16} color="inherit" /> : null
+              }
+            >
+              {loading ? 'Publishing…' : 'Publish'}
+            </Button>
           </StyledForm>
         </DialogContent>
       </BootstrapDialog>

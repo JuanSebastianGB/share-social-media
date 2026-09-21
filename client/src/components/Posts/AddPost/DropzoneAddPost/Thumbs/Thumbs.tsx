@@ -40,7 +40,7 @@ const Thumbs: FC<Props> = ({ files }) => {
                   sx={{
                     objectFit: 'cover',
                     width: '100%',
-                    borderRadius: '15px',
+                    borderRadius: '10px',
                   }}
                   src={file.preview}
                   onLoad={() => {
