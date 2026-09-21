@@ -44,24 +44,17 @@ User authorized full-scope remediation after critique (`all at once`).
 - [x] T3 clarify — brand + compose/empty/error copy
 - [x] T4 harden — unfriend confirm + feedback; human errors; pending states
 - [x] T5 polish — Publish contained/loading; Scroll/ErrorContent tokens; ramp drift; close critique snapshot
-
-## Acceptance
-
-- Mobile first viewport prioritizes AddPost/Posts.
-- No fake Trends panel; no Message/Help/Notifications/Share dead controls; no Who's viewed / Impressions vanity rows.
-- Navbar mark is S.S.Media with accessible Share Social Media name.
-- Unfriend requires confirm; failures surface human copy; Publish shows loading and errors.
-- Scroll/ErrorContent use theme tokens; icon sizes use MUI variants / DESIGN.md ramp where practical.
-- Critique snapshot closed when Priority Issues cleared.
+- [x] P1 onboard — empty feed + Friends panel empty states
+- [x] P1 harden — CommentsModal loading/errors/Send; own-post comments allowed
+- [x] P1 clarify — ErrorContent sanitizes message + Try again
 
 ## Progress
 
-- T1–T5 implemented on `feat/impeccable-home-remediation` (15 client files).
-- Typecheck: `pnpm --filter client exec tsc --noEmit` pass.
-- Commits: pending user request.
-- Next: user review / commit / re-run `/impeccable critique home`.
+- Remediations: `f946b6d`; critique 25/40 archived: `de3e37f`.
+- P1 trio implemented (Posts, Friends, CommentsModal, ErrorContent); typecheck pass.
+- Next: commit P1 / re-critique / PR when asked.
 
 ## Verification evidence
 
-- Typecheck exit 0 after writer pass.
-- Spot-checked: Homelayout `column`, NavbarLeft `S.S.Media`, Home without Trends, Modal loading+contained, Scroll theme tokens, ErrorContent paper+error.
+- Typecheck exit 0 after P1 pass.
+- Empty posts/friends states; Comments Send+errors; ErrorContent human message + retry.

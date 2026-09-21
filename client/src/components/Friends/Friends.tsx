@@ -81,21 +81,15 @@ const Friends: React.FC<Props> = ({ user }) => {
       />
     );
 
-  if (friends?.length === 0)
-    return (
-      <Typography variant="caption" color={theme.palette.neutral.dark}>
-        No friends yet.
-      </Typography>
-    );
-
   const confirmName = confirmFriend
     ? `${confirmFriend.firstName} ${confirmFriend.lastName}`.trim()
     : '';
   const isPending = pendingFriendId !== null;
+  const hasFriends = !!friends && friends.length > 0;
 
   return (
     <ErrorBoundary
-      fallBackComponent={<>Error in Friends</>}
+      fallBackComponent={<>Couldn't display friends.</>}
       resetCondition={friends}
     >
       <Box
@@ -110,34 +104,48 @@ const Friends: React.FC<Props> = ({ user }) => {
           Friends
         </Typography>
         <Divider />
-        {friends
-          ? friends.map((friend, index: number) => (
-              <Box key={friend._id}>
-                <Box sx={{ m: '1rem 0 0.5rem' }}>
-                  <SpaceBetween>
-                    <AvatarWithTitles
-                      key={friend._id}
-                      profileImage={friend?.picturePath}
-                      title={`${friend?.firstName} ${friend?.lastName}`}
-                      subTitle={friend?.location}
-                      userId={friend._id}
-                    />
-                    {!isProfile && (
-                      <IconButton
-                        aria-label="remove-friend"
-                        color="warning"
-                        disabled={isPending}
-                        onClick={() => setConfirmFriend(friend)}
-                      >
-                        <PersonRemove fontSize="small" />
-                      </IconButton>
-                    )}
-                  </SpaceBetween>
-                </Box>
-                {friends && index < friends.length - 1 && <Divider />}
+        {!hasFriends ? (
+          <Box sx={{ py: '1rem' }}>
+            <Typography variant="body2" color={theme.palette.neutral.dark}>
+              No friends yet.
+            </Typography>
+            <Typography
+              variant="caption"
+              color={theme.palette.neutral.main}
+              display="block"
+              sx={{ mt: '0.35rem' }}
+            >
+              Add someone from a post in your feed to see them here.
+            </Typography>
+          </Box>
+        ) : (
+          friends.map((friend, index: number) => (
+            <Box key={friend._id}>
+              <Box sx={{ m: '1rem 0 0.5rem' }}>
+                <SpaceBetween>
+                  <AvatarWithTitles
+                    key={friend._id}
+                    profileImage={friend?.picturePath}
+                    title={`${friend?.firstName} ${friend?.lastName}`}
+                    subTitle={friend?.location}
+                    userId={friend._id}
+                  />
+                  {!isProfile && (
+                    <IconButton
+                      aria-label="remove-friend"
+                      color="warning"
+                      disabled={isPending}
+                      onClick={() => setConfirmFriend(friend)}
+                    >
+                      <PersonRemove fontSize="small" />
+                    </IconButton>
+                  )}
+                </SpaceBetween>
               </Box>
-            ))
-          : null}
+              {index < friends.length - 1 && <Divider />}
+            </Box>
+          ))
+        )}
       </Box>
 
       <Dialog

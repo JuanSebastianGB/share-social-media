@@ -1,9 +1,12 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { Box, Button, Typography, useTheme } from '@mui/material';
 import React from 'react';
+
 export interface Props {
   message?: string;
   data?: string;
   sx?: object;
+  onRetry?: () => void;
+  retryLabel?: string;
 }
 
 const looksTechnical = (value?: string): boolean => {
@@ -16,16 +19,30 @@ const looksTechnical = (value?: string): boolean => {
   return false;
 };
 
+const humanMessage = (message?: string, data?: string): string => {
+  if (message && !looksTechnical(message)) return message;
+  if (data && !looksTechnical(data)) return data;
+  return 'Something went wrong. Please try again.';
+};
+
 const ErrorContent: React.FC<Props> = ({
-  message = 'Something went wrong.',
+  message,
   data,
   sx,
+  onRetry,
+  retryLabel = 'Try again',
 }) => {
   const theme = useTheme();
-  const showData = typeof data === 'string' && !looksTechnical(data);
+  const displayMessage = humanMessage(message, data);
+  const showData =
+    typeof data === 'string' &&
+    !looksTechnical(data) &&
+    data.trim() !== displayMessage;
+  const handleRetry = onRetry ?? (() => window.location.reload());
 
   return (
     <Box
+      role="alert"
       sx={{
         minHeight: '200px',
         bgcolor: theme.palette.background.paper,
@@ -36,13 +53,14 @@ const ErrorContent: React.FC<Props> = ({
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        gap: '0.5rem',
+        alignItems: 'center',
+        gap: '0.75rem',
         flex: 0.5,
         ...sx,
       }}
     >
       <Typography align="center" variant="body1" color="error">
-        {message}
+        {displayMessage}
       </Typography>
       {showData && (
         <Typography
@@ -53,6 +71,9 @@ const ErrorContent: React.FC<Props> = ({
           {data}
         </Typography>
       )}
+      <Button variant="contained" color="primary" onClick={handleRetry}>
+        {retryLabel}
+      </Button>
     </Box>
   );
 };
