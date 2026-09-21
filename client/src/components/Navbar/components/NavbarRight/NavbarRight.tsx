@@ -35,14 +35,22 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   if (isMobileScreen)
     return (
       <Fragment>
-        <IconButton onClick={() => setMenuOpen(!menuOpen)}>
+        <IconButton
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
           <Menu className="icon" />
         </IconButton>
       </Fragment>
     );
   return (
     <StyledFlexBetween sx={{ gap: '3rem' }}>
-      <IconButton onClick={() => dispatch(toggleMode({ mode }))}>
+      <IconButton
+        aria-label={
+          mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+        }
+        onClick={() => dispatch(toggleMode({ mode }))}
+      >
         {mode === 'dark' ? (
           <DarkMode fontSize="small" />
         ) : (
@@ -56,6 +64,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
         <Select
           value={user.name}
           displayEmpty
+          inputProps={{ 'aria-label': 'Account menu' }}
           sx={{
             backgroundColor: theme.palette.neutral.light,
             width: '150px',

@@ -75,7 +75,7 @@ const AddPost: React.FC<Props> = ({ user }) => {
                   setAddAction('file/video');
                 }}
               >
-                <IconButton>
+                <IconButton aria-label="Add photo or video">
                   <AttachFile fontSize="small" />
                   <Typography variant="subtitle2" color="GrayText">
                     Photo/video

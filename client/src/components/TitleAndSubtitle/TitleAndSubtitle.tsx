@@ -14,9 +14,8 @@ const TitleAndSubtitle: FC<Props> = ({ title, subtitle }) => {
         #{title}
       </Typography>
       <Typography
-        sx={{ transform: 'translate(10px,20px) scale 1' }}
+        sx={{ transform: 'translate(10px, 20px)' }}
         variant="caption"
-        fontSize="0.5rem"
         color={theme.palette.neutral.dark}
       >
         {subtitle}

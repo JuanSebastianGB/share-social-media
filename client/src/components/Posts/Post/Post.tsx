@@ -130,7 +130,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
             }}
             // @ts-ignore
             src={adaptedPost.file.url}
-            alt="idea"
+            alt={adaptedPost.body ? `Post by ${friendName}` : 'Post image'}
           />
         )
       }
@@ -138,7 +138,8 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         <SpaceBetween gap="10px">
           <SpaceBetween>
             <IconButton
-              aria-label="likes"
+              aria-label={isOwn ? "You can't like your own post" : 'Like post'}
+              title={isOwn ? "You can't like your own post" : 'Like post'}
               onClick={handleLike}
               disabled={isOwn || likePending}
             >
@@ -166,7 +167,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
 
           <SpaceBetween>
             <IconButton
-              aria-label="comments"
+              aria-label="View comments"
               onClick={() => setOpenModal(true)}
             >
               <ChatIcon fontSize="small" />

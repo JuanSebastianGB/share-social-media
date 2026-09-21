@@ -5,6 +5,7 @@ import { ErrorBoundary } from '@/utilities';
 import { Box, Typography, useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { ErrorContent } from '../ErrorContent';
 import { SpaceBetween } from '../Navbar';
 import { Spinner } from '../Spinner';
 import Post from './Post/Post';
@@ -37,9 +38,10 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
 
   if (isError)
     return (
-      <Typography variant="body2" color="error" align="center" sx={{ py: 2 }}>
-        Couldn't load posts. Try refreshing the page.
-      </Typography>
+      <ErrorContent
+        message="Couldn't load posts."
+        sx={{ width: '100%', minHeight: '120px' }}
+      />
     );
 
   if (!posts) return <Spinner />;

@@ -47,12 +47,13 @@ User authorized full-scope remediation after critique (`all at once`).
 - [x] P1 onboard — empty feed + Friends panel empty states
 - [x] P1 harden — CommentsModal loading/errors/Send; own-post comments allowed
 - [x] P1 clarify — ErrorContent sanitizes message + Try again
+- [x] Push-to-Good C — Profile search→Home, Posts ErrorContent, publish toast, aria-labels, polish leftovers
 
 ## Progress
 
-- Remediations: `f946b6d`; critique 25/40 archived: `de3e37f`.
-- P1 trio implemented (Posts, Friends, CommentsModal, ErrorContent); typecheck pass.
-- Next: commit P1 / re-critique / PR when asked.
+- Remediations: `f946b6d`; critique 25/40: `de3e37f`; P1: `3b4f306`.
+- Push-to-Good C implemented; detector clean on Navbar/Avatar/Title/Scroll targets.
+- Next: re-critique toward Good 28+ / PR when asked.
 
 ## Verification evidence
 

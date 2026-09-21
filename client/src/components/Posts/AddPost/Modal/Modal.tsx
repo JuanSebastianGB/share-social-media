@@ -2,6 +2,7 @@ import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '@/services';
+import { successToastMessageConfig } from '@/utilities';
 import {
   Alert,
   Avatar,
@@ -16,6 +17,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import { DropzoneAddPost } from '../DropzoneAddPost';
 import { BootstrapDialogTitle } from './BootstrapDialogTitle';
@@ -45,6 +47,11 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const dispatch = useDispatch();
 
+  const requestClose = () => {
+    if (loading) return;
+    handleClose();
+  };
+
   const onSubmit = async ({ body, myFile }: any, { resetForm }: any) => {
     setLoading(true);
     setSubmitError(null);
@@ -63,8 +70,9 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
         newPost = await makePostService(form);
       }
       dispatch(createPost(newPost));
-      handleClose();
+      toast.success('Post published', successToastMessageConfig);
       resetForm();
+      handleClose();
     } catch {
       setSubmitError("Couldn't publish your post. Please try again.");
     } finally {
@@ -87,7 +95,7 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   return (
     <Box>
       <BootstrapDialog
-        onClose={handleClose}
+        onClose={requestClose}
         aria-labelledby="customized-dialog-title"
         open={open}
         fullWidth
@@ -95,7 +103,8 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
       >
         <BootstrapDialogTitle
           id="customized-dialog-title"
-          onClose={handleClose}
+          onClose={requestClose}
+          closeDisabled={loading}
         >
           Create Post
         </BootstrapDialogTitle>

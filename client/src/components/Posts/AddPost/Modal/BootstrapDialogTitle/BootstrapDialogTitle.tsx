@@ -5,18 +5,20 @@ export interface Props {
   id: string;
   children?: ReactNode;
   onClose: () => void;
+  closeDisabled?: boolean;
 }
 
 const BootstrapDialogTitle: FC<Props> = (props) => {
-  const { children, onClose, ...other } = props;
+  const { children, onClose, closeDisabled = false, ...other } = props;
 
   return (
     <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
       {children}
       {onClose ? (
         <IconButton
-          aria-label="close"
+          aria-label="Close"
           onClick={onClose}
+          disabled={closeDisabled}
           sx={{
             position: 'absolute',
             right: 8,

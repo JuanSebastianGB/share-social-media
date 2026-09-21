@@ -199,7 +199,7 @@ const CommentsModal: FC<Props> = ({ open, onClose, post }) => {
                 />
               </ListItem>
               <Typography
-                sx={{ padding: '2rem', whiteSpace: 'nowrap' }}
+                sx={{ px: '1rem', whiteSpace: 'nowrap' }}
                 variant="caption"
                 color={theme.palette.neutral.dark}
               >
