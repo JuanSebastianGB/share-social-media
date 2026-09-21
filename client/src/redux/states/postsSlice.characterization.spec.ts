@@ -59,6 +59,23 @@ describe('postsSlice characterization', () => {
     expect(next.page).toBe(1);
   });
 
+  it("searchPosts('') — clears search string, clears posts, page 1", () => {
+    // Arrange
+    const previous = {
+      posts: [makePost()],
+      page: 3,
+      search: 'cats',
+    };
+
+    // Act
+    const next = postsReducer(previous, searchPosts(''));
+
+    // Assert
+    expect(next.search).toBe('');
+    expect(next.posts).toEqual([]);
+    expect(next.page).toBe(1);
+  });
+
   it('createPost — prepends the new post ahead of existing', () => {
     // Arrange
     const existing = makePost({ _id: 'old' });

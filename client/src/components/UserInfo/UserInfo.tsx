@@ -16,6 +16,7 @@ import {
   useTheme,
 } from '@mui/material';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ErrorContent } from '../ErrorContent';
 import { SpaceBetween } from '../Navbar';
 import { Spinner } from '../Spinner';
@@ -32,6 +33,7 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
 
 const UserInfo: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
+  const navigate = useNavigate();
   const { friends } = useFriends(user._id);
   const {
     error,
@@ -40,9 +42,23 @@ const UserInfo: React.FC<Props> = ({ user }) => {
     results: ownPosts,
   } = useUserPosts(user._id);
 
-  const avatarAlt =
-    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
-    'User avatar';
+  const displayName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
+  const avatarAlt = `${displayName} avatar`;
+  const profilePath = `/profile/${user._id}`;
+
+  const goToProfile = () => {
+    navigate(profilePath);
+  };
+
+  const handleProfileKeyDown = (
+    event: React.KeyboardEvent<HTMLElement>
+  ) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      goToProfile();
+    }
+  };
 
   if (isLoading) return <Spinner />;
   if (isError)
@@ -57,17 +73,27 @@ const UserInfo: React.FC<Props> = ({ user }) => {
 
   return (
     <ErrorBoundary
-      fallBackComponent={<>Error in User info</>}
+      fallBackComponent={
+        <ErrorContent
+          message="Couldn't display profile info."
+          sx={{ width: '100%', minHeight: '120px', flex: 'unset', margin: '0' }}
+        />
+      }
       resetCondition={user}
     >
       <StyledUserInfo>
         <Typography
-          variant="h6"
+          variant="h5"
           align="center"
           color={theme.palette.primary.main}
-          sx={{ fontWeight: 700 }}
+          role="link"
+          tabIndex={0}
+          aria-label={`View ${displayName}'s profile`}
+          onClick={goToProfile}
+          onKeyDown={handleProfileKeyDown}
+          sx={{ fontWeight: 700, cursor: 'pointer' }}
         >
-          {user?.firstName}
+          {displayName}
         </Typography>
         <Box
           sx={{
@@ -76,11 +102,17 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           }}
         >
           <Avatar
+            role="link"
+            tabIndex={0}
+            aria-label={`View ${displayName}'s profile`}
+            onClick={goToProfile}
+            onKeyDown={handleProfileKeyDown}
             sx={{
               width: 100,
               height: 100,
               zIndex: 1,
               margin: '0 auto',
+              cursor: 'pointer',
             }}
             alt={avatarAlt}
             sizes=""
@@ -116,24 +148,28 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           </Box>
         </Box>
         <Divider />
-        <SpaceBetween
-          gap="0.7rem"
-          sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
-        >
-          <LocationOn fontSize="small" />
-          <Typography variant="caption" color={theme.palette.neutral.dark}>
-            {user?.location}
-          </Typography>
-        </SpaceBetween>
-        <SpaceBetween
-          gap="0.7rem"
-          sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
-        >
-          <WorkOutline fontSize="small" />
-          <Typography variant="caption" color={theme.palette.neutral.dark}>
-            {user?.occupation}
-          </Typography>
-        </SpaceBetween>
+        {!!user?.location && (
+          <SpaceBetween
+            gap="0.7rem"
+            sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
+          >
+            <LocationOn fontSize="small" />
+            <Typography variant="caption" color={theme.palette.neutral.dark}>
+              {user.location}
+            </Typography>
+          </SpaceBetween>
+        )}
+        {!!user?.occupation && (
+          <SpaceBetween
+            gap="0.7rem"
+            sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
+          >
+            <WorkOutline fontSize="small" />
+            <Typography variant="caption" color={theme.palette.neutral.dark}>
+              {user.occupation}
+            </Typography>
+          </SpaceBetween>
+        )}
       </StyledUserInfo>
     </ErrorBoundary>
   );

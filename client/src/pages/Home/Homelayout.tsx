@@ -8,7 +8,7 @@ const StyledHome = styled(Box)(({ theme }) => ({
   '& section': {
     display: 'flex',
     padding: '0.5rem',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
     maxWidth: '90%',
     margin: '0 auto',
@@ -18,9 +18,10 @@ const StyledHome = styled(Box)(({ theme }) => ({
     '& section': {
       display: 'flex',
       padding: '0.5rem',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      justifyContent: 'flex-start',
+      alignItems: 'stretch',
       flexDirection: 'column',
+      width: '100%',
       maxWidth: '95%',
       margin: '0 auto',
       gap: null,
