@@ -1,6 +1,6 @@
 import { postAdapter } from '@/adapters';
 import { AppStore, PostApiModel } from '@/models';
-import { toggleFriend } from '@/redux/states/authSlice';
+import { toggleFriend } from '@/redux/states/friendsSlice';
 import { togglePostLikes } from '@/redux/states/postsSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
 import { SpaceBetween } from '@/styled-components';

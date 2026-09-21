@@ -11,19 +11,23 @@ import {
   type PersistedState,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { authSlice, postsSlice } from './states';
+import { authSlice, friendsSlice, postsSlice } from './states';
 
 type LegacyPersistedRoot = PersistedState & {
   auth?: {
     posts?: unknown[];
     page?: number;
     search?: string;
+    friends?: unknown[];
     [key: string]: unknown;
   };
   posts?: {
     posts: unknown[];
     page: number;
     search: string;
+  };
+  friends?: {
+    friends: unknown[];
   };
 };
 
@@ -46,18 +50,35 @@ const migrations = {
       },
     } as PersistedState;
   },
+  3: (state: PersistedState): PersistedState => {
+    if (!state) return state;
+
+    const legacy = state as LegacyPersistedRoot;
+    const auth = legacy.auth;
+    if (!auth) return state;
+
+    const { friends, ...authRest } = auth;
+    return {
+      ...legacy,
+      auth: authRest,
+      friends: {
+        friends: Array.isArray(friends) ? friends : [],
+      },
+    } as PersistedState;
+  },
 };
 
 const persistConfig = {
   key: 'root',
   storage,
-  version: 2,
+  version: 3,
   migrate: createMigrate(migrations, { debug: false }),
 };
 
 const rootReducer = combineReducers({
   auth: authSlice,
   posts: postsSlice,
+  friends: friendsSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

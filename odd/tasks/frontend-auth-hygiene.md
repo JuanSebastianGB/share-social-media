@@ -39,7 +39,7 @@ Delegated mapping (explore). Per-task: T1 inline; T2–T4 delegated writer (2+ n
 
 - [x] **T1** — Remove unused RHF/resolvers/SWR + dead `useCheckToken` — route: inline — `e82eef2`
 - [x] **T2** — Extract `postsSlice` (`posts`, `page`, `search`) + persist migrate for posts fields — route: delegated — `1e67fbc`
-- [ ] **T3** — Extract `friendsSlice` — route: delegated
+- [x] **T3** — Extract `friendsSlice` — route: delegated — `2baab3d`
 - [ ] **T4** — Extract `themeSlice` (`mode`); finalize persist migrate; update frontend-standards — route: delegated
 
 ## Acceptance
@@ -63,7 +63,8 @@ Delegated mapping (explore). Per-task: T1 inline; T2–T4 delegated writer (2+ n
 - Worktree created from `origin/main`
 - T1 complete (`e82eef2`)
 - T2 complete (`1e67fbc`) — postsSlice + persist migrate v2
+- T3 complete (`2baab3d`) — friendsSlice + persist migrate v3
 
 ## Next step
 
-T3 friendsSlice extraction.
+T4 themeSlice extraction.

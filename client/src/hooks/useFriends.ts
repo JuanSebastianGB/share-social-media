@@ -1,5 +1,5 @@
 import { AppStore } from '@/models';
-import { setFriends } from '@/redux/states/authSlice';
+import { setFriends } from '@/redux/states/friendsSlice';
 import { fetchFriendsService } from '@/services';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +12,7 @@ export const useFriends = (id: string) => {
   const [error, setError] = useState({});
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { friends } = useSelector((store: AppStore) => store.auth);
+  const { friends } = useSelector((store: AppStore) => store.friends);
 
   const dispatch = useDispatch();
 

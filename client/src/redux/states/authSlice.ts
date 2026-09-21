@@ -14,43 +14,15 @@ const authSlice = createSlice({
     makeLogout: (state, _action) => ({
       ...state,
       user: userEmptyState,
-      friends: [],
       token: '',
     }),
     toggleMode: (state, action) => ({
       ...state,
       mode: action.payload.mode === 'dark' ? 'light' : 'dark',
     }),
-    setFriends: (state, action) => {
-      return {
-        ...state,
-        friends: action.payload.friends,
-      };
-    },
-    removeFriend: (state, action) => {
-      return {
-        ...state,
-        friends: state.friends.filter(
-          (friend) => friend._id !== action.payload
-        ),
-      };
-    },
-    toggleFriend: (state, action) => {
-      return {
-        ...state,
-        friends: action.payload,
-      };
-    },
   },
 });
 
-export const {
-  setFriends,
-  makeLogin,
-  makeLogout,
-  toggleMode,
-  removeFriend,
-  toggleFriend,
-} = authSlice.actions;
+export const { makeLogin, makeLogout, toggleMode } = authSlice.actions;
 
 export default authSlice.reducer;

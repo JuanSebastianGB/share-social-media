@@ -1,6 +1,6 @@
 import { useFriends } from '@/hooks';
 import { UserApiModel } from '@/models';
-import { removeFriend } from '@/redux/states/authSlice';
+import { removeFriend } from '@/redux/states/friendsSlice';
 import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';
