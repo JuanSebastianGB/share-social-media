@@ -69,11 +69,17 @@ Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align 
 
 | Concern | Reality |
 |---------|---------|
-| Unit / component tests | **None** in `client/` |
-| E2E | **None** |
-| Coverage | N/A |
+| Runner | **Vitest** + **jsdom** + **Testing Library** (`@testing-library/react`, `jest-dom`, `user-event`) |
+| Scripts | `pnpm --filter client test` (`vitest run`); `pnpm --filter client test:watch` |
+| Include | `src/**/*.{test,spec}.{ts,tsx}` (`vite.config.ts`) |
+| Strategy | Global **qa-expert** decision tree — see `client/tests/docs/TEST-STRATEGY.md` |
+| Characterization | `*.characterization.spec.ts` — legacy AS-IS seams (Redux, utilities, Yup examples) |
+| Component | `*.component.spec.tsx` — visible UI via role/text queries |
+| Property-based | `*.property.spec.ts` — schema invariants with `fast-check` (`numRuns: 100`) |
+| E2E | **Deferred** (no Playwright/Cypress; owned by e2e-agent when added) |
+| Coverage | `@vitest/coverage-v8` available; **no** whole-client coverage fail gate |
 
-Do not claim frontend test commands exist. Adding a test stack is a deliberate project decision, not an implied default.
+Prefer explicit Vitest imports (`describe` / `it` / `expect` / `vi`) over globals. Naming: `{scenario} — {expected outcome}`.
 
 ### Development Tools
 
@@ -217,19 +223,34 @@ Component / Hook
 
 ## Testing Standards
 
-### Component Testing
+### Strategy (global qa-expert)
 
-> Status: not implemented.
+Client tests follow **juancho global `qa-expert`** (`~/.config/opencode/skills/qa-expert`), not project-local daymade installs.
 
-If/when added, colocate or use `*.test.tsx` under `client/src` and document the runner in this file first.
+| Area | Type | Convention |
+|------|------|------------|
+| Redux slices, `cognitoMode`, `formatDate`, `themeConfig`, Yup companion examples | Characterization | `*.characterization.spec.ts` |
+| UI (e.g. `ErrorBoundary`) | Component | `*.component.spec.tsx` |
+| Schema invariants (body length, clearly-invalid email, password min) | Property-based | `*.property.spec.ts` + companion examples |
+| Full journeys | E2E | Deferred |
+
+Short strategy note: `client/tests/docs/TEST-STRATEGY.md`.
+
+### Characterization, component, and property tests
+
+- Follow **Arrange–Act–Assert (AAA)**; isolate each test with fresh state.
+- Colocate next to the unit under test.
+- Characterization: document current behavior AS-IS (including known bugs in the file header); do not “fix” production in the same change.
+- Component: query priority `getByRole` → `getByLabelText` → `getByText` → `getByTestId`; assert visible behavior only (no CSS/class assertions).
+- Property-based: document `// Property: …`; run with `{ numRuns: 100 }`; keep companion examples in characterization files.
 
 ### End-to-End Testing
 
-> Status: not implemented.
+> Status: not implemented — e2e is deferred; do not add Playwright/Cypress in drive-by changes.
 
 ### Test Organization
 
-N/A until a runner exists. Backend characterization tests do **not** replace UI verification.
+Backend characterization tests under `server/tests/` do **not** replace client verification. Run client tests with `pnpm --filter client test`.
 
 ## Configuration Standards
 
