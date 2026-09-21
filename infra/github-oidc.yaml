@@ -1,0 +1,100 @@
+# One-time GitHub Actions OIDC for CDK deploys
+#
+# Creates:
+# - OIDC provider token.actions.githubusercontent.com (if missing)
+# - IAM role assumable only by this repository (main + production environment)
+# - Permissions limited to assuming CDK bootstrap roles + reading stack outputs
+#
+# Deploy (from repo root, with admin AWS credentials):
+#   aws cloudformation deploy \
+#     --stack-name ShareSocialMediaGithubOidc \
+#     --template-file infra/github-oidc.yaml \
+#     --capabilities CAPABILITY_NAMED_IAM \
+#     --parameter-overrides GitHubOrg=JuanSebastianGB GitHubRepo=share-social-media
+#
+# Then set GitHub secret AWS_ROLE_ARN to the stack output RoleArn (never commit it).
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GitHub Actions OIDC role for share-social-media CDK CD (least privilege)
+
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: JuanSebastianGB
+  GitHubRepo:
+    Type: String
+    Default: share-social-media
+  OidcAudience:
+    Type: String
+    Default: sts.amazonaws.com
+  # GitHub's OIDC IdP certificate thumbprint (AWS still requires at least one).
+  OidcThumbprint:
+    Type: String
+    Default: '6938fd4d98bab03faadb97b34396831e3780aea1'
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - !Ref OidcAudience
+      ThumbprintList:
+        - !Ref OidcThumbprint
+
+  GitHubActionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: share-social-media-github-cd
+      Description: GitHub Actions OIDC role for CDK deploy (this repo only)
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: !Ref OidcAudience
+              StringLike:
+                # Restrict to this repo; allow main pushes and production environment jobs.
+                token.actions.githubusercontent.com:sub:
+                  - !Sub 'repo:${GitHubOrg}/${GitHubRepo}:ref:refs/heads/main'
+                  - !Sub 'repo:${GitHubOrg}/${GitHubRepo}:environment:production'
+                  - !Sub 'repo:${GitHubOrg}/${GitHubRepo}:environment:Production'
+      Policies:
+        - PolicyName: CdkDeployViaBootstrapRoles
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: AssumeCdkBootstrapRoles
+                Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                  - sts:TagSession
+                Resource:
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-${AWS::Region}'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-${AWS::Region}'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-image-publishing-role-${AWS::AccountId}-${AWS::Region}'
+                  - !Sub 'arn:aws:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-${AWS::Region}'
+              - Sid: ReadStackOutputsForClientBuild
+                Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:ListStacks
+                Resource: '*'
+              - Sid: ReadCdkBootstrapVersion
+                Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/cdk-bootstrap/*'
+
+Outputs:
+  RoleArn:
+    Description: Set as GitHub Actions secret AWS_ROLE_ARN (do not commit)
+    Value: !GetAtt GitHubActionsRole.Arn
+  RoleName:
+    Value: !Ref GitHubActionsRole

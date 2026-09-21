@@ -6,6 +6,7 @@ TypeScript CDK app with two stacks:
 | --- | --- |
 | `ShareSocialMediaApi` | HTTP API + Lambda (Node 20) + DynamoDB + **media S3/CloudFront** + Cognito User Pool + Secrets Manager |
 | `ShareSocialMediaWeb` | S3 site bucket + CloudFront + BucketDeployment |
+| `ShareSocialMediaGithubOidc` | CloudFormation (`github-oidc.yaml`) — GitHub Actions OIDC provider + least-privilege CD role |
 
 ## Prerequisites
 
@@ -71,6 +72,20 @@ Optional existing secret: `-c appSecretArn=arn:aws:secretsmanager:...`
 ## CORS
 
 HTTP API CORS allows origin `*` (tighten later).
+
+## GitHub OIDC (CD)
+
+One-time (admin credentials):
+
+```bash
+aws cloudformation deploy \
+  --stack-name ShareSocialMediaGithubOidc \
+  --template-file github-oidc.yaml \
+  --capabilities CAPABILITY_NAMED_IAM \
+  --parameter-overrides GitHubOrg=<org> GitHubRepo=share-social-media
+```
+
+Set GitHub secret `AWS_ROLE_ARN` to stack output `RoleArn` (do not commit). See [`docs/deployment.md`](../docs/deployment.md).
 
 ## Deploy
 

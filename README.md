@@ -26,9 +26,9 @@ flowchart LR
 | API | Express (TypeScript), JWT / Cognito access-token verify, AWS SDK |
 | Media | S3 (private) + CloudFront OAC (`uploads/`) |
 | Data | DynamoDB (on-demand, single-table) |
-| Hosting | S3 + CloudFront (static SPA) |
+| Hosting | S3 + CloudFront (static SPA). Not Vercel — see `vercel.json` + [deployment guide](docs/deployment.md) |
 | IaC | AWS CDK — HTTP API, Lambda, DynamoDB, S3 (site + media), CloudFront, Cognito |
-| CI/CD | GitHub Actions (OIDC deploy) |
+| CI/CD | GitHub Actions (OIDC → CDK deploy) |
 
 ## Features
 
