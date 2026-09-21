@@ -115,11 +115,12 @@ CD uses the `production` GitHub Environment. Prefer confirming `workflow_dispatc
 
 CD order:
 
-1. Deploy `ShareSocialMediaApi`
-2. Resolve `VITE_APP_BASE_URL` from `vars.VITE_APP_BASE_URL` or CloudFormation output `ApiUrl`
-3. Resolve `VITE_COGNITO_USER_POOL_ID` / `VITE_COGNITO_CLIENT_ID` / `VITE_AWS_REGION` from GitHub vars or CloudFormation outputs `UserPoolId` / `UserPoolClientId`
-4. Build the Vite client with those env vars
-5. Deploy `ShareSocialMediaWeb` (or the stacks requested via `workflow_dispatch`)
+1. Ensure `client/dist` exists (placeholder `index.html` so CDK can synth `ShareSocialMediaWeb` while deploying Api first)
+2. Deploy `ShareSocialMediaApi`
+3. Resolve `VITE_APP_BASE_URL` from `vars.VITE_APP_BASE_URL` or CloudFormation output `ApiUrl`
+4. Resolve `VITE_COGNITO_USER_POOL_ID` / `VITE_COGNITO_CLIENT_ID` / `VITE_AWS_REGION` from GitHub vars or CloudFormation outputs `UserPoolId` / `UserPoolClientId`
+5. Build the Vite client with those env vars (replaces the placeholder)
+6. Deploy `ShareSocialMediaWeb` (or the stacks requested via `workflow_dispatch`)
 
 Manual client rebuild with a hard-coded URL is only needed for local/prod experiments outside CD.
 
