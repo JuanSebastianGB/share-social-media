@@ -40,6 +40,10 @@ const UserInfo: React.FC<Props> = ({ user }) => {
     results: ownPosts,
   } = useUserPosts(user._id);
 
+  const avatarAlt =
+    [user?.firstName, user?.lastName].filter(Boolean).join(' ') ||
+    'User avatar';
+
   if (isLoading) return <Spinner />;
   if (isError)
     return (
@@ -78,7 +82,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
               zIndex: 1,
               margin: '0 auto',
             }}
-            alt="profile"
+            alt={avatarAlt}
             sizes=""
             src={user?.picturePath}
           />
@@ -90,7 +94,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           >
             <SpaceBetween sx={{ gap: '0.5rem' }}>
               <SpaceBetween>
-                <Groups2 sx={{ fontSize: '15px', mr: '5px' }} />
+                <Groups2 fontSize="small" sx={{ mr: '5px' }} />
                 <Typography
                   variant="caption"
                   color={theme.palette.neutral.dark}
@@ -99,7 +103,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                 </Typography>
               </SpaceBetween>
               <SpaceBetween>
-                <DynamicFeed sx={{ fontSize: '15px', mr: '5px' }} />
+                <DynamicFeed fontSize="small" sx={{ mr: '5px' }} />
                 <Typography
                   variant="caption"
                   color={theme.palette.neutral.dark}
@@ -113,36 +117,10 @@ const UserInfo: React.FC<Props> = ({ user }) => {
         </Box>
         <Divider />
         <SpaceBetween
-          sx={{
-            pt: '5px',
-            '& small': {
-              color: theme.palette.neutral.dark,
-            },
-          }}
-        >
-          <small>{user?.viewedProfile}</small>
-          <Typography variant="caption" color={theme.palette.neutral.dark}>
-            Who's viewed your profile
-          </Typography>
-        </SpaceBetween>
-        <SpaceBetween
-          sx={{
-            '& small': {
-              color: theme.palette.neutral.dark,
-            },
-          }}
-        >
-          <small>{user?.impressions}</small>
-          <Typography variant="caption" color={theme.palette.neutral.dark}>
-            Impressions of your post
-          </Typography>
-        </SpaceBetween>
-        <Divider />
-        <SpaceBetween
           gap="0.7rem"
           sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
         >
-          <LocationOn />
+          <LocationOn fontSize="small" />
           <Typography variant="caption" color={theme.palette.neutral.dark}>
             {user?.location}
           </Typography>
@@ -151,7 +129,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
           gap="0.7rem"
           sx={{ justifyContent: 'flex-start', padding: '10px 0' }}
         >
-          <WorkOutline />
+          <WorkOutline fontSize="small" />
           <Typography variant="caption" color={theme.palette.neutral.dark}>
             {user?.occupation}
           </Typography>

@@ -20,7 +20,7 @@ const StyledHome = styled(Box)(({ theme }) => ({
       padding: '0.5rem',
       justifyContent: 'space-between',
       alignItems: 'center',
-      flexDirection: 'column-reverse',
+      flexDirection: 'column',
       maxWidth: '95%',
       margin: '0 auto',
       gap: null,

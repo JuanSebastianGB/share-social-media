@@ -56,7 +56,7 @@ const AddPost: React.FC<Props> = ({ user }) => {
                 setOpen(true);
                 setAddAction('comment');
               }}
-              placeholder={`What is in your mind ${user?.firstName} `}
+              placeholder={`What's on your mind, ${user?.firstName}?`}
             />
           </SpaceBetween>
           <Divider sx={{ width: '100%' }} />
@@ -75,7 +75,7 @@ const AddPost: React.FC<Props> = ({ user }) => {
                   setAddAction('file/video');
                 }}
               >
-                <IconButton>
+                <IconButton aria-label="Add photo or video">
                   <AttachFile fontSize="small" />
                   <Typography variant="subtitle2" color="GrayText">
                     Photo/video

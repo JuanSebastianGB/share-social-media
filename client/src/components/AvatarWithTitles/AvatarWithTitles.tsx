@@ -27,11 +27,10 @@ const AvatarWithTitles: React.FC<Props> = ({
     >
       <Avatar src={profileImage} />
       <Box>
-        <Typography variant="subtitle1" color={theme.palette.neutral.dark}>
+        <Typography variant="subtitle2" color={theme.palette.neutral.dark}>
           <Box
             sx={{
               textDecoration: 'none',
-              fontSize: '13px',
               color: theme.palette.neutral.dark,
             }}
             component={Link}
@@ -41,10 +40,7 @@ const AvatarWithTitles: React.FC<Props> = ({
             {title}
           </Box>
         </Typography>
-        <Typography
-          color={theme.palette.neutral.mediumMain}
-          sx={{ fontSize: '12px' }}
-        >
+        <Typography variant="caption" color={theme.palette.neutral.mediumMain}>
           {subTitle}
         </Typography>
       </Box>

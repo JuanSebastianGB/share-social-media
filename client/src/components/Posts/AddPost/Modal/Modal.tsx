@@ -2,10 +2,13 @@ import { useUser } from '@/hooks';
 import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '@/services';
+import { successToastMessageConfig } from '@/utilities';
 import {
+  Alert,
   Avatar,
   Box,
   Button,
+  CircularProgress,
   DialogContent,
   InputBase,
   Typography,
@@ -14,6 +17,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import { useFormik } from 'formik';
 import { FC, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import { DropzoneAddPost } from '../DropzoneAddPost';
 import { BootstrapDialogTitle } from './BootstrapDialogTitle';
@@ -26,7 +30,7 @@ interface ModalProps {
 }
 
 const validationSchema = yup.object().shape({
-  body: yup.string().required(),
+  body: yup.string().required('Post body is required'),
 });
 
 const initialValues = { body: '', myFile: File };
@@ -39,11 +43,18 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
-  const [showButton, setShowButton] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const dispatch = useDispatch();
 
+  const requestClose = () => {
+    if (loading) return;
+    handleClose();
+  };
+
   const onSubmit = async ({ body, myFile }: any, { resetForm }: any) => {
-    setShowButton(false);
+    setLoading(true);
+    setSubmitError(null);
     const form = new FormData();
     form.append('body', body);
     form.append('userId', id);
@@ -58,16 +69,24 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
         form.append('type', 'comment');
         newPost = await makePostService(form);
       }
-      setShowButton(true);
       dispatch(createPost(newPost));
-      handleClose();
+      toast.success('Post published', successToastMessageConfig);
       resetForm();
-    } catch (error) {
-      setShowButton(true);
+      handleClose();
+    } catch {
+      setSubmitError("Couldn't publish your post. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const { getFieldProps, setFieldValue, handleSubmit } = useFormik({
+  const {
+    getFieldProps,
+    setFieldValue,
+    handleSubmit,
+    touched,
+    errors,
+  } = useFormik({
     onSubmit,
     initialValues,
     validationSchema,
@@ -76,7 +95,7 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   return (
     <Box>
       <BootstrapDialog
-        onClose={handleClose}
+        onClose={requestClose}
         aria-labelledby="customized-dialog-title"
         open={open}
         fullWidth
@@ -84,7 +103,8 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
       >
         <BootstrapDialogTitle
           id="customized-dialog-title"
-          onClose={handleClose}
+          onClose={requestClose}
+          closeDisabled={loading}
         >
           Create Post
         </BootstrapDialogTitle>
@@ -118,18 +138,35 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
                   width: '100%',
                   justifyContent: 'center',
                 }}
-                placeholder={`what is in your mind  ${user?.firstName}`}
+                placeholder={`What's on your mind, ${user?.firstName}?`}
               />
+              {touched.body && errors.body && (
+                <Typography variant="caption" color="error" display="block" mb={1}>
+                  {errors.body}
+                </Typography>
+              )}
+              {submitError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {submitError}
+                </Alert>
+              )}
             </Box>
             {addAction === 'file/video' && (
               <DropzoneAddPost setFieldValue={setFieldValue} />
             )}
 
-            {showButton && (
-              <Button variant="text" type="submit" color="primary" fullWidth>
-                Publish
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              type="submit"
+              color="primary"
+              fullWidth
+              disabled={loading}
+              startIcon={
+                loading ? <CircularProgress size={16} color="inherit" /> : null
+              }
+            >
+              {loading ? 'Publishing…' : 'Publish'}
+            </Button>
           </StyledForm>
         </DialogContent>
       </BootstrapDialog>

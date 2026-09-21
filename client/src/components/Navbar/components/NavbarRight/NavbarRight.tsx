@@ -1,14 +1,7 @@
 import { AppStore } from '@/models';
 import { makeLogout } from '@/redux/states/authSlice';
 import { toggleMode } from '@/redux/states/themeSlice';
-import {
-  DarkMode,
-  Help,
-  LightMode,
-  Menu,
-  Message,
-  Notifications,
-} from '@mui/icons-material';
+import { DarkMode, LightMode, Menu } from '@mui/icons-material';
 import {
   FormControl,
   IconButton,
@@ -42,7 +35,10 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   if (isMobileScreen)
     return (
       <Fragment>
-        <IconButton onClick={() => setMenuOpen(!menuOpen)}>
+        <IconButton
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
           <Menu className="icon" />
         </IconButton>
       </Fragment>
@@ -50,28 +46,29 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
   return (
     <StyledFlexBetween sx={{ gap: '3rem' }}>
       <IconButton
+        aria-label={
+          mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+        }
         onClick={() => dispatch(toggleMode({ mode }))}
-        sx={{ fontSize: '25px' }}
       >
         {mode === 'dark' ? (
-          <DarkMode sx={{ fontSize: '25px' }} />
+          <DarkMode fontSize="small" />
         ) : (
           <LightMode
-            sx={{ color: theme.palette.neutral.dark, fontSize: '25px' }}
+            fontSize="small"
+            sx={{ color: theme.palette.neutral.dark }}
           />
         )}
       </IconButton>
-      <Message className="icon" />
-      <Help className="icon" />
-      <Notifications className="icon" />
       <FormControl>
         <Select
           value={user.name}
           displayEmpty
+          inputProps={{ 'aria-label': 'Account menu' }}
           sx={{
             backgroundColor: theme.palette.neutral.light,
             width: '150px',
-            borderRadius: '0.25rem',
+            borderRadius: '5px',
             p: '0.25rem 1rem',
             '& .MuiSvgIcon-root': {
               pr: '0.25rem',
@@ -90,7 +87,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
             <small>{user.name}</small>
           </MenuItem>
           <MenuItem onClick={handleLogout}>
-            <small>Log Out</small>
+            <small>Log out</small>
           </MenuItem>
         </Select>
       </FormControl>

@@ -2,32 +2,32 @@ import { useFriends, usePosts } from '@/hooks';
 import { PostApiModel, UserApiModel } from '@/models';
 import { incrementPage } from '@/redux/states/postsSlice';
 import { ErrorBoundary } from '@/utilities';
+import { Box, Typography, useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch } from 'react-redux';
+import { ErrorContent } from '../ErrorContent';
 import { SpaceBetween } from '../Navbar';
 import { Spinner } from '../Spinner';
 import Post from './Post/Post';
+
 export interface Props {
   isProfile?: boolean;
   id?: string;
 }
 
 const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
+  const theme = useTheme();
   const dispatch = useDispatch();
   // @ts-ignore
   const { friends } = useFriends(id);
-  const { posts, error, hasNextPage, isError, isLoading } = usePosts(
-    isProfile,
-    id
-  );
+  const { posts, hasNextPage, isError, isLoading } = usePosts(isProfile, id);
   const intObserver = useRef<any>();
   const lastPostRef = useCallback(
     (post: PostApiModel) => {
       if (isLoading) return;
       if (intObserver.current) intObserver.current.disconnect();
-      intObserver.current = new IntersectionObserver((posts) => {
-        if (posts[0].isIntersecting && hasNextPage) {
-          console.log('Almost there...');
+      intObserver.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
           dispatch(incrementPage({}));
         }
       });
@@ -36,7 +36,37 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
     [isLoading, hasNextPage]
   );
 
-  if (isError) return <p> {JSON.stringify(error)}</p>;
+  if (isError)
+    return (
+      <ErrorContent
+        message="Couldn't load posts."
+        sx={{ width: '100%', minHeight: '120px' }}
+      />
+    );
+
+  if (!posts) return <Spinner />;
+
+  if (!isLoading && posts.length === 0) {
+    return (
+      <Box
+        sx={{
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: '10px',
+          padding: '1.5rem 1rem',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h6" color={theme.palette.primary.main} gutterBottom>
+          No posts yet
+        </Typography>
+        <Typography variant="body2" color={theme.palette.neutral.dark}>
+          {isProfile
+            ? 'This profile has no posts to show.'
+            : 'Share your first post above to start the feed.'}
+        </Typography>
+      </Box>
+    );
+  }
 
   const content = posts.map((post, index) => {
     const idPostUser = post.user._id;
@@ -57,11 +87,9 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
     return <Post key={`${index}a`} isFriend={isFriend} {...post} />;
   });
 
-  const validPosts = !!posts;
-  if (!validPosts) return <Spinner />;
   return (
     <ErrorBoundary
-      fallBackComponent={<>Error in Posts</>}
+      fallBackComponent={<>Couldn't display posts.</>}
       resetCondition={posts}
     >
       {content}

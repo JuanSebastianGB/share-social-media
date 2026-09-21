@@ -2,15 +2,7 @@ import { AppStore } from '@/models';
 import { makeLogout } from '@/redux/states/authSlice';
 import { searchPosts } from '@/redux/states/postsSlice';
 import { toggleMode } from '@/redux/states/themeSlice';
-import {
-  Close,
-  DarkMode,
-  Help,
-  LightMode,
-  Message,
-  Notifications,
-  Search,
-} from '@mui/icons-material';
+import { Close, DarkMode, LightMode, Search } from '@mui/icons-material';
 import {
   Box,
   FormControl,
@@ -18,12 +10,13 @@ import {
   InputBase,
   MenuItem,
   Select,
+  Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { StyledFlexBetween } from '../../styled-components';
 
 export interface Props {
@@ -35,10 +28,21 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
   const theme = useTheme();
+  const navigate = useNavigate();
   const isMobileScreen = useMediaQuery('(max-width: 900px)');
   const { search: param } = useSelector((store: AppStore) => store.posts);
   const [search, setSearch] = useState<string>(param);
   const { id } = useParams();
+  const onProfile = !!id;
+  const accountLabel = user?.name || user?.email || '';
+
+  const handleSearch = () => {
+    if (onProfile) {
+      navigate('/home');
+    }
+    dispatch(searchPosts(search));
+    setMenuOpen(false);
+  };
 
   return (
     <Box
@@ -54,7 +58,10 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
       }}
     >
       <Box display="flex" justifyContent="flex-end" p="1rem">
-        <IconButton onClick={() => setMenuOpen((prev) => !prev)}>
+        <IconButton
+          aria-label="Close menu"
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
           <Close />
         </IconButton>
       </Box>
@@ -67,49 +74,71 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
         gap="3rem"
       >
         {isMobileScreen && (
-          <StyledFlexBetween>
-            <InputBase
-              placeholder="search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              sx={{
-                color: theme.palette.neutral.dark,
-                backgroundColor: theme.palette.background.default,
-                p: '0 0.5rem',
-                borderRadius: '0.5rem',
-              }}
-            />
-            <IconButton
-              onClick={() => {
-                if (!id) dispatch(searchPosts(search));
-                setMenuOpen(false);
-              }}
-            >
-              <Search sx={{ color: theme.palette.neutral.dark }} />
-            </IconButton>
-          </StyledFlexBetween>
+          <Box sx={{ width: '80%' }}>
+            <StyledFlexBetween>
+              <InputBase
+                placeholder="Search posts…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSearch();
+                }}
+                inputProps={{ 'aria-label': 'Search posts' }}
+                sx={{
+                  color: theme.palette.neutral.dark,
+                  backgroundColor: theme.palette.background.default,
+                  p: '0 0.5rem',
+                  borderRadius: '10px',
+                  flex: 1,
+                }}
+              />
+              <IconButton
+                aria-label={
+                  onProfile ? 'Search posts on Home' : 'Search posts'
+                }
+                title={
+                  onProfile
+                    ? 'Opens Home and searches your feed'
+                    : 'Search posts'
+                }
+                onClick={handleSearch}
+              >
+                <Search sx={{ color: theme.palette.neutral.dark }} />
+              </IconButton>
+            </StyledFlexBetween>
+            {onProfile && (
+              <Typography
+                variant="caption"
+                color={theme.palette.neutral.main}
+                sx={{ display: 'block', mt: '0.25rem' }}
+              >
+                Search runs on Home
+              </Typography>
+            )}
+          </Box>
         )}
         <IconButton
+          aria-label={
+            mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+          }
           onClick={() => dispatch(toggleMode({ mode }))}
-          sx={{ fontSize: '25px' }}
         >
           {mode === 'dark' ? (
-            <DarkMode sx={{ fontSize: '25px' }} />
+            <DarkMode fontSize="small" />
           ) : (
-            <LightMode sx={{ fontSize: '25px' }} />
+            <LightMode fontSize="small" />
           )}
         </IconButton>
-        <Message className="icon" />
-        <Notifications className="icon" />
-        <Help className="icon" />
         <FormControl sx={{ width: '100%', alignItems: 'center' }}>
           <Select
-            value={user.email}
+            value={accountLabel}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Account menu' }}
             sx={{
               backgroundColor: theme.palette.background.default,
-              color: 'whitesmoke',
+              color: theme.palette.neutral.dark,
               width: '80%',
-              borderRadius: '0.25rem',
+              borderRadius: '5px',
               p: '0.25rem 1rem',
               '& .MuiSvgIcon-root': {
                 pr: '0.25rem',
@@ -121,11 +150,11 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
             }}
             input={<InputBase />}
           >
-            <MenuItem value={user.email}>
-              <small>{user.email}</small>
+            <MenuItem value={accountLabel}>
+              <small>{accountLabel}</small>
             </MenuItem>
             <MenuItem onClick={() => dispatch(makeLogout({}))}>
-              <small>Log Out</small>
+              <small>Log out</small>
             </MenuItem>
           </Select>
         </FormControl>

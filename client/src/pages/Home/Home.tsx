@@ -6,14 +6,12 @@ import {
   Posts,
   SkeletonDefault,
   Spinner,
-  Trends,
   UserInfo,
 } from '@/components';
 import { useUser } from '@/hooks';
 import { makeLogout } from '@/redux/states/authSlice';
 import { setPosts } from '@/redux/states/postsSlice';
 import { StyledSection } from '@/styled-components';
-import { useMediaQuery } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +23,6 @@ export interface Props {
 
 const Home: React.FC<Props> = ({ id }) => {
   const { error, isError, loading, user } = useUser(id);
-  const isMobileScreen = useMediaQuery('(max-width: 900px)');
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -72,8 +69,6 @@ const Home: React.FC<Props> = ({ id }) => {
                 gap: '1rem',
               }}
             >
-              {!isMobileScreen && <Trends />}
-
               {!!user && <Friends user={user} />}
             </StyledSection>
           </section>

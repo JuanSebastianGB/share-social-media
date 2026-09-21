@@ -5,9 +5,20 @@ import { togglePostLikes } from '@/redux/states/postsSlice';
 import { fetchToggleFriendUserService, likePostService } from '@/services';
 import { SpaceBetween } from '@/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';
-import ShareIcon from '@mui/icons-material/Share';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Snackbar,
+  Alert,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import React, { forwardRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { CommentsModal } from './CommentsModal';
@@ -19,6 +30,14 @@ export interface Props extends PostApiModel {
 // @ts-ignore
 const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const [openModal, setOpenModal] = useState(false);
+  const [confirmUnfriendOpen, setConfirmUnfriendOpen] = useState(false);
+  const [friendPending, setFriendPending] = useState(false);
+  const [likePending, setLikePending] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'error' | 'success';
+  }>({ open: false, message: '', severity: 'error' });
   const { id } = useSelector((store: AppStore) => store.auth.user);
   // @ts-ignore
   const isOwn = id === post.user._id;
@@ -26,6 +45,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
   // @ts-ignore
   const adaptedPost = postAdapter(post);
   const { user: userPost } = adaptedPost;
+  const friendName = `${userPost.firstName} ${userPost.lastName}`.trim();
   const checkIsLikedOwn = (likes: {}, userId: string): boolean =>
     Object.keys(likes).some((row) => {
       return row === userId;
@@ -34,26 +54,54 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
 
   const isLikedOwn = checkIsLikedOwn(adaptedPost.likes, id);
 
-  const handleClick = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  const closeSnackbar = () =>
+    setSnackbar((prev) => ({ ...prev, open: false }));
+
+  const toggleFriendApi = async () => {
+    setFriendPending(true);
     try {
       const friendId = userPost._id;
       const friends = await fetchToggleFriendUserService<string>(id, friendId);
       dispatch(toggleFriend(friends));
-    } catch (error) {
-      console.log({ error });
+      setConfirmUnfriendOpen(false);
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Couldn't update friend. Please try again.",
+        severity: 'error',
+      });
+    } finally {
+      setFriendPending(false);
     }
   };
+
+  const handleClick = async (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    if (isFriend) {
+      setConfirmUnfriendOpen(true);
+      return;
+    }
+    await toggleFriendApi();
+  };
+
   const handleLike = async (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
+    e.preventDefault();
+    setLikePending(true);
     try {
       const response = await likePostService(adaptedPost.id, { userId: id });
       dispatch(togglePostLikes(response));
-    } catch (error) {
-      console.log({ error });
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Couldn't update like. Please try again.",
+        severity: 'error',
+      });
+    } finally {
+      setLikePending(false);
     }
   };
 
@@ -66,6 +114,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         // @ts-ignore
         handleClick={handleClick}
         body={adaptedPost.body}
+        disabled={friendPending}
       />
       {
         // @ts-ignore
@@ -76,31 +125,27 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
             sx={{
               width: '100%',
               objectFit: 'cover',
-              minHeight: '450px',
+              minHeight: { xs: 200, md: 450 },
               borderRadius: '10px',
             }}
             // @ts-ignore
             src={adaptedPost.file.url}
-            alt="idea"
+            alt={adaptedPost.body ? `Post by ${friendName}` : 'Post image'}
           />
         )
       }
-      <SpaceBetween>
-        <IconButton aria-label="share">
-          <ShareIcon
-            sx={{ fontSize: '18px', color: theme.palette.neutral.dark }}
-          />
-        </IconButton>
+      <SpaceBetween sx={{ justifyContent: 'flex-end' }}>
         <SpaceBetween gap="10px">
           <SpaceBetween>
             <IconButton
-              aria-label="likes"
+              aria-label={isOwn ? "You can't like your own post" : 'Like post'}
+              title={isOwn ? "You can't like your own post" : 'Like post'}
               onClick={handleLike}
-              disabled={isOwn}
+              disabled={isOwn || likePending}
             >
               <ThumbUpOffAltIcon
+                fontSize="small"
                 sx={{
-                  fontSize: '18px',
                   color: isLikedOwn
                     ? theme.palette.primary.dark
                     : theme.palette.neutral.dark,
@@ -122,10 +167,10 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
 
           <SpaceBetween>
             <IconButton
-              aria-label="comments"
+              aria-label="View comments"
               onClick={() => setOpenModal(true)}
             >
-              <ChatIcon sx={{ fontSize: '18px' }} />
+              <ChatIcon fontSize="small" />
             </IconButton>
             <Typography variant="caption" color={theme.palette.neutral.main}>
               {
@@ -136,6 +181,49 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
           </SpaceBetween>
         </SpaceBetween>
       </SpaceBetween>
+
+      <Dialog
+        open={confirmUnfriendOpen}
+        onClose={() => !friendPending && setConfirmUnfriendOpen(false)}
+      >
+        <DialogTitle>Remove friend?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Remove {friendName || 'this friend'} from your friends?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setConfirmUnfriendOpen(false)}
+            disabled={friendPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={toggleFriendApi}
+            color="warning"
+            disabled={friendPending}
+          >
+            Remove friend
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={closeSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={closeSnackbar}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 
