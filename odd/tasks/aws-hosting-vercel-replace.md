@@ -53,17 +53,17 @@ One AWS-native hosting path, aligned with existing IaC and CD, without Amplify d
 - [x] T4 Set GitHub secrets/vars (no echoed values)
 - [x] T5 Deploy Api + Web stacks; rotate app secret JSON safely
 - [x] T6 Homepage → CloudFront; docs for leaving Vercel
-- [ ] T7 Verify CI green; CD can assume role
+- [x] T7 Verify CI green; CD can assume role
 
 ## Progress
 
-- Api + Web stacks deployed; SPA returns HTTP 200 on CloudFront.
-- OIDC stack `ShareSocialMediaGithubOidc` created; GitHub secrets set via `gh secret set` (values not logged).
-- `vercel.json` disables Vercel git deployments.
-- Next: push PR and confirm CI green.
+- Done. CI green on main; CD OIDC + Api + Web deploy succeeded (`35546554625`).
+- SPA: https://d3o3xz1wnq7noi.cloudfront.net (HTTP 200).
+- Manual follow-up: disconnect Vercel Git integration in the Vercel dashboard if status checks still appear.
 
 ## Verification evidence
 
+- PR #78 CI pass; main CI `35546318865` / `35546554606` success
+- CD `35546554625` success (OIDC → Api → client build → Web)
 - `pnpm contract:check` OK without `scripts/node_modules` symlink
-- CloudFront `DistributionDomainName` smoke HEAD → 200
-- GitHub homepage updated to CloudFront URL
+- CloudFront smoke HEAD → 200
