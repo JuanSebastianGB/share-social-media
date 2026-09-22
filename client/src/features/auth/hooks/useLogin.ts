@@ -1,16 +1,8 @@
-import { loginAdapter } from '@/adapters';
 import { loginInitialValues, LoginModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
 import { loginSchema } from '@/schemas';
 import {
-  isCognitoClientEnabled,
-  loginService,
-  loginWithCognito,
-} from '@/services';
-import {
-  createLocalPreviewSessionFromLogin,
   errorToastMessageConfig,
-  isLocalPreviewEnabled,
   successToastMessageConfig,
 } from '@/utilities';
 import { useFormik } from 'formik';
@@ -18,6 +10,8 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { loginAdapter } from '../model';
+import { signIn } from './authGateway';
 
 export const useLogin = () => {
   const [error, setError] = useState({});
@@ -36,30 +30,10 @@ export const useLogin = () => {
       setIsError(false);
       setError({});
 
-      if (isLocalPreviewEnabled()) {
-        const session = createLocalPreviewSessionFromLogin(values);
-        setIsLoading(false);
-        toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
-        dispatch(makeLogin(loginAdapter(session)));
-        setDisplayButton(true);
-        navigate('/home');
-        return;
-      }
-
-      if (isCognitoClientEnabled()) {
-        const session = await loginWithCognito(values, { signal });
-        setIsLoading(false);
-        toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
-        dispatch(makeLogin(loginAdapter(session)));
-        setDisplayButton(true);
-        navigate('/home');
-        return;
-      }
-
-      const { data } = await loginService(values, { signal });
+      const session = await signIn(values, { signal });
       setIsLoading(false);
       toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
-      dispatch(makeLogin(loginAdapter(data)));
+      dispatch(makeLogin(loginAdapter(session)));
       setDisplayButton(true);
       navigate('/home');
     } catch (error) {

@@ -1,22 +1,22 @@
-import { loginAdapter } from '@/adapters';
 import { RegisterModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
 import {
-  createDefault,
-  isCognitoClientEnabled,
-  registerService,
-  registerWithCognito,
-} from '@/services';
-import {
-  createLocalPreviewSessionFromRegister,
   errorToastMessageConfig,
-  isLocalPreviewEnabled,
   successToastMessageConfig,
 } from '@/utilities';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { loginAdapter } from '../model';
+import { signUp } from './authGateway';
+
+const requestCognitoConfirmationCode = async (): Promise<string> => {
+  const code = window.prompt(
+    'Enter the confirmation code sent to your email:',
+  );
+  return code?.trim() ?? '';
+};
 
 export const useRegister = () => {
   const [error, setError] = useState({});
@@ -36,40 +36,22 @@ export const useRegister = () => {
       setIsLoading(true);
       setDisplayButton(false);
 
-      if (isLocalPreviewEnabled()) {
-        const session = createLocalPreviewSessionFromRegister(values);
-        dispatch(makeLogin(loginAdapter(session)));
-        setIsLoading(false);
-        onSubmitProps.resetForm();
-        toast.success('Registered successfully!', successToastMessageConfig);
-        setDisplayButton(true);
-        navigate('/home');
-        return;
-      }
+      const result = await signUp(values, {
+        signal,
+        confirmSignUpCode: () => requestCognitoConfirmationCode(),
+      });
 
-      await createDefault();
-
-      if (isCognitoClientEnabled()) {
-        const session = await registerWithCognito(values, { signal });
-        dispatch(makeLogin(loginAdapter(session)));
-        setIsLoading(false);
-        onSubmitProps.resetForm();
-        toast.success('Registered successfully!', successToastMessageConfig);
-        setDisplayButton(true);
-        navigate('/home');
-        return;
-      }
-
-      const form = new FormData();
-      // @ts-ignore
-      for (let value in values) form.append(value, values[value]);
-      form.append('picturePath', values.myFile ? values.myFile.name : '');
-
-      await registerService(form, { signal });
       setIsLoading(false);
       onSubmitProps.resetForm();
       toast.success('Registered successfully!', successToastMessageConfig);
       setDisplayButton(true);
+
+      if (result.kind === 'session') {
+        dispatch(makeLogin(loginAdapter(result.session)));
+        navigate('/home');
+        return;
+      }
+
       navigate('/');
     } catch (error) {
       setIsLoading(false);

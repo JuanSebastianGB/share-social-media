@@ -9,9 +9,11 @@ import { AppStore } from './models';
 import { makeTheme } from './utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
-const AuthLogin = lazy(() => import('@/pages/Auth/AuthLogin/AuthLogin'));
+const AuthLogin = lazy(
+  () => import('@/features/auth/ui/AuthLogin/AuthLogin')
+);
 const AuthRegister = lazy(
-  () => import('@/pages/Auth/AuthRegister/AuthRegister')
+  () => import('@/features/auth/ui/AuthRegister/AuthRegister')
 );
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));

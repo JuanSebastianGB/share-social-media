@@ -1,5 +1,5 @@
-export * from './auth.service';
-export * from './cognito.service';
+export * from '../features/auth/api/auth.service';
+export * from '../features/auth/api/cognito.service';
 export * from '../features/feed/api/comments.service';
 export * from './files.service';
 export * from './friends.service';

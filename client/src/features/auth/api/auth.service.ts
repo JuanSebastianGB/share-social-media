@@ -1,6 +1,6 @@
 import { urlServices } from '@/constants';
 import { Api } from '@/interceptors';
-import { LoginModel, RegisterModel } from '@/models';
+import { LoginModel, RegisterModel, UserApiModel } from '@/models';
 import { isCognitoClientEnabled } from '@/utilities/cognitoMode';
 import {
   cognitoConfirmSignUp,
@@ -10,7 +10,7 @@ import {
 
 export type AuthSessionPayload = {
   token: string;
-  userFound: Record<string, unknown>;
+  userFound: Record<string, unknown> | UserApiModel;
 };
 
 /** Local HS256 login — unchanged contract. */
@@ -81,15 +81,21 @@ function buildProfileForm(values: RegisterModel): FormData {
 /**
  * Cognito register: SignUp → ConfirmSignUp (if needed) → InitiateAuth → POST /auth/profile.
  */
+export type CognitoRegisterOptions = Record<string, unknown> & {
+  confirmSignUpCode?: (email: string) => Promise<string>;
+};
+
 export async function registerWithCognito(
   values: RegisterModel,
-  options: Record<string, unknown> = {},
+  options: CognitoRegisterOptions = {},
 ): Promise<AuthSessionPayload> {
   const { userConfirmed } = await cognitoSignUp(values.email, values.password);
   if (!userConfirmed) {
-    const code = window.prompt(
-      'Enter the confirmation code sent to your email:',
-    );
+    const getCode = options.confirmSignUpCode;
+    if (!getCode) {
+      throw new Error('Email confirmation code handler is required');
+    }
+    const code = await getCode(values.email);
     if (!code?.trim()) {
       throw new Error('Email confirmation code is required');
     }

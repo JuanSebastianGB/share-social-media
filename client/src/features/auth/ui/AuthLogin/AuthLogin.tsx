@@ -1,5 +1,5 @@
 import { ErrorContent, Spinner } from '@/components';
-import { useLogin } from '@/hooks';
+import { useLogin } from '@/features/auth';
 import React from 'react';
 import { AuthLoginForm } from './AuthLoginForm';
 export interface Props {}

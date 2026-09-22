@@ -1,6 +1,6 @@
 import { ErrorContent, Spinner } from '@/components';
 import { Dropzone } from '@/components/Dropzone';
-import { useRegister } from '@/hooks';
+import { useRegister } from '@/features/auth';
 import { RegisterInitialValues } from '@/models';
 import { registerSchema } from '@/schemas';
 import {
