@@ -9,13 +9,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 describe('auth.schema properties (local mode)', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.doMock('@/utilities/cognitoMode', () => ({
+    vi.doMock('@/shared/lib/utilities/cognitoMode', () => ({
       isCognitoClientEnabled: () => false,
     }));
   });
 
   afterEach(() => {
-    vi.doUnmock('@/utilities/cognitoMode');
+    vi.doUnmock('@/shared/lib/utilities/cognitoMode');
     vi.resetModules();
   });
 

@@ -1,5 +1,5 @@
 import { AppStore, PostApiModel } from '@/models';
-import { fetchUserPostsService } from '@/services';
+import { fetchUserPostsService } from '@/features/feed/api';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 

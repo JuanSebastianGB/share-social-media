@@ -1,5 +1,5 @@
-import { Api } from '@/interceptors';
-import { isLocalPreviewEnabled } from '@/utilities';
+import { Api } from '@/shared/lib/interceptors';
+import { isLocalPreviewEnabled } from '@/shared/lib/utilities';
 
 export const fetchFriendsService = async (id: string, options = {}) => {
   if (isLocalPreviewEnabled()) {

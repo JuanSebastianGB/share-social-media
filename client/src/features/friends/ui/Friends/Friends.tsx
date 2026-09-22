@@ -1,7 +1,7 @@
 import { AvatarWithTitles, ErrorContent, Spinner } from '@/shared/ui';
 import { SpaceBetween } from '@/shared/ui/Navbar';
 import { UserApiModel } from '@/models';
-import { ErrorBoundary } from '@/utilities';
+import { ErrorBoundary } from '@/shared/lib/utilities';
 import { PersonRemove } from '@mui/icons-material';
 import {
   Alert,

@@ -1,4 +1,4 @@
-import { SpaceBetweenColumn } from '@/styled-components';
+import { SpaceBetweenColumn } from '@/shared/ui/styled-components';
 import AddToPhotosRoundedIcon from '@mui/icons-material/AddToPhotosRounded';
 import { Box, Typography, useTheme } from '@mui/material';
 import { FC, useCallback, useEffect, useState } from 'react';

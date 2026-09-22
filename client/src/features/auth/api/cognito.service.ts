@@ -4,7 +4,7 @@ import {
   InitiateAuthCommand,
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider';
-import { getCognitoClientConfig } from '@/utilities/cognitoMode';
+import { getCognitoClientConfig } from '@/shared/lib/utilities/cognitoMode';
 
 function getClient() {
   const { region } = getCognitoClientConfig();

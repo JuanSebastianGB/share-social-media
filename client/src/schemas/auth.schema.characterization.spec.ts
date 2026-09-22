@@ -8,13 +8,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 describe('auth schemas characterization (local mode — Cognito off)', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.doMock('@/utilities/cognitoMode', () => ({
+    vi.doMock('@/shared/lib/utilities/cognitoMode', () => ({
       isCognitoClientEnabled: () => false,
     }));
   });
 
   afterEach(() => {
-    vi.doUnmock('@/utilities/cognitoMode');
+    vi.doUnmock('@/shared/lib/utilities/cognitoMode');
     vi.resetModules();
   });
 
@@ -87,13 +87,13 @@ describe('auth schemas characterization (local mode — Cognito off)', () => {
 describe('auth schemas characterization (Cognito on)', () => {
   beforeEach(() => {
     vi.resetModules();
-    vi.doMock('@/utilities/cognitoMode', () => ({
+    vi.doMock('@/shared/lib/utilities/cognitoMode', () => ({
       isCognitoClientEnabled: () => true,
     }));
   });
 
   afterEach(() => {
-    vi.doUnmock('@/utilities/cognitoMode');
+    vi.doUnmock('@/shared/lib/utilities/cognitoMode');
     vi.resetModules();
   });
 

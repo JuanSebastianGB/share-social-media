@@ -1,5 +1,5 @@
 import { UserApiModel } from '@/models';
-import { SpaceBetween, SpaceBetweenColumn } from '@/styled-components';
+import { SpaceBetween, SpaceBetweenColumn } from '@/shared/ui/styled-components';
 import { AttachFile } from '@mui/icons-material';
 import {
   Avatar,

@@ -1,7 +1,7 @@
 import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '../api';
-import { successToastMessageConfig } from '@/utilities';
+import { successToastMessageConfig } from '@/shared/lib/utilities';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';

@@ -6,9 +6,8 @@ import {
 } from '@/shared/ui';
 import { Posts } from '@/features/feed';
 import { Friends, useFriends } from '@/features/friends';
-import { UserInfo } from '@/features/profile';
-import { useUser, useUserPosts } from '@/hooks';
-import { StyledSection } from '@/styled-components';
+import { UserInfo, useUser, useUserPosts } from '@/features/profile';
+import { StyledSection } from '@/shared/ui/styled-components';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import ProfileLayout from './Profilelayout';

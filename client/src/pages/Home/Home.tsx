@@ -6,11 +6,10 @@ import {
 } from '@/shared/ui';
 import { AddPost, Posts } from '@/features/feed';
 import { Friends, useFriends } from '@/features/friends';
-import { UserInfo } from '@/features/profile';
-import { useUser, useUserPosts } from '@/hooks';
+import { UserInfo, useUser, useUserPosts } from '@/features/profile';
 import { makeLogout } from '@/redux/states/authSlice';
 import { setPosts } from '@/redux/states/postsSlice';
-import { StyledSection } from '@/styled-components';
+import { StyledSection } from '@/shared/ui/styled-components';
 import { Box, Button, Typography, useMediaQuery, useTheme } from '@mui/material';
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';

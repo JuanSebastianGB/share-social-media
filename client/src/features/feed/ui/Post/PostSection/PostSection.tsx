@@ -1,6 +1,6 @@
 import { AvatarWithTitles } from '@/shared/ui/AvatarWithTitles';
 import { UserApiModel } from '@/models';
-import { SpaceBetween } from '@/styled-components';
+import { SpaceBetween } from '@/shared/ui/styled-components';
 import { PersonAdd, PersonRemove } from '@mui/icons-material';
 import { IconButton, Typography, useTheme } from '@mui/material';
 import React, { Fragment } from 'react';

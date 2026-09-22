@@ -23,7 +23,7 @@ alwaysApply: true
 
 The Share Social Media client is a React 18 single-page application built with Vite and TypeScript. It talks to the Express API via Axios (`Api` for multipart, `ApiJson` for JSON) using `VITE_APP_BASE_URL`. Auth is dual-mode: local register/login against `/auth/*` when Cognito Vite env is unset, or AWS Cognito Identity Provider SDK + `POST /auth/profile` when `VITE_COGNITO_USER_POOL_ID`, `VITE_COGNITO_CLIENT_ID`, and `VITE_AWS_REGION` are all set.
 
-UI is Material UI (MUI) 5 with a custom theme from `client/src/utilities/themeConfig.ts` (`makeTheme`). Global client state is a Redux Toolkit store with **redux-persist**: session-only `auth` (`user`, `token`), plus focused `posts`, `friends`, and `theme` slices.
+UI is Material UI (MUI) 5 with a custom theme from `client/src/shared/lib/utilities/themeConfig.ts` (`makeTheme`). Global client state is a Redux Toolkit store with **redux-persist**: session-only `auth` (`user`, `token`), plus focused `posts`, `friends`, and `theme` slices.
 
 Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align adapters and models with that file and with hydrated post/user responses from the server.
 
@@ -37,7 +37,7 @@ Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align 
 | Language | TypeScript | 5.9.x (workspace pins may float in lockfile) |
 | Bundler | Vite | 5.4.x |
 | Router | react-router-dom | 6.30.x — `BrowserRouter` in `App.tsx` |
-| HTTP | axios | Interceptors in `client/src/interceptors/axios.interceptor.tsx` |
+| HTTP | axios | Interceptors in `client/src/shared/lib/interceptors/axios.interceptor.tsx` |
 | Package manager | pnpm workspace | Root lockfile only |
 
 ### UI Framework
@@ -45,12 +45,12 @@ Contract of record for API shapes: [`docs/api-spec.yml`](./api-spec.yml). Align 
 | Concern | Choice | Notes |
 |---------|--------|-------|
 | Component library | MUI 5.18.x | `@mui/material` + `@mui/icons-material` |
-| Styling | MUI `sx` + Emotion + styled-components helpers | `client/src/styled-components/` |
+| Styling | MUI `sx` + Emotion + styled-components helpers | `client/src/shared/ui/styled-components/` |
 | Theme | `makeTheme(mode)` | Light/dark via `theme.mode`; Rubik/Montserrat fonts |
 | Toasts | react-toastify | Mounted in `App.tsx` |
 | Dropzone | react-dropzone | Posts and register avatar flows |
 
-**Source of truth for colors/typography:** `client/src/utilities/themeConfig.ts`. Prefer `theme.palette.primary|neutral|background` over hardcoded hex in new UI (some legacy hex remains in dropzone borders).
+**Source of truth for colors/typography:** `client/src/shared/lib/utilities/themeConfig.ts`. Prefer `theme.palette.primary|neutral|background` over hardcoded hex in new UI (some legacy hex remains in dropzone borders).
 
 ### State Management & Data Flow
 
@@ -105,17 +105,12 @@ client/
       auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/, model/
       feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
       friends/               Friends list: ui/, hooks/, api/
-      profile/               Profile UI (UserInfo card): ui/
+      profile/               Profile: ui/, hooks/ (useUser, useUserPosts), api/ (user.service); user posts fetch stays in feed/api
     shared/
       ui/                    Atoms / shell UI (Spinner, Navbar, Dropzone, …) + styled-components
       lib/                   interceptors/, utilities/ (theme, ErrorBoundary, toast, …)
-    components/              Thin compatibility re-exports → `@/shared/ui`
-    hooks/                   Cross-feature hooks (useUser, useUserPosts, …)
-    services/                Thin re-exports of feature APIs + files/user
+    services/                Thin re-exports only (all feature APIs including files from auth); files/storage client API lives under features/auth/api (register-time default-storage call site — not profile)
     adapters/                Remaining adapters (userAdapter; login/post live in features)
-    utilities/               Thin compatibility re-exports → `@/shared/lib/utilities`
-    interceptors/            Thin compatibility re-exports → `@/shared/lib/interceptors`
-    styled-components/       Thin compatibility re-exports → `@/shared/ui/styled-components`
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
@@ -129,7 +124,7 @@ client/
     assets/                  Static assets
 ```
 
-**Boundary:** pages compose features and `@/shared/ui`. Feature UI goes through feature hooks → feature `api/`. Prefer `@/features/*` and `@/shared/*` over legacy `components/` / `utilities/` barrels.
+**Boundary:** pages compose features and `@/shared/ui`. Feature UI goes through feature hooks → feature `api/`. Prefer `@/features/*` and `@/shared/*` only (no legacy barrels).
 
 ## Coding Standards
 
@@ -152,7 +147,7 @@ client/
 - Prefer lazy-loaded pages from `App.tsx` with `<Suspense fallback={<Spinner />}>`.
 - Props: explicit `interface Props` or `export interface XInterface` (legacy naming — either is fine; be consistent within a folder).
 - Keep route guards in `App.tsx` via `Navigate` based on `token` / `isAuth`.
-- Composition: pages layout; presentational pieces under `components/`.
+- Composition: pages layout; presentational pieces under `shared/ui/`.
 - Avoid growing mega-components further; extract when a file mixes feed, modal, and form without clear sections.
 
 ### State Management

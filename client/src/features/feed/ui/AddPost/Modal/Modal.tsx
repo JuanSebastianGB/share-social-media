@@ -1,4 +1,4 @@
-import { useUser } from '@/hooks';
+import { useUser } from '@/features/profile';
 import { useCreatePost } from '../../../hooks';
 import { AppStore } from '@/models';
 import {

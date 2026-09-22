@@ -1,4 +1,4 @@
-import { ApiJson } from '@/interceptors';
+import { ApiJson } from '@/shared/lib/interceptors';
 
 export const fetchPostComments = async (id: string) => {
   return await ApiJson.get(`/posts/${id}/comments`)
