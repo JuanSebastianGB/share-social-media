@@ -102,15 +102,13 @@ client/
     App.tsx                  ThemeProvider, BrowserRouter, lazy routes
     pages/                   Route-level screens (Home, Profile, NotFound)
     features/
-      auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/, model/
-      feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
+      auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/ (incl. files createDefault), model/ (login + userLogin adapters)
+      feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/ (post.adapter)
       friends/               Friends list: ui/, hooks/, api/
       profile/               Profile: ui/, hooks/ (useUser, useUserPosts), api/ (user.service); user posts fetch stays in feed/api
     shared/
       ui/                    Atoms / shell UI (Spinner, Navbar, Dropzone, …) + styled-components
-      lib/                   interceptors/, utilities/ (theme, ErrorBoundary, toast, …)
-    services/                Thin re-exports only (all feature APIs including files from auth); files/storage client API lives under features/auth/api (register-time default-storage call site — not profile)
-    adapters/                Remaining adapters (userAdapter; login/post live in features)
+      lib/                   interceptors/, utilities/ (theme, ErrorBoundary, toast, local preview, …)
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
@@ -175,8 +173,8 @@ client/
 
 ```
 Component / Hook
-  → services/*.ts          (Api / ApiJson / Cognito SDK)
-  → adapters/*.ts          (normalize login/register payloads)
+  → features/*/api          (Api / ApiJson / Cognito SDK)
+  → features/*/model        (normalize login/register/post payloads when needed)
   → dispatch(matchingSlice) (auth / posts / friends / theme as needed)
 ```
 
@@ -184,7 +182,7 @@ Component / Hook
 - `ApiJson`: JSON `Content-Type`.
 - Interceptors read `persist:root` from `localStorage` to attach `Bearer` token; callers may set `Authorization` explicitly (Cognito profile before persist).
 - Keep response typing aligned with [`docs/api-spec.yml`](./api-spec.yml) and `models/`.
-- Cognito helpers live in `services/cognito.service.ts` (or equivalent) behind `isCognitoClientEnabled()`.
+- Cognito helpers live in `features/auth/api/cognito.service.ts` behind `isCognitoClientEnabled()`.
 
 ## UI/UX Standards
 

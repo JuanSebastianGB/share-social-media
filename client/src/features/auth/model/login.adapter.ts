@@ -1,6 +1,6 @@
 import { UserApiModel } from '@/models';
-import { userLoginAdapter } from '@/adapters/user.adapter';
 import { AuthSessionPayload } from '../api/auth.service';
+import { userLoginAdapter } from './user.adapter';
 
 export type LoginAdapterInput = Pick<AuthSessionPayload, 'token' | 'userFound'>;
 
