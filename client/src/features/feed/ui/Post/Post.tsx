@@ -1,5 +1,5 @@
-import { postAdapter } from '@/adapters';
-import { usePostInteractions } from '@/hooks';
+import { usePostInteractions } from '../../hooks';
+import { postAdapter } from '../../model';
 import { AppStore, PostApiModel } from '@/models';
 import { SpaceBetween } from '@/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';

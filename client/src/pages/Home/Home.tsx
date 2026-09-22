@@ -1,13 +1,12 @@
 import {
-  AddPost,
   ErrorContent,
   Friends,
   Navbar,
-  Posts,
   SkeletonDefault,
   Spinner,
   UserInfo,
 } from '@/components';
+import { AddPost, Posts } from '@/features/feed';
 import { useFriends, useUser } from '@/hooks';
 import { makeLogout } from '@/redux/states/authSlice';
 import { setPosts } from '@/redux/states/postsSlice';

@@ -101,10 +101,12 @@ client/
     main.tsx                 Provider + PersistGate + App
     App.tsx                  ThemeProvider, BrowserRouter, lazy routes
     pages/                   Route-level screens (Auth, Home, Profile, NotFound)
-    components/              Feature UI (Posts, Navbar, Friends, …)
-    hooks/                   Data/orchestration hooks (usePosts, useRegister, …)
-    services/                Axios API + Cognito SDK wrappers
-    adapters/                API → view-model mapping (e.g. loginAdapter)
+    features/
+      feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
+    components/              Shared / legacy feature UI (Navbar, Friends, …)
+    hooks/                   Cross-feature hooks (useLogin, useFriends, useUser, …)
+    services/                Axios API + Cognito SDK wrappers (re-exports feed api)
+    adapters/                API → view-model mapping (loginAdapter; postAdapter in features/feed)
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
@@ -121,7 +123,7 @@ client/
     assets/                  Static assets
 ```
 
-**Boundary:** pages compose components; components should not invent new Axios calls — go through `services/` (and hooks that wrap them).
+**Boundary:** pages compose features and shared components. Feature UI goes through feature hooks → feature `api/` (or legacy `services/`). Import feed UI from `@/features/feed`, not the global components barrel.
 
 ## Coding Standards
 

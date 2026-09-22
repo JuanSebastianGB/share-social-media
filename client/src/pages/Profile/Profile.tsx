@@ -2,11 +2,11 @@ import {
   ErrorContent,
   Friends,
   Navbar,
-  Posts,
   SkeletonDefault,
   Spinner,
   UserInfo,
 } from '@/components';
+import { Posts } from '@/features/feed';
 import { useUser } from '@/hooks';
 import { StyledSection } from '@/styled-components';
 import React from 'react';

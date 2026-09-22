@@ -1,6 +1,6 @@
 import { AppStore, PostApiModel } from '@/models';
 import { updatePost } from '@/redux/states/postsSlice';
-import { fetchPostComments, postComment } from '@/services';
+import { fetchPostComments, postComment } from '../api';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

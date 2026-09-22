@@ -3,8 +3,8 @@ import { Box, Typography, useTheme } from '@mui/material';
 import { FC, useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { SpaceBetweenColumn } from '../Navbar';
-import { Thumbs } from '../Posts';
-import { customFile } from '../Posts/AddPost/DropzoneAddPost/Thumbs/Thumbs';
+import { Thumbs } from '@/features/feed/ui';
+import { customFile } from '@/features/feed/ui/AddPost/DropzoneAddPost/Thumbs/Thumbs';
 export interface Props {
   setFieldValue: any;
   sx?: any;

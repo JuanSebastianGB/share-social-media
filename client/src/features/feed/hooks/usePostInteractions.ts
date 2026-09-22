@@ -1,7 +1,8 @@
 import { AppStore } from '@/models';
 import { toggleFriend } from '@/redux/states/friendsSlice';
 import { togglePostLikes } from '@/redux/states/postsSlice';
-import { fetchToggleFriendUserService, likePostService } from '@/services';
+import { likePostService } from '../api';
+import { fetchToggleFriendUserService } from '@/services/friends.service';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

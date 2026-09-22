@@ -1,6 +1,6 @@
 import { AppStore } from '@/models';
 import { growPostList, setPosts } from '@/redux/states/postsSlice';
-import { fetchPostsService, fetchUserPostsService } from '@/services';
+import { fetchPostsService, fetchUserPostsService } from '../api';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

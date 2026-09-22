@@ -1,4 +1,4 @@
-import { usePostComments } from '@/hooks';
+import { usePostComments } from '../../../hooks';
 import { PostApiModel } from '@/models';
 import { formatDate } from '@/utilities';
 import {

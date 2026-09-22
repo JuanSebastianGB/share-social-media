@@ -1,13 +1,12 @@
-import { usePosts } from '@/hooks';
 import { AppStore, PostApiModel, UserApiModel } from '@/models';
 import { incrementPage, searchPosts } from '@/redux/states/postsSlice';
+import { ErrorContent, Spinner } from '@/components';
+import { SpaceBetween } from '@/components/Navbar';
 import { ErrorBoundary } from '@/utilities';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ErrorContent } from '../ErrorContent';
-import { SpaceBetween } from '../Navbar';
-import { Spinner } from '../Spinner';
+import { usePosts } from '../hooks';
 import Post from './Post/Post';
 
 export interface Props {
