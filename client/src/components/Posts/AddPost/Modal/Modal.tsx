@@ -1,8 +1,5 @@
-import { useUser } from '@/hooks';
+import { useCreatePost, useUser } from '@/hooks';
 import { AppStore } from '@/models';
-import { createPost } from '@/redux/states/postsSlice';
-import { makePostFileService, makePostService } from '@/services';
-import { successToastMessageConfig } from '@/utilities';
 import {
   Alert,
   Avatar,
@@ -15,9 +12,8 @@ import {
 } from '@mui/material';
 import { styled, useTheme } from '@mui/material/styles';
 import { useFormik } from 'formik';
-import { FC, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import { FC } from 'react';
+import { useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { DropzoneAddPost } from '../DropzoneAddPost';
 import { BootstrapDialogTitle } from './BootstrapDialogTitle';
@@ -43,54 +39,23 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
-  const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const dispatch = useDispatch();
+  const { loading, submitError, onSubmit } = useCreatePost(
+    addAction,
+    handleClose
+  );
 
   const requestClose = () => {
     if (loading) return;
     handleClose();
   };
 
-  const onSubmit = async ({ body, myFile }: any, { resetForm }: any) => {
-    setLoading(true);
-    setSubmitError(null);
-    const form = new FormData();
-    form.append('body', body);
-    form.append('userId', id);
-    if (addAction === 'file/video') form.append('myFile', myFile);
-    try {
-      let newPost;
-      if (addAction === 'file/video') {
-        form.append('type', 'file/video');
-        newPost = await makePostFileService(form);
-      }
-      if (addAction === 'comment') {
-        form.append('type', 'comment');
-        newPost = await makePostService(form);
-      }
-      dispatch(createPost(newPost));
-      toast.success('Post published', successToastMessageConfig);
-      resetForm();
-      handleClose();
-    } catch {
-      setSubmitError("Couldn't publish your post. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const {
-    getFieldProps,
-    setFieldValue,
-    handleSubmit,
-    touched,
-    errors,
-  } = useFormik({
-    onSubmit,
-    initialValues,
-    validationSchema,
-  });
+  const { getFieldProps, setFieldValue, handleSubmit, touched, errors } =
+    useFormik({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- matches legacy Formik submit shape
+      onSubmit: onSubmit as any,
+      initialValues,
+      validationSchema,
+    });
 
   return (
     <Box>

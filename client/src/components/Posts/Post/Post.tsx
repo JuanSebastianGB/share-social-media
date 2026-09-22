@@ -1,8 +1,6 @@
 import { postAdapter } from '@/adapters';
+import { usePostInteractions } from '@/hooks';
 import { AppStore, PostApiModel } from '@/models';
-import { toggleFriend } from '@/redux/states/friendsSlice';
-import { togglePostLikes } from '@/redux/states/postsSlice';
-import { fetchToggleFriendUserService, likePostService } from '@/services';
 import { SpaceBetween } from '@/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -20,7 +18,7 @@ import {
   useTheme,
 } from '@mui/material';
 import React, { forwardRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { CommentsModal } from './CommentsModal';
 import { PostSection } from './PostSection';
 export interface Props extends PostApiModel {
@@ -30,14 +28,6 @@ export interface Props extends PostApiModel {
 // @ts-ignore
 const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const [openModal, setOpenModal] = useState(false);
-  const [confirmUnfriendOpen, setConfirmUnfriendOpen] = useState(false);
-  const [friendPending, setFriendPending] = useState(false);
-  const [likePending, setLikePending] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'error' | 'success';
-  }>({ open: false, message: '', severity: 'error' });
   const { id } = useSelector((store: AppStore) => store.auth.user);
   // @ts-ignore
   const isOwn = id === post.user._id;
@@ -50,60 +40,24 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
     Object.keys(likes).some((row) => {
       return row === userId;
     });
-  const dispatch = useDispatch();
 
   const isLikedOwn = checkIsLikedOwn(adaptedPost.likes, id);
 
-  const closeSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
-
-  const toggleFriendApi = async () => {
-    setFriendPending(true);
-    try {
-      const friendId = userPost._id;
-      const friends = await fetchToggleFriendUserService<string>(id, friendId);
-      dispatch(toggleFriend(friends));
-      setConfirmUnfriendOpen(false);
-    } catch {
-      setSnackbar({
-        open: true,
-        message: "Couldn't update friend. Please try again.",
-        severity: 'error',
-      });
-    } finally {
-      setFriendPending(false);
-    }
-  };
-
-  const handleClick = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    if (isFriend) {
-      setConfirmUnfriendOpen(true);
-      return;
-    }
-    await toggleFriendApi();
-  };
-
-  const handleLike = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
-    setLikePending(true);
-    try {
-      const response = await likePostService(adaptedPost.id, { userId: id });
-      dispatch(togglePostLikes(response));
-    } catch {
-      setSnackbar({
-        open: true,
-        message: "Couldn't update like. Please try again.",
-        severity: 'error',
-      });
-    } finally {
-      setLikePending(false);
-    }
-  };
+  const {
+    confirmUnfriendOpen,
+    setConfirmUnfriendOpen,
+    friendPending,
+    likePending,
+    snackbar,
+    closeSnackbar,
+    toggleFriendApi,
+    handleClick,
+    handleLike,
+  } = usePostInteractions({
+    postId: adaptedPost.id,
+    authorId: userPost._id,
+    isFriend,
+  });
 
   const postBody = (
     <>

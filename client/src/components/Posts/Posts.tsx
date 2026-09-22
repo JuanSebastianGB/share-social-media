@@ -1,4 +1,4 @@
-import { useFriends, usePosts } from '@/hooks';
+import { usePosts } from '@/hooks';
 import { AppStore, PostApiModel, UserApiModel } from '@/models';
 import { incrementPage, searchPosts } from '@/redux/states/postsSlice';
 import { ErrorBoundary } from '@/utilities';
@@ -19,9 +19,8 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const searchQuery = useSelector((store: AppStore) => store.posts.search);
+  const friends = useSelector((store: AppStore) => store.friends.friends);
   const isSearchActive = !isProfile && searchQuery.trim().length > 0;
-  // @ts-ignore
-  const { friends } = useFriends(id);
   const { posts, hasNextPage, isError, isLoading } = usePosts(isProfile, id);
   const intObserver = useRef<any>();
   const lastPostRef = useCallback(
@@ -84,7 +83,7 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
 
   const content = posts.map((post, index) => {
     const idPostUser = post.user._id;
-    const isFriend = !!friends.find(
+    const isFriend = !!(friends ?? []).find(
       (friend: UserApiModel) => friend._id === idPostUser
     );
     if (posts.length === index + 1)
