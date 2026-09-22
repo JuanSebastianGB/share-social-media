@@ -1,9 +1,13 @@
 # One-time GitHub Actions OIDC for CDK deploys
 #
+# This template always creates the GitHub OIDC provider. One provider per account.
+# Deploy fails if token.actions.githubusercontent.com already exists. Deploy this stack once.
+#
 # Creates:
-# - OIDC provider token.actions.githubusercontent.com (if missing)
+# - OIDC provider token.actions.githubusercontent.com (always; create-once per account)
 # - IAM role assumable only by this repository (main + production environment)
-# - Permissions limited to assuming CDK bootstrap roles + reading stack outputs
+# - Permissions: assume CDK bootstrap roles, DescribeStacks on ShareSocialMediaApi and
+#   ShareSocialMediaWeb, account-scoped S3 object sync, CloudFront invalidation
 #
 # Deploy (from repo root, with admin AWS credentials):
 #   aws cloudformation deploy \
@@ -83,8 +87,27 @@ Resources:
                 Effect: Allow
                 Action:
                   - cloudformation:DescribeStacks
-                  - cloudformation:ListStacks
+                Resource:
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/ShareSocialMediaApi/*'
+                  - !Sub 'arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/ShareSocialMediaWeb/*'
+              - Sid: SyncSiteObjects
+                Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
                 Resource: '*'
+                Condition:
+                  StringEquals:
+                    aws:ResourceAccount: !Ref AWS::AccountId
+              - Sid: InvalidateSiteDistribution
+                Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                  - cloudfront:GetInvalidation
+                Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/*'
               - Sid: ReadCdkBootstrapVersion
                 Effect: Allow
                 Action:

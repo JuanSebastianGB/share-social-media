@@ -50,15 +50,6 @@ jobs:
       - name: Build server
         run: pnpm --filter server build
 
-      # CDK app synthesizes both stacks; WebStack requires client/dist at synth time.
-      # Real Vite build happens after ApiUrl/Cognito are resolved (below).
-      - name: Ensure client/dist placeholder for CDK synth
-        run: |
-          mkdir -p client/dist
-          if [ ! -f client/dist/index.html ]; then
-            printf '%s\n' '<!doctype html><title>build pending</title>' > client/dist/index.html
-          fi
-
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -70,15 +61,9 @@ jobs:
         env:
           CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
           CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
         run: |
-          EXTRA_CONTEXT=""
-          if [ -n "$APP_SECRET_ARN" ]; then
-            EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
-          fi
           pnpm exec cdk deploy ShareSocialMediaApi \
-            --require-approval never \
-            $EXTRA_CONTEXT
+            --require-approval never
 
       - name: Resolve API URL for client build
         id: api_url
@@ -149,24 +134,45 @@ jobs:
           VITE_AWS_REGION: ${{ steps.cognito.outputs.region }}
         run: pnpm --filter client build
 
-      - name: Deploy remaining stacks
+      - name: Deploy web stack
+        id: web
         working-directory: infra
         env:
           CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
           CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
-          APP_SECRET_ARN: ${{ secrets.APP_SECRET_ARN }}
         run: |
-          EXTRA_CONTEXT=""
-          if [ -n "$APP_SECRET_ARN" ]; then
-            EXTRA_CONTEXT="-c appSecretArn=${APP_SECRET_ARN}"
-          fi
           STACKS="${{ github.event.inputs.stacks || '--all' }}"
           if [ "$STACKS" = "--all" ] || [ -z "$STACKS" ]; then
             pnpm exec cdk deploy ShareSocialMediaWeb \
-              --require-approval never \
-              $EXTRA_CONTEXT
+              --require-approval never
+            echo "deployed=true" >> "$GITHUB_OUTPUT"
           else
             pnpm exec cdk deploy $STACKS \
-              --require-approval never \
-              $EXTRA_CONTEXT
+              --require-approval never
+            case " $STACKS " in
+              *"ShareSocialMediaWeb"*) echo "deployed=true" >> "$GITHUB_OUTPUT" ;;
+              *) echo "deployed=false" >> "$GITHUB_OUTPUT" ;;
+            esac
           fi
+
+      - name: Publish site
+        if: steps.web.outputs.deployed == 'true'
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+        run: |
+          BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaWeb \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" \
+            --output text)
+          DIST_ID=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaWeb \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" \
+            --output text)
+          if [ -z "$BUCKET" ] || [ "$BUCKET" = "None" ] || [ -z "$DIST_ID" ] || [ "$DIST_ID" = "None" ]; then
+            echo "::error::Could not resolve BucketName or DistributionId from ShareSocialMediaWeb."
+            exit 1
+          fi
+          aws s3 sync client/dist "s3://${BUCKET}" --delete
+          aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"

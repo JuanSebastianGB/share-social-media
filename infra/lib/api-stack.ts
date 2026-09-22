@@ -10,27 +10,13 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export interface ApiStackProps extends cdk.StackProps {
-  /**
-   * Optional ARN of an existing Secrets Manager secret.
-   * JSON keys: JWT_SECRET, PUBLIC_URL.
-   * When omitted, a placeholder secret is created (replace values after deploy).
-   */
-  appSecretArn?: string;
-}
-
-const SECRET_KEYS = ['JWT_SECRET', 'PUBLIC_URL'] as const;
-
 export class ApiStack extends cdk.Stack {
-  public readonly apiUrl: string;
-
-  constructor(scope: Construct, id: string, props?: ApiStackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const table = new dynamodb.Table(this, 'ShareSocialMedia', {
@@ -87,24 +73,6 @@ export class ApiStack extends cdk.Stack {
       },
     );
 
-    const appSecret = props?.appSecretArn
-      ? secretsmanager.Secret.fromSecretCompleteArn(
-          this,
-          'AppSecret',
-          props.appSecretArn,
-        )
-      : new secretsmanager.Secret(this, 'AppSecret', {
-          description:
-            'share-social-media app secrets (replace placeholder values)',
-          secretObjectValue: {
-            JWT_SECRET: cdk.SecretValue.unsafePlainText('REPLACE_ME_JWT_SECRET'),
-            PUBLIC_URL: cdk.SecretValue.unsafePlainText(
-              'https://REPLACE_ME.execute-api.us-east-1.amazonaws.com',
-            ),
-          },
-        });
-
-    // Cognito identity (no Hosted UI). JWT_SECRET remains until T6 migrates verify.
     const userPool = new cognito.UserPool(this, 'UserPool', {
       selfSignUpEnabled: true,
       signInAliases: { email: true },
@@ -139,9 +107,6 @@ export class ApiStack extends cdk.Stack {
       COGNITO_USER_POOL_ID: userPool.userPoolId,
       COGNITO_CLIENT_ID: userPoolClient.userPoolClientId,
     };
-    for (const key of SECRET_KEYS) {
-      environment[key] = appSecret.secretValueFromJson(key).unsafeUnwrap();
-    }
 
     const serverRoot = path.join(__dirname, '../../server');
 
@@ -166,7 +131,6 @@ export class ApiStack extends cdk.Stack {
     mediaBucket.grantPut(apiFn);
     mediaBucket.grantDelete(apiFn);
     mediaBucket.grantRead(apiFn);
-    appSecret.grantRead(apiFn);
 
     const integration = new HttpLambdaIntegration('ApiIntegration', apiFn);
 
@@ -187,23 +151,9 @@ export class ApiStack extends cdk.Stack {
       defaultIntegration: integration,
     });
 
-    httpApi.addRoutes({
-      path: '/{proxy+}',
-      methods: [apigwv2.HttpMethod.ANY],
-      integration,
-    });
-
-    this.apiUrl = httpApi.apiEndpoint;
-
     new cdk.CfnOutput(this, 'ApiUrl', {
       value: httpApi.apiEndpoint,
       description: 'HTTP API endpoint URL',
-    });
-
-    new cdk.CfnOutput(this, 'AppSecretArn', {
-      value: appSecret.secretArn,
-      description:
-        'Secrets Manager ARN — update JSON values before production use',
     });
 
     new cdk.CfnOutput(this, 'MediaBucketName', {

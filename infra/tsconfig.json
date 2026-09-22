@@ -25,6 +25,6 @@
     "rootDir": ".",
     "types": ["node"]
   },
-  "include": ["bin/**/*.ts", "lib/**/*.ts"],
+  "include": ["bin/**/*.ts", "lib/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "cdk.out", "dist"]
 }

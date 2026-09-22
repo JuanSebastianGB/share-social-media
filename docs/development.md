@@ -78,4 +78,4 @@ Known quirks documented by the suite:
 
 - Server relative imports keep `.js` extensions (NodeNext ESM).
 - Prefer changing behavior behind characterization tests (green suite first).
-- Do not commit secrets (`.env`); use Secrets Manager in AWS (see [deployment.md](./deployment.md)).
+- Do not commit secrets (`.env`). `JWT_SECRET` and `PUBLIC_URL` are local-only for HS256 when Cognito env is unset; the API stack does not store them in Secrets Manager (see [deployment.md](./deployment.md)).

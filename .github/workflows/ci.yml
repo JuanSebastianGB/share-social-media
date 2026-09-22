@@ -42,6 +42,7 @@ jobs:
         run: |
           pnpm --filter server test
           pnpm --filter client test
+          pnpm --filter infra test
 
       - name: Contract drift check
         run: pnpm contract:check
