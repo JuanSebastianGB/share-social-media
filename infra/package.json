@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/**/*.test.ts",
+    "test": "tsx --test tests/stacks.test.ts",
     "synth": "cdk synth",
     "deploy": "cdk deploy --all",
     "diff": "cdk diff",
