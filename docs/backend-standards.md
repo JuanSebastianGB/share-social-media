@@ -503,7 +503,7 @@ expect(res.body).toBe('ERROR_PASSWORD');
 
 ### Secrets and Environment Variables
 
-Documented in `server/.env.example` and `docs/deployment.md`. Never commit `.env`. In AWS, `JWT_SECRET` / `PUBLIC_URL` live in Secrets Manager; Cognito ids and table/media env are Lambda environment variables from CDK.
+Documented in `server/.env.example` and `docs/deployment.md`. Never commit `.env`. Deployed Lambda does not read `JWT_SECRET` or `PUBLIC_URL`. Those stay local-only for HS256 when Cognito env is unset. The API stack does not create a Secrets Manager secret. Cognito ids and table/media env are Lambda environment variables from CDK.
 
 ### Dependency Management
 

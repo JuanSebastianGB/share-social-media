@@ -4,8 +4,8 @@ TypeScript CDK app with two stacks:
 
 | Stack | Resources |
 | --- | --- |
-| `ShareSocialMediaApi` | HTTP API + Lambda (Node 20) + DynamoDB + **media S3/CloudFront** + Cognito User Pool + Secrets Manager |
-| `ShareSocialMediaWeb` | S3 site bucket + CloudFront + BucketDeployment |
+| `ShareSocialMediaApi` | HTTP API + Lambda (Node 20) + DynamoDB + **media S3/CloudFront** + Cognito User Pool |
+| `ShareSocialMediaWeb` | Private S3 site bucket + CloudFront (OAC). Site files are synced outside the stack. |
 | `ShareSocialMediaGithubOidc` | CloudFormation (`github-oidc.yaml`) — GitHub Actions OIDC provider + least-privilege CD role |
 
 ## Prerequisites
@@ -16,13 +16,7 @@ TypeScript CDK app with two stacks:
    npx cdk bootstrap aws://$ACCOUNT/$REGION
    ```
 
-2. **Build the client** before WebStack deploy/synth (BucketDeployment reads `../client/dist`):
-
-   ```bash
-   pnpm --filter client build
-   ```
-
-3. Node 20+, pnpm, AWS credentials with deploy rights.
+2. Node 20+, pnpm, AWS credentials with deploy rights.
 
 ## Install & synth
 
@@ -62,12 +56,23 @@ Server verifies Cognito access tokens with `aws-jwt-verify` when `COGNITO_*` are
 
 ## Secrets
 
-Placeholder secret JSON keys:
+The API stack does not create a Secrets Manager secret. There is no `APP_SECRET_ARN` and no `AppSecretArn` output. Deployed Lambda does not read `JWT_SECRET` or `PUBLIC_URL`. Those stay local-only for HS256 when Cognito env is unset.
 
-- `JWT_SECRET`
-- `PUBLIC_URL`
+CDK's old secret used RemovalPolicy RETAIN by default. After this deploy, CloudFormation drops it from the stack and leaves the secret in the account. Delete that leftover secret in the console if you do not want the monthly charge.
 
-Optional existing secret: `-c appSecretArn=arn:aws:secretsmanager:...`
+## Static site
+
+Web stack synth/deploy does not read `client/dist`. Build the client with `VITE_*` set, deploy the web stack, then sync the dist to the `BucketName` output and invalidate `DistributionId`:
+
+```bash
+pnpm --filter client build
+cd infra
+pnpm exec cdk deploy ShareSocialMediaWeb
+BUCKET=$(aws cloudformation describe-stacks --stack-name ShareSocialMediaWeb --query "Stacks[0].Outputs[?OutputKey=='BucketName'].OutputValue" --output text)
+DIST_ID=$(aws cloudformation describe-stacks --stack-name ShareSocialMediaWeb --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" --output text)
+aws s3 sync ../client/dist "s3://${BUCKET}" --delete
+aws cloudfront create-invalidation --distribution-id "$DIST_ID" --paths "/*"
+```
 
 ## CORS
 
@@ -85,14 +90,15 @@ aws cloudformation deploy \
   --parameter-overrides GitHubOrg=<org> GitHubRepo=share-social-media
 ```
 
-Set GitHub secret `AWS_ROLE_ARN` to stack output `RoleArn` (do not commit). See [`docs/deployment.md`](../docs/deployment.md).
+Set GitHub secret `AWS_ROLE_ARN` to stack output `RoleArn` (do not commit). The role can assume CDK bootstrap roles, call `DescribeStacks` on `ShareSocialMediaApi` and `ShareSocialMediaWeb`, sync S3 objects in this account, and create CloudFront invalidations. Redeploy `ShareSocialMediaGithubOidc` once before the new CD publish can succeed. The provider is create-once; the stack fails if `token.actions.githubusercontent.com` already exists. See [`docs/deployment.md`](../docs/deployment.md).
 
 ## Deploy
 
+CD order: deploy API, resolve `ApiUrl` + Cognito outputs, build client, deploy web stack, sync + invalidate. Synth does not need `client/dist`.
+
 ```bash
-pnpm --filter client build
 cd infra
 pnpm exec cdk deploy --all
 ```
 
-Outputs: `ApiUrl`, `MediaBucketName`, `MediaDistributionDomainName`, `MediaBaseUrl`, `UserPoolId`, `UserPoolClientId`, `DistributionDomainName`, `BucketName`, `AppSecretArn`.
+Outputs: `ApiUrl`, `MediaBucketName`, `MediaDistributionDomainName`, `MediaBaseUrl`, `UserPoolId`, `UserPoolClientId`, `DistributionDomainName`, `DistributionId`, `BucketName`.

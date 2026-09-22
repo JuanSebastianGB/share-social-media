@@ -10,13 +10,8 @@ const env: cdk.Environment = {
   region: process.env.CDK_DEFAULT_REGION ?? 'us-east-1',
 };
 
-const appSecretArn =
-  (app.node.tryGetContext('appSecretArn') as string | undefined) ??
-  process.env.appSecretArn;
-
 new ApiStack(app, 'ShareSocialMediaApi', {
   env,
-  appSecretArn,
   description: 'HTTP API + Lambda for share-social-media',
 });
 
