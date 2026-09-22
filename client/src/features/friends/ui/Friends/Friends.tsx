@@ -1,7 +1,6 @@
-import { useFriends } from '@/hooks';
+import { AvatarWithTitles, ErrorContent, Spinner } from '@/components';
+import { SpaceBetween } from '@/components/Navbar';
 import { UserApiModel } from '@/models';
-import { removeFriend } from '@/redux/states/friendsSlice';
-import { fetchToggleFriendUserService } from '@/services';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';
 import {
@@ -18,13 +17,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react';
 import { useParams } from 'react-router-dom';
-import { AvatarWithTitles } from '../AvatarWithTitles';
-import { ErrorContent } from '../ErrorContent';
-import { SpaceBetween } from '../Navbar';
-import { Spinner } from '../Spinner';
+import { useFriends } from '../../hooks/useFriends';
+import { useRemoveFriend } from '../../hooks/useRemoveFriend';
 export interface Props {
   user: UserApiModel;
 }
@@ -32,43 +28,16 @@ export interface Props {
 const Friends: React.FC<Props> = ({ user }) => {
   const theme = useTheme();
   const { friends, error, isError, isLoading } = useFriends(user?._id);
-  const dispatch = useDispatch();
   const { id } = useParams();
   const isProfile = !!id;
-  const [pendingFriendId, setPendingFriendId] = useState<string | null>(null);
-  const [confirmFriend, setConfirmFriend] = useState<UserApiModel | null>(null);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'error' | 'success';
-  }>({ open: false, message: '', severity: 'error' });
-
-  const closeSnackbar = () =>
-    setSnackbar((prev) => ({ ...prev, open: false }));
-
-  const handleRemoveFriend = async () => {
-    if (!confirmFriend) return;
-    const friendId = confirmFriend._id;
-    setPendingFriendId(friendId);
-    try {
-      await fetchToggleFriendUserService<string>(user._id, friendId);
-      dispatch(removeFriend(friendId));
-      setConfirmFriend(null);
-      setSnackbar({
-        open: true,
-        message: 'Friend removed',
-        severity: 'success',
-      });
-    } catch {
-      setSnackbar({
-        open: true,
-        message: "Couldn't remove friend. Please try again.",
-        severity: 'error',
-      });
-    } finally {
-      setPendingFriendId(null);
-    }
-  };
+  const {
+    pendingFriendId,
+    confirmFriend,
+    setConfirmFriend,
+    snackbar,
+    closeSnackbar,
+    handleRemoveFriend,
+  } = useRemoveFriend(user._id);
 
   if (isLoading) return <Spinner />;
   if (isError)

@@ -102,11 +102,14 @@ client/
     App.tsx                  ThemeProvider, BrowserRouter, lazy routes
     pages/                   Route-level screens (Auth, Home, Profile, NotFound)
     features/
+      auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/, model/
       feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
-    components/              Shared / legacy feature UI (Navbar, Friends, …)
-    hooks/                   Cross-feature hooks (useLogin, useFriends, useUser, …)
-    services/                Axios API + Cognito SDK wrappers (re-exports feed api)
-    adapters/                API → view-model mapping (loginAdapter; postAdapter in features/feed)
+      friends/               Friends list: ui/, hooks/, api/
+      profile/               Profile UI (UserInfo card): ui/
+    components/              Shared / legacy shell UI (Navbar, …)
+    hooks/                   Cross-feature hooks (useUser, useUserPosts, …)
+    services/                Axios API + Cognito wrappers (re-exports feature apis)
+    adapters/                Remaining adapters (userAdapter; login/post live in features)
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/

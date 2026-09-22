@@ -1,7 +1,6 @@
 export * from './AvatarWithTitles';
 export * from './Dropzone';
 export * from './ErrorContent';
-export * from './Friends';
 export * from './Header';
 export * from './Navbar';
 export * from './Navbar/components';
@@ -14,4 +13,3 @@ export * from './SkeletonDefault';
 export * from './Spinner';
 export * from './Thumb';
 export * from './Trends';
-export * from './UserInfo';

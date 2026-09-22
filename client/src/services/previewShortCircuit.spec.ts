@@ -2,7 +2,7 @@ import { Api } from '@/interceptors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fetchFriendsService,
-} from './friends.service';
+} from '@/features/friends/api/friends.service';
 import {
   fetchPostsService,
   fetchUserPostsService,

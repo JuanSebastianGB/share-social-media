@@ -1,6 +1,6 @@
 import { AppStore } from '@/models';
 import { setFriends } from '@/redux/states/friendsSlice';
-import { fetchFriendsService } from '@/services';
+import { fetchFriendsService } from '../api/friends.service';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 

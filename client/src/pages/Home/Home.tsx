@@ -1,13 +1,13 @@
 import {
   ErrorContent,
-  Friends,
   Navbar,
   SkeletonDefault,
   Spinner,
-  UserInfo,
 } from '@/components';
 import { AddPost, Posts } from '@/features/feed';
-import { useFriends, useUser } from '@/hooks';
+import { Friends, useFriends } from '@/features/friends';
+import { UserInfo } from '@/features/profile';
+import { useUser, useUserPosts } from '@/hooks';
 import { makeLogout } from '@/redux/states/authSlice';
 import { setPosts } from '@/redux/states/postsSlice';
 import { StyledSection } from '@/styled-components';
@@ -22,8 +22,8 @@ export interface Props {
 
 const Home: React.FC<Props> = ({ id }) => {
   const { error, isError, loading, user } = useUser(id);
-  // Populate friends for feed isFriend (Friends sidebar is desktop-only).
-  useFriends(id);
+  const { friends } = useFriends(id);
+  const { results: ownPosts } = useUserPosts(id);
   const isMobileScreen = useMediaQuery('(max-width: 900px)');
   const theme = useTheme();
 
@@ -111,7 +111,11 @@ const Home: React.FC<Props> = ({ id }) => {
                   gap: '1rem',
                 }}
               >
-                <UserInfo user={user} />
+                <UserInfo
+                  user={user}
+                  friendCount={friends?.length ?? null}
+                  postCount={ownPosts?.length ?? null}
+                />
                 {!!user && <Friends user={user} />}
               </StyledSection>
             )}

@@ -1,4 +1,5 @@
-import { useFriends, useUserPosts } from '@/hooks';
+import { ErrorContent } from '@/components';
+import { SpaceBetween } from '@/components/Navbar';
 import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import {
@@ -17,11 +18,11 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ErrorContent } from '../ErrorContent';
-import { SpaceBetween } from '../Navbar';
-import { Spinner } from '../Spinner';
+
 export interface Props {
   user: UserApiModel;
+  friendCount: number | null;
+  postCount: number | null;
 }
 
 const StyledUserInfo = styled(Box)(({ theme }) => ({
@@ -31,16 +32,9 @@ const StyledUserInfo = styled(Box)(({ theme }) => ({
   borderRadius: '10px',
 }));
 
-const UserInfo: React.FC<Props> = ({ user }) => {
+const UserInfo: React.FC<Props> = ({ user, friendCount, postCount }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-  const { friends } = useFriends(user._id);
-  const {
-    error,
-    isError,
-    isLoading,
-    results: ownPosts,
-  } = useUserPosts(user._id);
 
   const displayName =
     [user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'User';
@@ -59,17 +53,6 @@ const UserInfo: React.FC<Props> = ({ user }) => {
       goToProfile();
     }
   };
-
-  if (isLoading) return <Spinner />;
-  if (isError)
-    return (
-      <ErrorContent
-        // @ts-ignore
-        message={error?.error?.message}
-        // @ts-ignore
-        data={error?.error?.response.data}
-      />
-    );
 
   return (
     <ErrorBoundary
@@ -131,7 +114,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                   variant="caption"
                   color={theme.palette.neutral.dark}
                 >
-                  {friends ? friends?.length : null} friends
+                  {friendCount ?? null} friends
                 </Typography>
               </SpaceBetween>
               <SpaceBetween>
@@ -140,7 +123,7 @@ const UserInfo: React.FC<Props> = ({ user }) => {
                   variant="caption"
                   color={theme.palette.neutral.dark}
                 >
-                  {ownPosts ? ownPosts?.length : null} posts
+                  {postCount ?? null} posts
                 </Typography>
               </SpaceBetween>
             </SpaceBetween>
