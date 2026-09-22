@@ -8,7 +8,9 @@ import {
   loginWithCognito,
 } from '@/services';
 import {
+  createLocalPreviewSessionFromLogin,
   errorToastMessageConfig,
+  isLocalPreviewEnabled,
   successToastMessageConfig,
 } from '@/utilities';
 import { useFormik } from 'formik';
@@ -33,6 +35,16 @@ export const useLogin = () => {
       setIsLoading(true);
       setIsError(false);
       setError({});
+
+      if (isLocalPreviewEnabled()) {
+        const session = createLocalPreviewSessionFromLogin(values);
+        setIsLoading(false);
+        toast.success('(～￣▽￣)～ Logged in!', successToastMessageConfig);
+        dispatch(makeLogin(loginAdapter(session)));
+        setDisplayButton(true);
+        navigate('/home');
+        return;
+      }
 
       if (isCognitoClientEnabled()) {
         const session = await loginWithCognito(values, { signal });

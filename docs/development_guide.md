@@ -84,9 +84,12 @@ VITE_APP_BASE_URL=http://localhost:3000
 # VITE_COGNITO_USER_POOL_ID=
 # VITE_COGNITO_CLIENT_ID=
 # VITE_AWS_REGION=us-east-1
+# VITE_LOCAL_PREVIEW=true
 ```
 
 Local without Cognito: leave all `VITE_COGNITO_*` unset and matching server Cognito vars unset.
+
+Set `VITE_LOCAL_PREVIEW=true` to browse Home and Profile without the API.
 
 ### 4. Datastore Setup
 

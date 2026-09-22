@@ -275,6 +275,7 @@ Copy from `client/.env.example`:
 | `VITE_COGNITO_USER_POOL_ID` | Cognito pool (optional; all three Cognito vars required together) |
 | `VITE_COGNITO_CLIENT_ID` | Cognito app client |
 | `VITE_AWS_REGION` | Cognito region |
+| `VITE_LOCAL_PREVIEW` | Optional; `true` in DEV creates a local preview session (wins over Cognito; ignored in production builds) |
 
 Vite embeds `VITE_*` at **build time**. CD injects API URL and Cognito outputs when building the SPA (see `docs/deployment.md`).
 
