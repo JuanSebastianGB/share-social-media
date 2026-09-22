@@ -1,1 +1,1 @@
-export * from './ErrorBoundary';
+export * from '@/shared/lib/utilities/ErrorBoundary';

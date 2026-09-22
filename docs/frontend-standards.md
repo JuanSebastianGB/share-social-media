@@ -100,11 +100,22 @@ client/
   src/
     main.tsx                 Provider + PersistGate + App
     App.tsx                  ThemeProvider, BrowserRouter, lazy routes
-    pages/                   Route-level screens (Auth, Home, Profile, NotFound)
-    components/              Feature UI (Posts, Navbar, Friends, …)
-    hooks/                   Data/orchestration hooks (usePosts, useRegister, …)
-    services/                Axios API + Cognito SDK wrappers
-    adapters/                API → view-model mapping (e.g. loginAdapter)
+    pages/                   Route-level screens (Home, Profile, NotFound)
+    features/
+      auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/, model/
+      feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
+      friends/               Friends list: ui/, hooks/, api/
+      profile/               Profile UI (UserInfo card): ui/
+    shared/
+      ui/                    Atoms / shell UI (Spinner, Navbar, Dropzone, …) + styled-components
+      lib/                   interceptors/, utilities/ (theme, ErrorBoundary, toast, …)
+    components/              Thin compatibility re-exports → `@/shared/ui`
+    hooks/                   Cross-feature hooks (useUser, useUserPosts, …)
+    services/                Thin re-exports of feature APIs + files/user
+    adapters/                Remaining adapters (userAdapter; login/post live in features)
+    utilities/               Thin compatibility re-exports → `@/shared/lib/utilities`
+    interceptors/            Thin compatibility re-exports → `@/shared/lib/interceptors`
+    styled-components/       Thin compatibility re-exports → `@/shared/ui/styled-components`
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
@@ -114,14 +125,11 @@ client/
       states/friendsSlice.ts Friends list
       states/themeSlice.ts   Color mode
       states/userSlice.ts    LEGACY unwired
-    interceptors/            Api / ApiJson axios instances
-    utilities/               themeConfig, ErrorBoundary, toast configs, dates
-    styled-components/       Layout primitives
     constants/               StoreKeys, etc.
     assets/                  Static assets
 ```
 
-**Boundary:** pages compose components; components should not invent new Axios calls — go through `services/` (and hooks that wrap them).
+**Boundary:** pages compose features and `@/shared/ui`. Feature UI goes through feature hooks → feature `api/`. Prefer `@/features/*` and `@/shared/*` over legacy `components/` / `utilities/` barrels.
 
 ## Coding Standards
 

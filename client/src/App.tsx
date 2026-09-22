@@ -4,14 +4,16 @@ import { useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Header, SkeletonDefault, Spinner } from './components';
+import { Header, SkeletonDefault, Spinner } from '@/shared/ui';
 import { AppStore } from './models';
-import { makeTheme } from './utilities';
+import { makeTheme } from '@/shared/lib/utilities';
 
 const Home = lazy(() => import('@/pages/Home/Home'));
-const AuthLogin = lazy(() => import('@/pages/Auth/AuthLogin/AuthLogin'));
+const AuthLogin = lazy(
+  () => import('@/features/auth/ui/AuthLogin/AuthLogin')
+);
 const AuthRegister = lazy(
-  () => import('@/pages/Auth/AuthRegister/AuthRegister')
+  () => import('@/features/auth/ui/AuthRegister/AuthRegister')
 );
 const NotFound = lazy(() => import('@/pages/NotFound/NotFound'));
 const Profile = lazy(() => import('@/pages/Profile/Profile'));

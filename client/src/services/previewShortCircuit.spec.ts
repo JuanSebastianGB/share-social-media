@@ -2,8 +2,11 @@ import { Api } from '@/interceptors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fetchFriendsService,
-} from './friends.service';
-import { fetchPostsService, fetchUserPostsService } from './posts.service';
+} from '@/features/friends/api/friends.service';
+import {
+  fetchPostsService,
+  fetchUserPostsService,
+} from '@/features/feed/api/posts.service';
 import { fetchUserService } from './user.service';
 
 vi.mock('@/utilities', async (importOriginal) => {
