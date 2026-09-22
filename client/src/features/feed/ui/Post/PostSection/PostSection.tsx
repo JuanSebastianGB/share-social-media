@@ -1,4 +1,4 @@
-import { AvatarWithTitles } from '@/components/AvatarWithTitles';
+import { AvatarWithTitles } from '@/shared/ui/AvatarWithTitles';
 import { UserApiModel } from '@/models';
 import { SpaceBetween } from '@/styled-components';
 import { PersonAdd, PersonRemove } from '@mui/icons-material';

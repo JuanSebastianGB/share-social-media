@@ -1,4 +1,4 @@
-import { ErrorContent, Spinner } from '@/components';
+import { ErrorContent, Spinner } from '@/shared/ui';
 import { useLogin } from '@/features/auth';
 import React from 'react';
 import { AuthLoginForm } from './AuthLoginForm';

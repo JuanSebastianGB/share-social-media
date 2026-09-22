@@ -1,5 +1,5 @@
-import { AvatarWithTitles, ErrorContent, Spinner } from '@/components';
-import { SpaceBetween } from '@/components/Navbar';
+import { AvatarWithTitles, ErrorContent, Spinner } from '@/shared/ui';
+import { SpaceBetween } from '@/shared/ui/Navbar';
 import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import { PersonRemove } from '@mui/icons-material';

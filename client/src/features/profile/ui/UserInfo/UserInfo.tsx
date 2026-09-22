@@ -1,5 +1,5 @@
-import { ErrorContent } from '@/components';
-import { SpaceBetween } from '@/components/Navbar';
+import { ErrorContent } from '@/shared/ui';
+import { SpaceBetween } from '@/shared/ui/Navbar';
 import { UserApiModel } from '@/models';
 import { ErrorBoundary } from '@/utilities';
 import {

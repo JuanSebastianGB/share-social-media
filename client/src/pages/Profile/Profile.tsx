@@ -3,7 +3,7 @@ import {
   Navbar,
   SkeletonDefault,
   Spinner,
-} from '@/components';
+} from '@/shared/ui';
 import { Posts } from '@/features/feed';
 import { Friends, useFriends } from '@/features/friends';
 import { UserInfo } from '@/features/profile';

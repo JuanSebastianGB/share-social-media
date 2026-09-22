@@ -1,15 +1,2 @@
-export * from './AvatarWithTitles';
-export * from './Dropzone';
-export * from './ErrorContent';
-export * from './Header';
-export * from './Navbar';
-export * from './Navbar/components';
-export * from './Navbar/components/NavbarLeft';
-export * from './Navbar/components/NavbarMenu';
-export * from './Navbar/components/NavbarRight';
-export * from './Navbar/styled-components';
-export * from './Scroll';
-export * from './SkeletonDefault';
-export * from './Spinner';
-export * from './Thumb';
-export * from './Trends';
+/** Compatibility barrel — prefer `@/shared/ui`. */
+export * from '@/shared/ui';

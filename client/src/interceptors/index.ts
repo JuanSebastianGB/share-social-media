@@ -1,1 +1,2 @@
-export * from './axios.interceptor';
+/** Compatibility barrel — prefer `@/shared/lib/interceptors`. */
+export * from '@/shared/lib/interceptors';

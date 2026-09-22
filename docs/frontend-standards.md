@@ -100,16 +100,22 @@ client/
   src/
     main.tsx                 Provider + PersistGate + App
     App.tsx                  ThemeProvider, BrowserRouter, lazy routes
-    pages/                   Route-level screens (Auth, Home, Profile, NotFound)
+    pages/                   Route-level screens (Home, Profile, NotFound)
     features/
       auth/                  Sign-in/up: ui/, hooks/ (authGateway), api/, model/
       feed/                  Feed (posts, comments, create): ui/, hooks/, api/, model/
       friends/               Friends list: ui/, hooks/, api/
       profile/               Profile UI (UserInfo card): ui/
-    components/              Shared / legacy shell UI (Navbar, …)
+    shared/
+      ui/                    Atoms / shell UI (Spinner, Navbar, Dropzone, …) + styled-components
+      lib/                   interceptors/, utilities/ (theme, ErrorBoundary, toast, …)
+    components/              Thin compatibility re-exports → `@/shared/ui`
     hooks/                   Cross-feature hooks (useUser, useUserPosts, …)
-    services/                Axios API + Cognito wrappers (re-exports feature apis)
+    services/                Thin re-exports of feature APIs + files/user
     adapters/                Remaining adapters (userAdapter; login/post live in features)
+    utilities/               Thin compatibility re-exports → `@/shared/lib/utilities`
+    interceptors/            Thin compatibility re-exports → `@/shared/lib/interceptors`
+    styled-components/       Thin compatibility re-exports → `@/shared/ui/styled-components`
     models/                  TypeScript interfaces + empty states
     schemas/                 Yup schemas for Formik
     redux/
@@ -119,14 +125,11 @@ client/
       states/friendsSlice.ts Friends list
       states/themeSlice.ts   Color mode
       states/userSlice.ts    LEGACY unwired
-    interceptors/            Api / ApiJson axios instances
-    utilities/               themeConfig, ErrorBoundary, toast configs, dates
-    styled-components/       Layout primitives
     constants/               StoreKeys, etc.
     assets/                  Static assets
 ```
 
-**Boundary:** pages compose features and shared components. Feature UI goes through feature hooks → feature `api/` (or legacy `services/`). Import feed UI from `@/features/feed`, not the global components barrel.
+**Boundary:** pages compose features and `@/shared/ui`. Feature UI goes through feature hooks → feature `api/`. Prefer `@/features/*` and `@/shared/*` over legacy `components/` / `utilities/` barrels.
 
 ## Coding Standards
 

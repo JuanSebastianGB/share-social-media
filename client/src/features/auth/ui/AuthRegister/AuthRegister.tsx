@@ -1,5 +1,5 @@
-import { ErrorContent, Spinner } from '@/components';
-import { Dropzone } from '@/components/Dropzone';
+import { ErrorContent, Spinner } from '@/shared/ui';
+import { Dropzone } from '@/shared/ui/Dropzone';
 import { useRegister } from '@/features/auth';
 import { RegisterInitialValues } from '@/models';
 import { registerSchema } from '@/schemas';

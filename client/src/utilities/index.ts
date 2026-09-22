@@ -1,6 +1,2 @@
-export * from './ErrorBoundary';
-export * from './cognitoMode';
-export * from './formatDate';
-export * from './handleToast';
-export * from './localPreview';
-export * from './themeConfig';
+/** Compatibility barrel — prefer `@/shared/lib/utilities`. */
+export * from '@/shared/lib/utilities';
