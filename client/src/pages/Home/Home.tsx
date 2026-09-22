@@ -8,7 +8,7 @@ import {
   Spinner,
   UserInfo,
 } from '@/components';
-import { useUser } from '@/hooks';
+import { useFriends, useUser } from '@/hooks';
 import { makeLogout } from '@/redux/states/authSlice';
 import { setPosts } from '@/redux/states/postsSlice';
 import { StyledSection } from '@/styled-components';
@@ -16,7 +16,6 @@ import { Box, Button, Typography, useMediaQuery, useTheme } from '@mui/material'
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { HomeProvider } from './context';
 import HomeContainer from './Homelayout';
 export interface Props {
   id: string;
@@ -24,6 +23,8 @@ export interface Props {
 
 const Home: React.FC<Props> = ({ id }) => {
   const { error, isError, loading, user } = useUser(id);
+  // Populate friends for feed isFriend (Friends sidebar is desktop-only).
+  useFriends(id);
   const isMobileScreen = useMediaQuery('(max-width: 900px)');
   const theme = useTheme();
 
@@ -53,7 +54,7 @@ const Home: React.FC<Props> = ({ id }) => {
 
   if (user)
     return (
-      <HomeProvider>
+      <>
         <Navbar />
         <HomeContainer>
           <section>
@@ -117,7 +118,7 @@ const Home: React.FC<Props> = ({ id }) => {
             )}
           </section>
         </HomeContainer>
-      </HomeProvider>
+      </>
     );
   return <SkeletonDefault />;
 };
