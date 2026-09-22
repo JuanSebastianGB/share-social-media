@@ -1,8 +1,8 @@
-import { Api } from '@/interceptors';
+import { Api } from '@/shared/lib/interceptors';
 import {
   isLocalPreviewEnabled,
   resolvePreviewUserOrThrow,
-} from '@/utilities';
+} from '@/shared/lib/utilities';
 
 export const fetchUserService = async (id: string, options = {}) => {
   if (isLocalPreviewEnabled()) {

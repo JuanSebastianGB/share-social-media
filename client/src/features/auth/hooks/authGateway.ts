@@ -1,11 +1,11 @@
 import { LoginModel, RegisterModel } from '@/models';
-import { createDefault } from '@/services/files.service';
+import { createDefault } from '../api/files.service';
 import {
   createLocalPreviewSessionFromLogin,
   createLocalPreviewSessionFromRegister,
   isLocalPreviewEnabled,
-} from '@/utilities';
-import { isCognitoClientEnabled } from '@/utilities/cognitoMode';
+} from '@/shared/lib/utilities';
+import { isCognitoClientEnabled } from '@/shared/lib/utilities/cognitoMode';
 import {
   AuthSessionPayload,
   loginService,

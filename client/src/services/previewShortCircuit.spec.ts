@@ -1,4 +1,4 @@
-import { Api } from '@/interceptors';
+import { Api } from '@/shared/lib/interceptors';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   fetchFriendsService,
@@ -7,17 +7,17 @@ import {
   fetchPostsService,
   fetchUserPostsService,
 } from '@/features/feed/api/posts.service';
-import { fetchUserService } from './user.service';
+import { fetchUserService } from '@/features/profile/api/user.service';
 
-vi.mock('@/utilities', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utilities')>();
+vi.mock('@/shared/lib/utilities', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/shared/lib/utilities')>();
   return {
     ...actual,
     isLocalPreviewEnabled: vi.fn(),
   };
 });
 
-vi.mock('@/interceptors', () => ({
+vi.mock('@/shared/lib/interceptors', () => ({
   Api: {
     get: vi.fn(),
   },
@@ -31,7 +31,7 @@ import {
   buildLocalPreviewUserFromLogin,
   isLocalPreviewEnabled,
   saveLocalPreviewUser,
-} from '@/utilities';
+} from '@/shared/lib/utilities';
 
 function createMemoryStorage(): Storage {
   const store = new Map<string, string>();

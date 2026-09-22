@@ -3,7 +3,7 @@ import { makeLogin } from '@/redux/states/authSlice';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
-} from '@/utilities';
+} from '@/shared/lib/utilities';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';

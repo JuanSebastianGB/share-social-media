@@ -1,7 +1,7 @@
 import { urlServices } from '@/constants';
-import { Api } from '@/interceptors';
+import { Api } from '@/shared/lib/interceptors';
 import { LoginModel, RegisterModel, UserApiModel } from '@/models';
-import { isCognitoClientEnabled } from '@/utilities/cognitoMode';
+import { isCognitoClientEnabled } from '@/shared/lib/utilities/cognitoMode';
 import {
   cognitoConfirmSignUp,
   cognitoSignIn,

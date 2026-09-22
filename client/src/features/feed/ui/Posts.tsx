@@ -2,7 +2,7 @@ import { AppStore, PostApiModel, UserApiModel } from '@/models';
 import { incrementPage, searchPosts } from '@/redux/states/postsSlice';
 import { ErrorContent, Spinner } from '@/shared/ui';
 import { SpaceBetween } from '@/shared/ui/Navbar';
-import { ErrorBoundary } from '@/utilities';
+import { ErrorBoundary } from '@/shared/lib/utilities';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import React, { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';

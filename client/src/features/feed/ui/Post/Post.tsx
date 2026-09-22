@@ -1,7 +1,7 @@
 import { usePostInteractions } from '../../hooks';
 import { postAdapter } from '../../model';
 import { AppStore, PostApiModel } from '@/models';
-import { SpaceBetween } from '@/styled-components';
+import { SpaceBetween } from '@/shared/ui/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import {

@@ -3,7 +3,7 @@ import {
   buildLocalPreviewUserFromLogin,
   LOCAL_PREVIEW_STORAGE_KEY,
   saveLocalPreviewUser,
-} from '@/utilities';
+} from '@/shared/lib/utilities';
 import { beforeEach, describe, expect, it } from 'vitest';
 import authReducer, { makeLogin, makeLogout } from './authSlice';
 

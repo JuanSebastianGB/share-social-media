@@ -1,5 +1,5 @@
-import { Api, ApiJson } from '@/interceptors';
-import { isLocalPreviewEnabled } from '@/utilities';
+import { Api, ApiJson } from '@/shared/lib/interceptors';
+import { isLocalPreviewEnabled } from '@/shared/lib/utilities';
 
 export const fetchPostsService = async (
   page: number,

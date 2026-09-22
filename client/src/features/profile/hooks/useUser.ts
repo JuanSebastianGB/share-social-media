@@ -1,5 +1,5 @@
 import { UserApiModel } from '@/models';
-import { fetchUserService } from '@/services/user.service';
+import { fetchUserService } from '../api/user.service';
 import { useEffect, useState } from 'react';
 
 export const useUser = (id: string) => {

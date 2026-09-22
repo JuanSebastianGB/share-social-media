@@ -1,4 +1,4 @@
-import { Api } from '@/interceptors';
+import { Api } from '@/shared/lib/interceptors';
 
 export const fetchFiles = async () =>
   await Api.get('/storage').then((data) => data.data);

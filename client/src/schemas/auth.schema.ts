@@ -1,4 +1,4 @@
-import { isCognitoClientEnabled } from '@/utilities/cognitoMode';
+import { isCognitoClientEnabled } from '@/shared/lib/utilities/cognitoMode';
 import * as yup from 'yup';
 
 /** Cognito pool policy: min 8, upper + lower + digit (no symbol required). */
