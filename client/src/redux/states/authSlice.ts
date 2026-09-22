@@ -1,5 +1,6 @@
 import { StoreKeys } from '@/constants';
 import { authEmptyState, userEmptyState } from '@/models';
+import { clearLocalPreviewUser } from '@/utilities';
 import { createSlice } from '@reduxjs/toolkit';
 
 const authSlice = createSlice({
@@ -11,11 +12,14 @@ const authSlice = createSlice({
       user: action.payload.user,
       token: action.payload.token,
     }),
-    makeLogout: (state, _action) => ({
-      ...state,
-      user: userEmptyState,
-      token: '',
-    }),
+    makeLogout: (state, _action) => {
+      clearLocalPreviewUser();
+      return {
+        ...state,
+        user: userEmptyState,
+        token: '',
+      };
+    },
   },
 });
 

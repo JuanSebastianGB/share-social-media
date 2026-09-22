@@ -1,10 +1,15 @@
 import { Api, ApiJson } from '@/interceptors';
+import { isLocalPreviewEnabled } from '@/utilities';
 
 export const fetchPostsService = async (
   page: number,
   search: string,
   options: object
 ) => {
+  if (isLocalPreviewEnabled()) {
+    return [];
+  }
+
   return await Api.get(`posts?page=${page}&search=${search}`, options)
     .then((data) => data.data)
     .catch((error) => {
@@ -15,12 +20,17 @@ export const fetchPostsService = async (
 export const fetchUserPostsService = async (
   id: string | undefined,
   options: object
-) =>
-  await Api.get(`/users/${id}/posts`, options)
+) => {
+  if (isLocalPreviewEnabled()) {
+    return [];
+  }
+
+  return await Api.get(`/users/${id}/posts`, options)
     .then((data) => data.data)
     .catch((error) => {
       throw error;
     });
+};
 
 export const makePostService = async (formData: FormData) =>
   await ApiJson.post('/posts', formData)

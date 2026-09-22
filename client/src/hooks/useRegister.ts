@@ -8,7 +8,9 @@ import {
   registerWithCognito,
 } from '@/services';
 import {
+  createLocalPreviewSessionFromRegister,
   errorToastMessageConfig,
+  isLocalPreviewEnabled,
   successToastMessageConfig,
 } from '@/utilities';
 import { useEffect, useState } from 'react';
@@ -27,13 +29,25 @@ export const useRegister = () => {
   let controller = new AbortController();
 
   const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
-    await createDefault();
     const { signal } = controller;
 
     try {
       setError(false);
       setIsLoading(true);
       setDisplayButton(false);
+
+      if (isLocalPreviewEnabled()) {
+        const session = createLocalPreviewSessionFromRegister(values);
+        dispatch(makeLogin(loginAdapter(session)));
+        setIsLoading(false);
+        onSubmitProps.resetForm();
+        toast.success('Registered successfully!', successToastMessageConfig);
+        setDisplayButton(true);
+        navigate('/home');
+        return;
+      }
+
+      await createDefault();
 
       if (isCognitoClientEnabled()) {
         const session = await registerWithCognito(values, { signal });

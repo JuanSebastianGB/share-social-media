@@ -75,6 +75,7 @@ pnpm --filter client dev
 | `VITE_COGNITO_USER_POOL_ID` | Optional; with client id + region enables Cognito SPA auth |
 | `VITE_COGNITO_CLIENT_ID` | Optional; Cognito app client id |
 | `VITE_AWS_REGION` | Optional; Cognito region (required when Cognito vars are set) |
+| `VITE_LOCAL_PREVIEW` | Optional; `true` in DEV skips Cognito/API and uses a local preview session |
 
 Local without Cognito: leave `VITE_COGNITO_*` and server `COGNITO_*` unset — client calls `/auth/register` and `/auth/login`, server issues HS256 JWTs.
 
