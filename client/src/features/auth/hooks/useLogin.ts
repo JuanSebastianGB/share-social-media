@@ -1,6 +1,7 @@
 import { loginInitialValues, LoginModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
 import { loginSchema } from '@/schemas';
+import { toHookErrorState, type HookErrorState } from '@/shared/lib/types/hook-error';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
@@ -14,7 +15,7 @@ import { loginAdapter } from '../model';
 import { signIn } from './authGateway';
 
 export const useLogin = () => {
-  const [error, setError] = useState({});
+  const [error, setError] = useState<HookErrorState | null>(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [displayButton, setDisplayButton] = useState(true);
@@ -28,7 +29,7 @@ export const useLogin = () => {
       setDisplayButton(false);
       setIsLoading(true);
       setIsError(false);
-      setError({});
+      setError(null);
 
       const session = await signIn(values, { signal });
       setIsLoading(false);
@@ -36,16 +37,16 @@ export const useLogin = () => {
       dispatch(makeLogin(loginAdapter(session)));
       setDisplayButton(true);
       navigate('/home');
-    } catch (error) {
+    } catch (err) {
       setIsLoading(false);
       if (signal.aborted) return;
       setIsError(true);
-      setError({ error });
+      setError(toHookErrorState(err));
       setDisplayButton(true);
       toast.error('＞︿＜ You cant access', errorToastMessageConfig);
       setTimeout(() => {
         setIsError(false);
-        setError({});
+        setError(null);
       }, 2000);
     }
   };

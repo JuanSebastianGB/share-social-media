@@ -1,3 +1,4 @@
+import type { FormikHelpers } from 'formik';
 import { AppStore } from '@/models';
 import { createPost } from '@/redux/states/postsSlice';
 import { makePostFileService, makePostService } from '../api';
@@ -6,26 +7,30 @@ import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
+export interface PostFormValues {
+  body: string;
+  myFile: File | null;
+}
+
 export const useCreatePost = (
   addAction: string,
-  handleClose: () => void
+  handleClose: () => void,
 ) => {
   const { id } = useSelector((store: AppStore) => store.auth.user);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Formik helpers keep the legacy `any` shape used by AddPost Modal.
   const onSubmit = async (
-    { body, myFile }: { body: string; myFile: File },
-    { resetForm }: { resetForm: () => void }
+    { body, myFile }: PostFormValues,
+    { resetForm }: FormikHelpers<PostFormValues>,
   ) => {
     setLoading(true);
     setSubmitError(null);
     const form = new FormData();
     form.append('body', body);
     form.append('userId', id);
-    if (addAction === 'file/video') form.append('myFile', myFile);
+    if (addAction === 'file/video' && myFile) form.append('myFile', myFile);
     try {
       let newPost;
       if (addAction === 'file/video') {

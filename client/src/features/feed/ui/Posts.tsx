@@ -1,4 +1,4 @@
-import { AppStore, PostApiModel, UserApiModel } from '@/models';
+import { AppStore, UserApiModel } from '@/models';
 import { incrementPage, searchPosts } from '@/redux/states/postsSlice';
 import { ErrorContent, Spinner } from '@/shared/ui';
 import { SpaceBetween } from '@/shared/ui/Navbar';
@@ -21,9 +21,9 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
   const friends = useSelector((store: AppStore) => store.friends.friends);
   const isSearchActive = !isProfile && searchQuery.trim().length > 0;
   const { posts, hasNextPage, isError, isLoading } = usePosts(isProfile, id);
-  const intObserver = useRef<any>();
+  const intObserver = useRef<IntersectionObserver | null>(null);
   const lastPostRef = useCallback(
-    (post: PostApiModel) => {
+    (node: HTMLDivElement | null) => {
       if (isLoading) return;
       if (intObserver.current) intObserver.current.disconnect();
       intObserver.current = new IntersectionObserver((entries) => {
@@ -31,9 +31,9 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
           dispatch(incrementPage({}));
         }
       });
-      if (post) intObserver.current.observe(post);
+      if (node) intObserver.current.observe(node);
     },
-    [isLoading, hasNextPage]
+    [isLoading, hasNextPage, dispatch]
   );
 
   if (isError)
@@ -90,12 +90,10 @@ const Posts: React.FC<Props> = ({ isProfile = false, id }) => {
         <Post
           ref={lastPostRef}
           key={`${index}a`}
-          // @ts-ignore
           isFriend={isFriend}
           {...post}
         />
       );
-    // @ts-ignore
     return <Post key={`${index}a`} isFriend={isFriend} {...post} />;
   });
 

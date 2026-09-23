@@ -1,3 +1,7 @@
+/**
+ * Form-shape user used by `authSlice` and friends-empty fallback. Distinct
+ * from `UserApiModel` (the server-returned shape) — see `UserApiModel`.
+ */
 export interface User {
   id: string;
   name: string;
@@ -20,6 +24,11 @@ export interface ProfileImage {
   updatedAt: Date;
 }
 
+/**
+ * Server-returned user shape. Mirrored from
+ * `server/modules/identity/application/composition.ts:toLegacyUserRecord` and
+ * `getUserService` / `getUsersService` (the assembler fields).
+ */
 export interface UserApiModel {
   _id: string;
   firstName: string;
@@ -34,42 +43,3 @@ export interface UserApiModel {
   occupation: string;
   picturePath: string;
 }
-
-export const userApiEmptyState = {
-  _id: '',
-  firstName: '',
-  lastName: '',
-  role: [],
-  friends: [],
-  viewedProfile: 0,
-  impressions: 0,
-  profileImage: File,
-  email: '',
-  location: '',
-  occupation: '',
-  picturePath: '',
-};
-
-export interface userModel {
-  id: string;
-  name: string;
-  email: string;
-  role: string[];
-  friends: string[];
-  viewedProfile: number;
-  location: string;
-  occupation: string;
-  picturePath: string;
-}
-
-export const userInitialState = {
-  id: '',
-  name: '',
-  email: '',
-  role: [],
-  friends: [],
-  viewedProfile: 0,
-  location: '',
-  occupation: '',
-  picturePath: '',
-};
