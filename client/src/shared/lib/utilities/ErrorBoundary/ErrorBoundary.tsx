@@ -1,7 +1,8 @@
 import { Component, ReactNode } from 'react';
 
 interface Props {
-  resetCondition?: any;
+  /** Anything that, when changed, resets the boundary. Compared by reference (`!==`). */
+  resetCondition?: unknown;
   error?: boolean;
   fallBackComponent: ReactNode;
   children: ReactNode;
@@ -9,7 +10,7 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  resetCondition?: any;
+  resetCondition?: unknown;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
