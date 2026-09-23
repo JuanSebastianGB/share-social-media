@@ -50,10 +50,45 @@ jobs:
       - name: Build server
         run: pnpm --filter server build
 
-      - name: Configure AWS credentials (OIDC)
+      - name: Configure AWS credentials (bootstrap OIDC)
+        id: aws_creds_bootstrap
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Deploy CI role stack
+        id: ci_role_deploy
+        working-directory: infra
+        env:
+          CDK_DEFAULT_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID }}
+          CDK_DEFAULT_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+        run: |
+          pnpm exec cdk deploy ShareSocialMediaCiRole \
+            --require-approval never
+
+      - name: Resolve CI role ARN
+        id: ci_role
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+        run: |
+          ARN=$(aws cloudformation describe-stacks \
+            --stack-name ShareSocialMediaCiRole \
+            --region "$AWS_REGION" \
+            --query "Stacks[0].Outputs[?OutputKey=='RoleArn'].OutputValue" \
+            --output text)
+          if [ -z "$ARN" ] || [ "$ARN" = "None" ]; then
+            echo "::error::Could not resolve RoleArn. Deploy ShareSocialMediaCiRole first."
+            exit 1
+          fi
+          echo "arn=${ARN}" >> "$GITHUB_OUTPUT"
+          echo "Resolved CI RoleArn=${ARN}"
+
+      - name: Configure AWS credentials (OIDC)
+        id: aws_creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ steps.ci_role.outputs.arn }}
           aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
 
       - name: Deploy API stack
