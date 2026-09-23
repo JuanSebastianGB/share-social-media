@@ -261,3 +261,4 @@ If the diff exceeds 400 lines or 10 files in any single commit, split. Otherwise
 | Commit | Tasks | Files | Notes |
 |--------|-------|-------|-------|
 | `edb2872` | T1 + T2 + T3 + T4 + T5 + T6 | 11 files, +687/-94 | Foundation (registry + utilities + posts migration as pattern validator). 234/234 tests pass; typecheck + lint clean. |
+| `b2241c2` | T7 + T9 + T10 + T11 + T12 | 17 files, +377/-328 | Complete migration: bulk (5 routes/controllers) + middlewares session/role + HttpStatusError class + UserOrFriendNotFoundError + delete handleHttpErrors. 237/237 tests pass; typecheck + lint clean. |
