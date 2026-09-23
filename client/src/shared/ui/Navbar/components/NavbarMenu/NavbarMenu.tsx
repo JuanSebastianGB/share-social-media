@@ -24,7 +24,10 @@ const NavbarMenu: React.FC<Props> = ({ setMenuOpen }) => {
   const user = useSelector((store: AppStore) => store.auth?.user);
   const dispatch = useDispatch();
   const theme = useTheme();
-  const accountLabel = user?.name || user?.email || '';
+  const accountLabel =
+    `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim() ||
+    user?.email ||
+    '';
 
   return (
     <Box

@@ -1,21 +1,3 @@
-/**
- * Form-shape user used by `authSlice` and friends-empty fallback. Distinct
- * from `UserApiModel` (the server-returned shape) — see `UserApiModel`.
- */
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-}
-
-export const userEmptyState: User = {
-  id: '',
-  name: '',
-  email: '',
-  password: '',
-};
-
 export interface ProfileImage {
   _id: string;
   url: string;
@@ -43,3 +25,29 @@ export interface UserApiModel {
   occupation: string;
   picturePath: string;
 }
+
+/**
+ * Empty placeholder used by the auth slice as initial / post-logout state.
+ * Has the same shape as `UserApiModel` so consumers can read fields without
+ * runtime narrowing (e.g. `auth.user._id`).
+ */
+export const emptyUserApiModel: UserApiModel = {
+  _id: '',
+  firstName: '',
+  lastName: '',
+  role: [],
+  friends: [],
+  viewedProfile: 0,
+  impressions: 0,
+  profileImage: {
+    _id: '',
+    url: '',
+    deleted: false,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  },
+  email: '',
+  location: '',
+  occupation: '',
+  picturePath: '',
+};

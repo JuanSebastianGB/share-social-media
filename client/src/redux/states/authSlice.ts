@@ -1,5 +1,5 @@
 import { StoreKeys } from '@/constants';
-import { authEmptyState, userEmptyState } from '@/models';
+import { authEmptyState, emptyUserApiModel } from '@/models';
 import { clearLocalPreviewUser } from '@/shared/lib/utilities';
 import { createSlice } from '@reduxjs/toolkit';
 
@@ -16,7 +16,7 @@ const authSlice = createSlice({
       clearLocalPreviewUser();
       return {
         ...state,
-        user: userEmptyState,
+        user: emptyUserApiModel,
         token: '',
       };
     },

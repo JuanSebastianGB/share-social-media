@@ -37,7 +37,7 @@ const StyledForm = styled('form')(({ theme }) => ({
 }));
 
 export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
   const { loading, submitError, onSubmit } = useCreatePost(
