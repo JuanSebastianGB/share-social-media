@@ -101,8 +101,14 @@ Bring the client's type safety from C (20 `@ts-ignore`, 20 `: any`, 4 dead types
 - Remove the `export { default as userSlice } from './userSlice'` line in `redux/states/index.ts`.
 - Verify `authSlice.characterization.spec.ts:74` still passes (uses `userEmptyState`, NOT `userSlice`).
 
-### T8 — Other client @ts-ignore cleanup (lower priority)
-This task is "nice to have" — Formik helpers and axios interceptors have legitimate `any` reasons. The 20 `@ts-ignore` count drops to 0 with T4+T5+T7 done (Post + Posts = 10). The remaining 10 (AuthRegister 2 + AuthLogin 2 + Friends 2 + Profile 2 + Home 3) are Formik/FormikHelpers patterns. Document them in a TODO comment in the feature doc — leave for a follow-up PR if scope grows.
+### T8 — Other client @ts-ignore cleanup (DONE)
+The remaining 11 @ts-ignore were all in error-rendering paths (ErrorContent with `message`/`data` props). Root cause: 5 data-fetching hooks used `useState({})` (typed as `{}`), so components had no type info on `error?.error?.message` / `error?.error?.response.data`.
+
+Fix:
+- `shared/lib/types/hook-error.ts`: added `HookErrorState`, `HookErrorInner`, `toHookErrorState()` helper.
+- 5 hooks (useUser, useUserPosts, useLogin, useRegister, useFriends) now `useState<HookErrorState | null>(null)` and `setError(toHookErrorState(err))`.
+- `useRegister` onSubmit signature now typed `FormikHelpers<RegisterModel>` instead of `any`.
+- 5 components dropped `@ts-ignore`; passed `error?.error?.response?.data` (optional chain handles no-response axios errors) to `ErrorContent`.
 
 ### T9 — Final verification
 - `pnpm --filter client typecheck` clean
@@ -112,16 +118,24 @@ This task is "nice to have" — Formik helpers and axios interceptors have legit
 
 ## Commit plan
 
-Two work-unit commits:
-1. **T1+T2+T3+T7** — model consolidation + zombies deleted (one commit, focused on type cleanup)
-2. **T4+T5+T6** — Post.tsx + Posts.tsx + usePostInteractions (one commit, focused on @ts-ignore removal)
+Three work-unit commits:
+1. **T1+T2+T3+T7** — model consolidation + zombies deleted (commit `9376422`)
+2. **T4+T5+T6** — Post.tsx + Posts.tsx + usePostInteractions (commit `d8c7912`)
+3. **T8** — typed error state in hooks + remaining @ts-ignore (commit `527de51`)
 
-Each must verify: typecheck + lint + client tests.
+## Final verification
 
-## Risk: postAdapter side effects
+- `@ts-ignore` count: 20 → 0 (100% reduction)
+- `: any` / `<any>` / `as any`: 20 → 16 (-20%)
+- typecheck: clean
+- lint: 0 errors, 10 warnings (same baseline as main)
+- 14/14 spec files, 63/63 tests pass
+
+## Risk: postAdapter side effects (RESOLVED)
 
 `postAdapter` only renames `_id` to `id`. The Post component reads `adaptedPost.id` (4 occurrences). After deletion, those become `post._id` (PostApiModel uses `_id` directly). Same value, different name — no behavior change.
 
-## Risk: User type mismatch in authSlice
+## Risk: User type mismatch in authSlice (OUT OF SCOPE)
 
-`auth.user` is typed as `User` (id/name/email/password) but `makeLogin` sets it to `UserApiModel` (firstName/lastName/role[]/etc.) — these are DIFFERENT types. This is an existing type bug. Out of scope for this refactor — DO NOT FIX here (would explode the diff). Add a TODO comment in the feature doc.
+`auth.user` is typed as `User` (id/name/email/password) but `makeLogin` sets it to `UserApiModel` (firstName/lastName/role[]/etc.) — these are DIFFERENT types. This is an existing type bug. Out of scope for this refactor — DO NOT FIX here (would explode the diff). Note in Post.tsx we handle this with the `'id' in authUser` guard.
+
