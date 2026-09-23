@@ -1,53 +1,39 @@
-import type { RequestHandler } from 'express';
+import type { Request, Response } from 'express';
 import { matchedData } from 'express-validator';
+import { HttpStatusError } from '../middlewares/error-mapper.js';
 import {
   getUserFriendsService,
   getUserService,
   getUsersService,
   toggleRelationFriendService,
 } from '../services/users.js';
-import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
+import { asyncHandler } from '../utilities/asyncHandler.js';
 
-const getUsers: RequestHandler = async (_req, res) => {
-  try {
-    const users = await getUsersService();
-    return res.json(users);
-  } catch {
-    handleHttpErrors(res, 'ERROR_GET_USERS');
-  }
-};
+export const getUsers = asyncHandler(async (_req: Request, res: Response) => {
+  const users = await getUsersService();
+  return res.json(users);
+});
 
-const getUser: RequestHandler = async (req, res) => {
-  try {
-    const { id } = matchedData(req);
-    const user = await getUserService(id);
-    return res.json(user);
-  } catch {
-    handleHttpErrors(res, 'ERROR_GET_USER');
-  }
-};
+export const getUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = matchedData(req);
+  const user = await getUserService(id);
+  return res.json(user);
+});
 
-const getUserFriends: RequestHandler = async (req, res) => {
-  try {
-    const { id } = matchedData(req);
-    const friends = await getUserFriendsService(id);
-    return res.json(friends);
-  } catch {
-    handleHttpErrors(res, 'ERROR_GET_USERS');
-  }
-};
+export const getUserFriends = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = matchedData(req);
+  const friends = await getUserFriendsService(id);
+  return res.json(friends);
+});
 
-const toggleRelationFriend: RequestHandler = async (req, res) => {
-  const { friendId } = matchedData(req);
-  const id = req.userData!._id;
+export const toggleRelationFriend = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { friendId } = matchedData(req);
+    const id = req.userData!._id;
 
-  try {
     const userFriends = await toggleRelationFriendService(id, friendId);
     return res.json(userFriends);
-  } catch (error) {
-    console.log(error);
-    handleHttpErrors(res, 'ERROR_TOGGLE_FRIEND', 404);
-  }
-};
+  },
+);
 
-export { getUsers, getUser, getUserFriends, toggleRelationFriend };
+void HttpStatusError;

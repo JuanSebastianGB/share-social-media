@@ -5,7 +5,7 @@ import { InvalidPostError } from '../modules/feed/domain/errors.js';
 import { InvalidUserError } from '../modules/identity/domain/errors.js';
 import { InvalidMediaFileError } from '../modules/media/domain/errors.js';
 import { InvalidFriendListError } from '../modules/social/domain/errors.js';
-import { errorMapper } from './error-mapper.js';
+import { errorMapper, HttpStatusError } from './error-mapper.js';
 
 type Calls = { status: number[]; json: unknown[] };
 
@@ -127,6 +127,49 @@ describe('errorMapper', () => {
       expect(calls.json).toEqual(['Something went wrong']);
       expect(capture.sink).toHaveLength(1);
       expect(capture.sink[0]?.[0]).toBe('[unhandled]');
+    });
+  });
+
+  describe('HttpStatusError carries its own status + body (highest priority)', () => {
+    test('401 → body === code, ignores defaultErrorCode', () => {
+      const { res, calls } = makeRes({ defaultErrorCode: 'IGNORED' });
+      errorMapper(
+        new HttpStatusError(401, 'ERROR_EXPECTED_BEARER'),
+        makeReq(),
+        res,
+        makeNext(),
+      );
+
+      expect(calls.status).toEqual([401]);
+      expect(calls.json).toEqual(['ERROR_EXPECTED_BEARER']);
+    });
+
+    test('410 → body === code', () => {
+      const { res, calls } = makeRes({ defaultErrorCode: 'IGNORED' });
+      errorMapper(
+        new HttpStatusError(410, 'ERROR_USE_COGNITO_AUTH'),
+        makeReq(),
+        res,
+        makeNext(),
+      );
+
+      expect(calls.status).toEqual([410]);
+      expect(calls.json).toEqual(['ERROR_USE_COGNITO_AUTH']);
+    });
+
+    test('does NOT call console.error (it is an explicit, intentional error)', () => {
+      const capture = captureConsoleError();
+      pendingRestores.push(capture.restore);
+
+      const { res } = makeRes();
+      errorMapper(
+        new HttpStatusError(404, 'ERROR_TOGGLE_FRIEND'),
+        makeReq(),
+        res,
+        makeNext(),
+      );
+
+      expect(capture.sink).toEqual([]);
     });
   });
 

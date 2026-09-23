@@ -2,7 +2,9 @@ import express, { type RequestHandler } from 'express';
 import { completeProfile, login, register } from '../controllers/auth.js';
 import { checkAuthToken } from '../middlewares/session.js';
 import { getUserByCognitoSubService } from '../services/auth.js';
+import { asyncHandler } from '../utilities/asyncHandler.js';
 import { isCognitoAuthEnabled } from '../utilities/cognitoMode.js';
+import { defaultErrorFor } from '../utilities/defaultErrorFor.js';
 import uploadMiddleware from '../utilities/handleUploadFile.js';
 import s3Upload from '../utilities/s3Upload.js';
 import {
@@ -31,12 +33,18 @@ const returnExistingCognitoProfile: RequestHandler = async (req, res, next) => {
 
 router.post(
   '/register',
+  defaultErrorFor('ERROR_REGISTER'),
   uploadMiddleware.single('myFile'),
   s3Upload.uploadToS3,
   validatorRegister,
-  register,
+  asyncHandler(register),
 );
-router.post('/login', validatorLogin, login);
+router.post(
+  '/login',
+  defaultErrorFor('ERROR_LOGIN'),
+  validatorLogin,
+  asyncHandler(login),
+);
 
 router.post(
   '/profile',
@@ -44,8 +52,9 @@ router.post(
   returnExistingCognitoProfile,
   uploadMiddleware.single('myFile'),
   s3Upload.uploadToS3,
+  defaultErrorFor('ERROR_COMPLETE_PROFILE'),
   validatorProfile,
-  completeProfile,
+  asyncHandler(completeProfile),
 );
 
 export default router;
