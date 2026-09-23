@@ -68,4 +68,9 @@ becomes unused; remove the `AWS_ROLE_ARN` secret only after that step.
 
 ## Validation evidence
 
-(populated as the worker reports back)
+- Branch: `feat/ci-role-as-code`
+- Commit: `ef3a0f1`
+- 6 files changed, 414 insertions, 9 deletions
+- `pnpm -C infra test`: 9/9 pass (5 pre-existing + 4 new for the role stack).
+- `cdk synth ShareSocialMediaWeb`: clean.
+- `cdk synth ShareSocialMediaCiRole`: clean (cross-stack reference notice is pre-existing project-wide noise).
