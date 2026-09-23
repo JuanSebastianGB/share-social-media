@@ -18,7 +18,7 @@ export const usePostInteractions = ({
   isFriend,
 }: UsePostInteractionsParams) => {
   const dispatch = useDispatch();
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
   const [confirmUnfriendOpen, setConfirmUnfriendOpen] = useState(false);
   const [friendPending, setFriendPending] = useState(false);
   const [likePending, setLikePending] = useState(false);

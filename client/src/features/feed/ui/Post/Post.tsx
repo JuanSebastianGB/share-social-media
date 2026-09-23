@@ -28,7 +28,7 @@ export interface Props extends PostApiModel {
 // @ts-ignore
 const Post = forwardRef(({ isFriend, ...post }, ref) => {
   const [openModal, setOpenModal] = useState(false);
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
   // @ts-ignore
   const isOwn = id === post.user._id;
   const theme = useTheme();

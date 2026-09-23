@@ -10,7 +10,7 @@ export const useCreatePost = (
   addAction: string,
   handleClose: () => void
 ) => {
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);

@@ -62,7 +62,7 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
       </IconButton>
       <FormControl>
         <Select
-          value={user.name}
+          value={user.firstName}
           displayEmpty
           inputProps={{ 'aria-label': 'Account menu' }}
           sx={{
@@ -83,8 +83,8 @@ const NavbarRight: React.FC<NavbarRightInterface> = ({
           }}
           input={<InputBase />}
         >
-          <MenuItem value={user.name}>
-            <small>{user.name}</small>
+          <MenuItem value={user.firstName}>
+            <small>{user.firstName}</small>
           </MenuItem>
           <MenuItem onClick={handleLogout}>
             <small>Log out</small>

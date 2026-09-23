@@ -1,17 +1,3 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-}
-
-export const userEmptyState: User = {
-  id: '',
-  name: '',
-  email: '',
-  password: '',
-};
-
 export interface ProfileImage {
   _id: string;
   url: string;
@@ -20,6 +6,11 @@ export interface ProfileImage {
   updatedAt: Date;
 }
 
+/**
+ * Server-returned user shape. Mirrored from
+ * `server/modules/identity/application/composition.ts:toLegacyUserRecord` and
+ * `getUserService` / `getUsersService` (the assembler fields).
+ */
 export interface UserApiModel {
   _id: string;
   firstName: string;
@@ -35,7 +26,12 @@ export interface UserApiModel {
   picturePath: string;
 }
 
-export const userApiEmptyState = {
+/**
+ * Empty placeholder used by the auth slice as initial / post-logout state.
+ * Has the same shape as `UserApiModel` so consumers can read fields without
+ * runtime narrowing (e.g. `auth.user._id`).
+ */
+export const emptyUserApiModel: UserApiModel = {
   _id: '',
   firstName: '',
   lastName: '',
@@ -43,32 +39,14 @@ export const userApiEmptyState = {
   friends: [],
   viewedProfile: 0,
   impressions: 0,
-  profileImage: File,
+  profileImage: {
+    _id: '',
+    url: '',
+    deleted: false,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  },
   email: '',
-  location: '',
-  occupation: '',
-  picturePath: '',
-};
-
-export interface userModel {
-  id: string;
-  name: string;
-  email: string;
-  role: string[];
-  friends: string[];
-  viewedProfile: number;
-  location: string;
-  occupation: string;
-  picturePath: string;
-}
-
-export const userInitialState = {
-  id: '',
-  name: '',
-  email: '',
-  role: [],
-  friends: [],
-  viewedProfile: 0,
   location: '',
   occupation: '',
   picturePath: '',

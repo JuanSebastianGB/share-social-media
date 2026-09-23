@@ -15,7 +15,7 @@ interface CommentRow {
 export const usePostComments = (post: PostApiModel, open: boolean) => {
   const dispatch = useDispatch();
   const authUser = useSelector((storage: AppStore) => storage.auth.user);
-  const { id } = authUser;
+  const { _id: id } = authUser;
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [description, setDescription] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
@@ -33,12 +33,15 @@ export const usePostComments = (post: PostApiModel, open: boolean) => {
 
     setSubmitting(true);
     setSubmitError(null);
-    const nameParts = (authUser.name || '').trim().split(/\s+/);
+    const firstName = authUser.firstName || '';
+    const lastName = authUser.lastName || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    const nameParts = fullName.split(/\s+/);
     const body = {
       userId: id,
       postId: post._id,
       firstName: nameParts[0] || 'User',
-      lastName: nameParts.slice(1).join(' '),
+      lastName: nameParts.slice(1).join(' ') || '',
       description: trimmed,
     };
 
