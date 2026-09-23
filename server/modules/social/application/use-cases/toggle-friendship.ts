@@ -1,10 +1,12 @@
 import type { FriendList } from '../../domain/friend-list.js';
+import { UserOrFriendNotFoundError } from '../../domain/errors.js';
 import type { FriendListRepository } from '../ports/friend-list-repository.js';
 
 /**
  * Bidirectional friend toggle matching legacy `toggleRelationFriendService`.
- * Throws `USER_OR_FRIEND_NOT_FOUND` when either FriendList is missing
- * (controller maps to ERROR_TOGGLE_FRIEND 404).
+ * Throws UserOrFriendNotFoundError when either FriendList is missing
+ * (errorMapper maps to 404 + 'ERROR_TOGGLE_FRIEND' via the route's
+ * defaultErrorCode stamp).
  */
 export async function toggleFriendship(
   repo: FriendListRepository,
@@ -14,7 +16,7 @@ export async function toggleFriendship(
   const actor = await repo.findByUserId(actorId);
   const friend = await repo.findByUserId(friendId);
   if (!actor || !friend) {
-    throw new Error('USER_OR_FRIEND_NOT_FOUND');
+    throw new UserOrFriendNotFoundError();
   }
 
   actor.toggleFriend(friendId);

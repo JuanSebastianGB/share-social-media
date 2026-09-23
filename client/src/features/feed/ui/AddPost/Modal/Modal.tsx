@@ -1,5 +1,5 @@
 import { useUser } from '@/features/profile';
-import { useCreatePost } from '../../../hooks';
+import { useCreatePost, type PostFormValues } from '../../../hooks';
 import { AppStore } from '@/models';
 import {
   Alert,
@@ -30,19 +30,19 @@ const validationSchema = yup.object().shape({
   body: yup.string().required('Post body is required'),
 });
 
-const initialValues = { body: '', myFile: File };
+const initialValues: PostFormValues = { body: '', myFile: null };
 
 const StyledForm = styled('form')(({ theme }) => ({
   padding: '2rem',
 }));
 
 export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
   const { user } = useUser(id);
   const theme = useTheme();
   const { loading, submitError, onSubmit } = useCreatePost(
     addAction,
-    handleClose
+    handleClose,
   );
 
   const requestClose = () => {
@@ -51,9 +51,8 @@ export const Modal: FC<ModalProps> = ({ open, handleClose, addAction }) => {
   };
 
   const { getFieldProps, setFieldValue, handleSubmit, touched, errors } =
-    useFormik({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- matches legacy Formik submit shape
-      onSubmit: onSubmit as any,
+    useFormik<PostFormValues>({
+      onSubmit,
       initialValues,
       validationSchema,
     });

@@ -1,5 +1,6 @@
-import type { RequestHandler } from 'express';
+import type { Request, Response } from 'express';
 import { matchedData } from 'express-validator';
+import { HttpStatusError } from '../middlewares/error-mapper.js';
 import {
   completeProfileService,
   getUserByCognitoSubService,
@@ -10,16 +11,18 @@ import {
   deleteHardFileService,
 } from '../services/storage.js';
 import { getUserFromEmailService } from '../services/users.js';
+import { asyncHandler } from '../utilities/asyncHandler.js';
 import { isCognitoAuthEnabled } from '../utilities/cognitoMode.js';
-import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { generateToken } from '../utilities/handleJwt.js';
 import { compare, encrypt } from '../utilities/handlePassword.js';
 
-const register: RequestHandler = async (req, res) => {
+export const register = asyncHandler(async (req: Request, res: Response) => {
   if (isCognitoAuthEnabled()) {
-    return handleHttpErrors(res, 'ERROR_USE_COGNITO_AUTH', 410);
+    throw new HttpStatusError(410, 'ERROR_USE_COGNITO_AUTH');
   }
-  if (!req.file) return handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
+  if (!req.file) {
+    throw new HttpStatusError(403, 'ERROR_UPLOAD_FILE');
+  }
   const body = matchedData(req);
 
   const filename =
@@ -40,91 +43,90 @@ const register: RequestHandler = async (req, res) => {
     };
     const response = await registerService(processedIncomingData);
     return res.json(response);
-  } catch {
+  } catch (err) {
     await deleteHardFileService(savedFileRegister._id);
-    handleHttpErrors(res, 'ERROR_REGISTER');
+    throw err;
   }
-};
+});
 
-const login: RequestHandler = async (req, res) => {
+export const login = asyncHandler(async (req: Request, res: Response) => {
   if (isCognitoAuthEnabled()) {
-    return handleHttpErrors(res, 'ERROR_USE_COGNITO_AUTH', 410);
+    throw new HttpStatusError(410, 'ERROR_USE_COGNITO_AUTH');
   }
-  try {
-    const body = matchedData(req);
-    const { email, password } = body;
-    const userFound = await getUserFromEmailService(email);
-    if (!userFound) return handleHttpErrors(res, 'ERROR_USER_NOT_FOUND');
-    const verifiedMatch = await compare(password, userFound.password || '');
-    if (!verifiedMatch) return handleHttpErrors(res, 'ERROR_PASSWORD');
-    userFound.password = undefined;
-    const { _id, role } = userFound;
-    return res.json({
-      userFound,
-      token: generateToken({ _id: String(_id), role: role as string | string[] }),
-    });
-  } catch (error) {
-    console.log(error);
-    handleHttpErrors(res, 'ERROR_LOGIN');
+  const body = matchedData(req);
+  const { email, password } = body;
+  const userFound = await getUserFromEmailService(email);
+  if (!userFound) {
+    throw new HttpStatusError(403, 'ERROR_USER_NOT_FOUND');
   }
-};
+  const verifiedMatch = await compare(password, userFound.password || '');
+  if (!verifiedMatch) {
+    throw new HttpStatusError(403, 'ERROR_PASSWORD');
+  }
+  userFound.password = undefined;
+  const { _id, role } = userFound;
+  return res.json({
+    userFound,
+    token: generateToken({ _id: String(_id), role: role as string | string[] }),
+  });
+});
 
 /**
  * Cognito mode: authenticated multipart profile completion (avatar + fields).
  * Creates DynamoDB user without password; links cognitoSub from the access token.
  */
-const completeProfile: RequestHandler = async (req, res) => {
-  if (!isCognitoAuthEnabled()) {
-    return handleHttpErrors(res, 'ERROR_USE_REGISTER', 410);
-  }
-
-  const cognitoSub = req.userData?.cognitoSub;
-  if (!cognitoSub) {
-    return handleHttpErrors(res, 'ERROR_NOT_VALID_SESSION_CREDENTIALS', 401);
-  }
-
-  if (req.userData?._id) {
-    const existing = await getUserByCognitoSubService(cognitoSub);
-    if (!existing) {
-      return handleHttpErrors(res, 'ERROR_PROFILE_REQUIRED', 401);
+export const completeProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    if (!isCognitoAuthEnabled()) {
+      throw new HttpStatusError(410, 'ERROR_USE_REGISTER');
     }
-    const { password: _pw, ...safe } = existing;
-    return res.json({ response: safe });
-  }
 
-  if (!req.file) return handleHttpErrors(res, 'ERROR_UPLOAD_FILE');
-  const body = matchedData(req);
+    const cognitoSub = req.userData?.cognitoSub;
+    if (!cognitoSub) {
+      throw new HttpStatusError(401, 'ERROR_NOT_VALID_SESSION_CREDENTIALS');
+    }
 
-  const filename =
-    (req.file as Express.Multer.File & { filename?: string }).filename ||
-    req.file.originalname;
-  const savedFileRegister = await createFileUploadedRegisterService(
-    filename,
-    req.image?.secure_url,
-  );
+    if (req.userData?._id) {
+      const existing = await getUserByCognitoSubService(cognitoSub);
+      if (!existing) {
+        throw new HttpStatusError(401, 'ERROR_PROFILE_REQUIRED');
+      }
+      const { password: _pw, ...safe } = existing;
+      return res.json({ response: safe });
+    }
 
-  try {
-    const processedIncomingData = {
-      firstName: body.firstName,
-      lastName: body.lastName,
-      email: body.email,
-      location: body.location,
-      occupation: body.occupation,
-      viewedProfile: Math.floor(Math.random() * 1000),
-      impressions: Math.floor(Math.random() * 1000),
-      profileImageId: savedFileRegister._id || '',
-    };
-    const result = await completeProfileService(
-      cognitoSub,
-      processedIncomingData,
+    if (!req.file) throw new HttpStatusError(403, 'ERROR_UPLOAD_FILE');
+    const body = matchedData(req);
+
+    const filename =
+      (req.file as Express.Multer.File & { filename?: string }).filename ||
+      req.file.originalname;
+    const savedFileRegister = await createFileUploadedRegisterService(
+      filename,
+      req.image?.secure_url,
     );
-    return res
-      .status(result.created ? 201 : 200)
-      .json({ response: result.response });
-  } catch {
-    await deleteHardFileService(savedFileRegister._id);
-    handleHttpErrors(res, 'ERROR_COMPLETE_PROFILE');
-  }
-};
 
-export { register, login, completeProfile };
+    try {
+      const processedIncomingData = {
+        firstName: body.firstName,
+        lastName: body.lastName,
+        email: body.email,
+        location: body.location,
+        occupation: body.occupation,
+        viewedProfile: Math.floor(Math.random() * 1000),
+        impressions: Math.floor(Math.random() * 1000),
+        profileImageId: savedFileRegister._id || '',
+      };
+      const result = await completeProfileService(
+        cognitoSub,
+        processedIncomingData,
+      );
+      return res
+        .status(result.created ? 201 : 200)
+        .json({ response: result.response });
+    } catch (err) {
+      await deleteHardFileService(savedFileRegister._id);
+      throw err;
+    }
+  },
+);

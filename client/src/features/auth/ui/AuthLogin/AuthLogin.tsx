@@ -21,10 +21,8 @@ const AuthLogin: React.FC<Props> = () => {
   if (isError)
     return (
       <ErrorContent
-        // @ts-ignore
         message={error?.error?.message}
-        // @ts-ignore
-        data={error?.error?.response.data}
+        data={error?.error?.response?.data}
       />
     );
 

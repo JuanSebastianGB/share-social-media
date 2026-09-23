@@ -8,6 +8,7 @@ import YAML from 'js-yaml';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import { createDefault } from './controllers/storage.js';
+import { errorMapper } from './middlewares/error-mapper.js';
 import { checkValidJwt } from './middlewares/session.js';
 import {
   auth,
@@ -57,5 +58,7 @@ app.use('/checktoken', checkValidJwt, (_req, res) => res.send('ok'));
 
 app.use('/documentation', swaggerUi.serve, swaggerUi.setup(openApiSpec));
 app.get('/documentation.json', (_req, res) => res.json(openApiSpec));
+
+app.use(errorMapper);
 
 export { app };

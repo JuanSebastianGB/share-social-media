@@ -22,7 +22,7 @@ function App() {
   const mode = useSelector((store: AppStore) => store.theme.mode);
   const token = useSelector((store: AppStore) => store.auth.token);
   const isAuth = !!token;
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
 
   return (
     <ThemeProvider theme={makeTheme(mode)}>

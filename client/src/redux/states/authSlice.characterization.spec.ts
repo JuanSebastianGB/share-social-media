@@ -1,4 +1,4 @@
-import { authEmptyState, userEmptyState } from '@/models';
+import { authEmptyState, emptyUserApiModel, type UserApiModel } from '@/models';
 import {
   buildLocalPreviewUserFromLogin,
   LOCAL_PREVIEW_STORAGE_KEY,
@@ -31,6 +31,27 @@ function createMemoryStorage(): Storage {
   };
 }
 
+const adaUser: UserApiModel = {
+  _id: 'u1',
+  firstName: 'Ada',
+  lastName: '',
+  role: [],
+  friends: [],
+  viewedProfile: 0,
+  impressions: 0,
+  profileImage: {
+    _id: '',
+    url: '',
+    deleted: false,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  },
+  email: 'ada@example.com',
+  location: '',
+  occupation: '',
+  picturePath: '',
+};
+
 // Captured on: 2026-09-20 from feat/client-unit-tests
 // Known bugs: none recorded
 
@@ -47,10 +68,7 @@ describe('authSlice characterization', () => {
   it('makeLogin with user and token — stores user and token on state', () => {
     // Arrange
     const previous = { ...authEmptyState };
-    const payload = {
-      user: { id: 'u1', name: 'Ada', email: 'ada@example.com', password: '' },
-      token: 'jwt-token',
-    };
+    const payload = { user: adaUser, token: 'jwt-token' };
 
     // Act
     const next = authReducer(previous, makeLogin(payload));
@@ -62,16 +80,13 @@ describe('authSlice characterization', () => {
 
   it('makeLogout after login — clears user to empty and token to empty string', () => {
     // Arrange
-    const previous = {
-      user: { id: 'u1', name: 'Ada', email: 'ada@example.com', password: '' },
-      token: 'jwt-token',
-    };
+    const previous = { user: adaUser, token: 'jwt-token' };
 
     // Act
     const next = authReducer(previous, makeLogout({}));
 
     // Assert
-    expect(next.user).toEqual(userEmptyState);
+    expect(next.user).toEqual(emptyUserApiModel);
     expect(next.token).toBe('');
   });
 
@@ -84,10 +99,7 @@ describe('authSlice characterization', () => {
     expect(localStorage.getItem(LOCAL_PREVIEW_STORAGE_KEY)).toBeTruthy();
 
     authReducer(
-      {
-        user: { id: 'u1', name: 'Ada', email: 'ada@example.com', password: '' },
-        token: 'local-preview',
-      },
+      { user: adaUser, token: 'local-preview' },
       makeLogout({}),
     );
 

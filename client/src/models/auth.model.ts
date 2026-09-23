@@ -1,12 +1,17 @@
-import { User, userEmptyState } from './user.model';
+import { emptyUserApiModel, type UserApiModel } from './user.model';
 
 export interface Auth {
-  user: User;
+  /**
+   * The authenticated user in server shape. After login this carries the
+   * real UserApiModel; after logout it carries `emptyUserApiModel`. Use
+   * `auth.user._id` (never `auth.user.id` — that field does not exist).
+   */
+  user: UserApiModel;
   token: string;
 }
 
 export const authEmptyState: Auth = {
-  user: userEmptyState,
+  user: emptyUserApiModel,
   token: '',
 };
 
@@ -40,8 +45,8 @@ export interface RegisterModel extends LoginModel {
 export const RegisterInitialValues: RegisterModel = {
   firstName: '',
   lastName: '',
-  location: '',
   occupation: '',
+  location: '',
   picturePath: '',
   myFile: PictureEmptyState,
   email: '',

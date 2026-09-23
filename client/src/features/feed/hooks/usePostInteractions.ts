@@ -1,10 +1,10 @@
-import { AppStore } from '@/models';
+import type { AppStore } from '@/models';
 import { toggleFriend } from '@/redux/states/friendsSlice';
 import { togglePostLikes } from '@/redux/states/postsSlice';
-import { likePostService } from '../api';
-import { fetchToggleFriendUserService } from '@/features/friends/api/friends.service';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { likePostService } from '../api';
+import { fetchToggleFriendUserService } from '@/features/friends/api/friends.service';
 
 interface UsePostInteractionsParams {
   postId: string;
@@ -18,7 +18,8 @@ export const usePostInteractions = ({
   isFriend,
 }: UsePostInteractionsParams) => {
   const dispatch = useDispatch();
-  const { id } = useSelector((store: AppStore) => store.auth.user);
+  const authUser = useSelector((store: AppStore) => store.auth.user);
+  const userId = authUser._id;
   const [confirmUnfriendOpen, setConfirmUnfriendOpen] = useState(false);
   const [friendPending, setFriendPending] = useState(false);
   const [likePending, setLikePending] = useState(false);
@@ -34,7 +35,7 @@ export const usePostInteractions = ({
   const toggleFriendApi = async () => {
     setFriendPending(true);
     try {
-      const friends = await fetchToggleFriendUserService<string>(id, authorId);
+      const friends = await fetchToggleFriendUserService<string>(userId, authorId);
       dispatch(toggleFriend(friends));
       setConfirmUnfriendOpen(false);
     } catch {
@@ -48,10 +49,8 @@ export const usePostInteractions = ({
     }
   };
 
-  const handleClick = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    e.preventDefault();
+  // No args: invoked from a Button onClick where preventDefault is not needed.
+  const handleClick = async (): Promise<void> => {
     if (isFriend) {
       setConfirmUnfriendOpen(true);
       return;
@@ -60,12 +59,12 @@ export const usePostInteractions = ({
   };
 
   const handleLike = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+    e: React.MouseEvent<HTMLButtonElement>,
+  ): Promise<void> => {
     e.preventDefault();
     setLikePending(true);
     try {
-      const response = await likePostService(postId, { userId: id });
+      const response = await likePostService(postId, { userId });
       dispatch(togglePostLikes(response));
     } catch {
       setSnackbar({

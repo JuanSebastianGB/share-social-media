@@ -1,15 +1,18 @@
 import { Box, Button, TextField, useMediaQuery } from '@mui/material';
-import { FieldInputProps } from 'formik';
+import type { FormikProps } from 'formik';
+import type { LoginModel } from '@/models';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { StyledAuthLogin } from './styles';
 
+type FormikLogin = FormikProps<LoginModel>;
+
 export interface Props {
-  getFieldProps: (nameOrOptions: any) => FieldInputProps<any>;
-  errors: any;
-  handleBlur: any;
-  touched: any;
-  handleSubmit: any;
+  getFieldProps: FormikLogin['getFieldProps'];
+  errors: FormikLogin['errors'];
+  handleBlur: FormikLogin['handleBlur'];
+  touched: FormikLogin['touched'];
+  handleSubmit: FormikLogin['handleSubmit'];
   displayButton: boolean;
 }
 
