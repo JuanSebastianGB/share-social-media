@@ -1,6 +1,5 @@
 import { usePostInteractions } from '../../hooks';
-import { postAdapter } from '../../model';
-import { AppStore, PostApiModel } from '@/models';
+import type { AppStore, PostApiModel, UserApiModel } from '@/models';
 import { SpaceBetween } from '@/shared/ui/styled-components';
 import ChatIcon from '@mui/icons-material/Chat';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -21,27 +20,25 @@ import React, { forwardRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CommentsModal } from './CommentsModal';
 import { PostSection } from './PostSection';
+
 export interface Props extends PostApiModel {
   isFriend: boolean;
 }
 
-// @ts-ignore
-const Post = forwardRef(({ isFriend, ...post }, ref) => {
-  const [openModal, setOpenModal] = useState(false);
-  const { _id: id } = useSelector((store: AppStore) => store.auth.user);
-  // @ts-ignore
-  const isOwn = id === post.user._id;
-  const theme = useTheme();
-  // @ts-ignore
-  const adaptedPost = postAdapter(post);
-  const { user: userPost } = adaptedPost;
-  const friendName = `${userPost.firstName} ${userPost.lastName}`.trim();
-  const checkIsLikedOwn = (likes: {}, userId: string): boolean =>
-    Object.keys(likes).some((row) => {
-      return row === userId;
-    });
+const checkIsLikedOwn = (
+  likes: PostApiModel['likes'],
+  userId: string,
+): boolean => Object.prototype.hasOwnProperty.call(likes, userId);
 
-  const isLikedOwn = checkIsLikedOwn(adaptedPost.likes, id);
+const Post = forwardRef<HTMLDivElement, Props>(({ isFriend, ...post }, ref) => {
+  const [openModal, setOpenModal] = useState(false);
+  const authUser = useSelector((store: AppStore) => store.auth.user);
+  const authUserId = 'id' in authUser ? authUser.id : '';
+  const isOwn = authUserId === post.user._id;
+  const theme = useTheme();
+  const userPost: UserApiModel = post.user;
+
+  const isLikedOwn = checkIsLikedOwn(post.likes, authUserId);
 
   const {
     confirmUnfriendOpen,
@@ -54,7 +51,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
     handleClick,
     handleLike,
   } = usePostInteractions({
-    postId: adaptedPost.id,
+    postId: post._id,
     authorId: userPost._id,
     isFriend,
   });
@@ -65,29 +62,24 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         userPost={userPost}
         isOwn={isOwn}
         isFriend={isFriend}
-        // @ts-ignore
         handleClick={handleClick}
-        body={adaptedPost.body}
+        body={post.body}
         disabled={friendPending}
       />
-      {
-        // @ts-ignore
-        adaptedPost?.type !== 'comment' && (
-          <Box
-            component="img"
-            className="image"
-            sx={{
-              width: '100%',
-              objectFit: 'cover',
-              minHeight: { xs: 200, md: 450 },
-              borderRadius: '10px',
-            }}
-            // @ts-ignore
-            src={adaptedPost.file.url}
-            alt={adaptedPost.body ? `Post by ${friendName}` : 'Post image'}
-          />
-        )
-      }
+      {post.type !== 'comment' && (
+        <Box
+          component="img"
+          className="image"
+          sx={{
+            width: '100%',
+            objectFit: 'cover',
+            minHeight: { xs: 200, md: 450 },
+            borderRadius: '10px',
+          }}
+          src={post.file.url}
+          alt={post.body ? `Post by ${userPost.firstName} ${userPost.lastName}`.trim() : 'Post image'}
+        />
+      )}
       <SpaceBetween sx={{ justifyContent: 'flex-end' }}>
         <SpaceBetween gap="10px">
           <SpaceBetween>
@@ -107,14 +99,14 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
               />
             </IconButton>
             <Typography variant="caption" color={theme.palette.neutral.main}>
-              {Object.values(adaptedPost?.likes).length}
+              {Object.keys(post.likes).length}
             </Typography>
           </SpaceBetween>
           {openModal && (
             <CommentsModal
               onClose={() => setOpenModal(false)}
               open={openModal}
-              post={post as PostApiModel}
+              post={post}
               isOwn={isOwn}
             />
           )}
@@ -127,10 +119,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
               <ChatIcon fontSize="small" />
             </IconButton>
             <Typography variant="caption" color={theme.palette.neutral.main}>
-              {
-                // @ts-ignore
-                post.comments.length
-              }
+              {post.comments.length}
             </Typography>
           </SpaceBetween>
         </SpaceBetween>
@@ -143,7 +132,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
         <DialogTitle>Remove friend?</DialogTitle>
         <DialogContent>
           <Typography>
-            Remove {friendName || 'this friend'} from your friends?
+            Remove {`${userPost.firstName} ${userPost.lastName}`.trim() || 'this friend'} from your friends?
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -181,22 +170,10 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
     </>
   );
 
-  const content = ref ? (
+  return (
     <Box
       ref={ref}
-      key={adaptedPost.id}
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: '10px',
-        padding: '1rem',
-        mb: '10px',
-      }}
-    >
-      {postBody}
-    </Box>
-  ) : (
-    <Box
-      key={adaptedPost.id}
+      key={post._id}
       sx={{
         backgroundColor: theme.palette.background.paper,
         borderRadius: '10px',
@@ -207,8 +184,7 @@ const Post = forwardRef(({ isFriend, ...post }, ref) => {
       {postBody}
     </Box>
   );
-
-  return content;
 });
 
+Post.displayName = 'Post';
 export default Post;

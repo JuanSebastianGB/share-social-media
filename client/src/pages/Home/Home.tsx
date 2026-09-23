@@ -30,8 +30,7 @@ const Home: React.FC<Props> = ({ id }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // @ts-ignore
-    if (error?.error?.response.data === 'ERROR_GET_USER') {
+    if (error?.error?.response?.data === 'ERROR_GET_USER') {
       dispatch(makeLogout({}));
       navigate('/');
     }
@@ -43,10 +42,8 @@ const Home: React.FC<Props> = ({ id }) => {
   if (isError)
     return (
       <ErrorContent
-        // @ts-ignore
         message={error?.error?.message}
-        // @ts-ignore
-        data={error?.error?.response.data}
+        data={error?.error?.response?.data}
       />
     );
 

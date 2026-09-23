@@ -24,9 +24,7 @@ const Profile: React.FC<ProfileInterface> = () => {
   if (isError)
     return (
       <ErrorContent
-        // @ts-ignore
-        data={error?.error?.response.data}
-        // @ts-ignore
+        data={error?.error?.response?.data}
         message={error?.error?.message}
       />
     );

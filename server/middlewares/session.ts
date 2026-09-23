@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { getUserByCognitoSubService } from '../services/auth.js';
 import { isCognitoAuthEnabled } from '../utilities/cognitoMode.js';
-import { handleHttpErrors } from '../utilities/handleHttpErrors.js';
 import { verifyToken } from '../utilities/handleJwt.js';
+import { HttpStatusError } from './error-mapper.js';
 
 type SessionOptions = {
   /** When true (default), Cognito users must already have a DynamoDB profile. */
@@ -11,24 +11,26 @@ type SessionOptions = {
 
 async function runSessionCheck(
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
   options: SessionOptions,
 ) {
   try {
     const incomingJwt = req.headers.authorization || '';
     if (incomingJwt.split(' ')[0] !== 'Bearer')
-      return handleHttpErrors(res, 'ERROR_EXPECTED_BEARER', 401);
+      return next(new HttpStatusError(401, 'ERROR_EXPECTED_BEARER'));
     const token = incomingJwt.split(' ').pop() as string;
     const claims = await verifyToken(token);
     if (!claims)
-      return handleHttpErrors(res, 'ERROR_NOT_VALID_SESSION_CREDENTIALS', 401);
+      return next(
+        new HttpStatusError(401, 'ERROR_NOT_VALID_SESSION_CREDENTIALS'),
+      );
 
     if (isCognitoAuthEnabled() && claims.cognitoSub) {
       const user = await getUserByCognitoSubService(claims.cognitoSub);
       if (!user) {
         if (options.requireProfile !== false) {
-          return handleHttpErrors(res, 'ERROR_PROFILE_REQUIRED', 401);
+          return next(new HttpStatusError(401, 'ERROR_PROFILE_REQUIRED'));
         }
         req.userData = {
           _id: '',
@@ -47,8 +49,9 @@ async function runSessionCheck(
 
     req.userData = claims;
     next();
-  } catch {
-    handleHttpErrors(res, 'ERROR_SESSION');
+  } catch (err) {
+    next(new HttpStatusError(500, 'ERROR_SESSION'));
+    void err;
   }
 }
 

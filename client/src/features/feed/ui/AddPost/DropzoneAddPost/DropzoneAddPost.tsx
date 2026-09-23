@@ -2,7 +2,7 @@ import { SpaceBetweenColumn } from '@/shared/ui/styled-components';
 import AddToPhotosRoundedIcon from '@mui/icons-material/AddToPhotosRounded';
 import { Box, Typography, useTheme } from '@mui/material';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, type FileRejection } from 'react-dropzone';
 import { Thumbs } from './Thumbs';
 
 function nameLengthValidator(file: File) {
@@ -20,7 +20,7 @@ interface customFile extends File {
 }
 
 interface Props {
-  setFieldValue: (fileName: string, fileAccepted: File) => void;
+  setFieldValue: (field: string, value: File | null) => void;
 }
 
 const DropzoneAddPost: FC<Props> = ({ setFieldValue }) => {
@@ -32,12 +32,12 @@ const DropzoneAddPost: FC<Props> = ({ setFieldValue }) => {
         acceptedFiles.map((file) =>
           Object.assign(file, {
             preview: URL.createObjectURL(file),
-          })
-        )
+          }),
+        ),
       );
-      setFieldValue('myFile', acceptedFiles[0]);
+      setFieldValue('myFile', acceptedFiles[0] ?? null);
     },
-    [setFiles]
+    [setFieldValue],
   );
 
   const { getRootProps, getInputProps, fileRejections } = useDropzone({
@@ -47,20 +47,22 @@ const DropzoneAddPost: FC<Props> = ({ setFieldValue }) => {
     onDrop,
     multiple: false,
   });
-  const fileRejectionItems = fileRejections.map(({ file, errors }: any) => (
-    <li key={file.path}>
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map((e: any) => (
-          <li key={e.code}>{e.message}</li>
-        ))}
-      </ul>
-    </li>
-  ));
+  const fileRejectionItems = fileRejections.map(
+    ({ file, errors }: FileRejection) => (
+      <li key={file.path}>
+        {file.path} - {file.size} bytes
+        <ul>
+          {errors.map((e) => (
+            <li key={e.code}>{e.message}</li>
+          ))}
+        </ul>
+      </li>
+    ),
+  );
 
   useEffect(() => {
     return () => files.forEach((file) => URL.revokeObjectURL(file.preview));
-  }, []);
+  }, [files]);
 
   const theme = useTheme();
 
