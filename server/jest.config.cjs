@@ -9,6 +9,8 @@ module.exports = {
   testMatch: [
     '**/tests/**/*.test.ts',
     '**/modules/**/*.test.ts',
+    '**/middlewares/**/*.test.ts',
+    '**/utilities/**/*.test.ts',
   ],
   testPathIgnorePatterns: ['/node_modules/', '\\.integration\\.spec\\.ts$'],
   setupFiles: ['<rootDir>/tests/setup-env.cjs'],
