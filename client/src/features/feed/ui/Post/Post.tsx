@@ -33,12 +33,11 @@ const checkIsLikedOwn = (
 const Post = forwardRef<HTMLDivElement, Props>(({ isFriend, ...post }, ref) => {
   const [openModal, setOpenModal] = useState(false);
   const authUser = useSelector((store: AppStore) => store.auth.user);
-  const authUserId = 'id' in authUser ? authUser.id : '';
-  const isOwn = authUserId === post.user._id;
+  const isOwn = authUser._id === post.user._id;
   const theme = useTheme();
   const userPost: UserApiModel = post.user;
 
-  const isLikedOwn = checkIsLikedOwn(post.likes, authUserId);
+  const isLikedOwn = checkIsLikedOwn(post.likes, authUser._id);
 
   const {
     confirmUnfriendOpen,
