@@ -7,23 +7,31 @@ import {
   toggleRelationFriend,
 } from '../controllers/users.js';
 import { checkValidJwt } from '../middlewares/session.js';
+import { asyncHandler } from '../utilities/asyncHandler.js';
+import { defaultErrorFor } from '../utilities/defaultErrorFor.js';
 import {
   validatorGetItem,
   validatorToggleFriend,
 } from '../validators/users.js';
 const router = express.Router();
 
-router.get('/', getUsers);
+router.get('/', defaultErrorFor('ERROR_GET_USERS'), asyncHandler(getUsers));
 
-router.get('/:id', validatorGetItem, getUser);
+router.get('/:id', defaultErrorFor('ERROR_GET_USER'), validatorGetItem, asyncHandler(getUser));
 
-router.get('/:id/friends', validatorGetItem, getUserFriends);
+router.get(
+  '/:id/friends',
+  defaultErrorFor('ERROR_GET_USERS'),
+  validatorGetItem,
+  asyncHandler(getUserFriends),
+);
 router.get('/:id/posts', validatorGetItem, getUserPosts);
 router.patch(
   '/:id/:friendId',
   checkValidJwt,
+  defaultErrorFor('ERROR_TOGGLE_FRIEND'),
   validatorToggleFriend,
-  toggleRelationFriend,
+  asyncHandler(toggleRelationFriend),
 );
 
 export default router;
