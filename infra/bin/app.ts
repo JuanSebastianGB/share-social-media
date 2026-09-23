@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { ApiStack } from '../lib/api-stack.js';
+import { CIRoleStack } from '../lib/ci-role-stack.js';
 import { WebStack } from '../lib/web-stack.js';
 
 const app = new cdk.App();
@@ -15,9 +16,17 @@ new ApiStack(app, 'ShareSocialMediaApi', {
   description: 'HTTP API + Lambda for share-social-media',
 });
 
-new WebStack(app, 'ShareSocialMediaWeb', {
+const webStack = new WebStack(app, 'ShareSocialMediaWeb', {
   env,
   description: 'S3 + CloudFront static site for share-social-media',
+});
+
+new CIRoleStack(app, 'ShareSocialMediaCiRole', {
+  env,
+  description: 'OIDC role + policy for GitHub Actions CD (publish + invalidate)',
+  siteBucket: webStack.siteBucket,
+  siteDistribution: webStack.siteDistribution,
+  githubRepo: 'JuanSebastianGB/share-social-media',
 });
 
 app.synth();
