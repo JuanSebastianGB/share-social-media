@@ -1,5 +1,7 @@
+import type { FormikHelpers } from 'formik';
 import { RegisterModel } from '@/models';
 import { makeLogin } from '@/redux/states/authSlice';
+import { toHookErrorState, type HookErrorState } from '@/shared/lib/types/hook-error';
 import {
   errorToastMessageConfig,
   successToastMessageConfig,
@@ -19,7 +21,7 @@ const requestCognitoConfirmationCode = async (): Promise<string> => {
 };
 
 export const useRegister = () => {
-  const [error, setError] = useState({});
+  const [error, setError] = useState<HookErrorState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [displayButton, setDisplayButton] = useState(true);
@@ -28,11 +30,14 @@ export const useRegister = () => {
   const dispatch = useDispatch();
   let controller = new AbortController();
 
-  const onSubmit = async (values: RegisterModel, onSubmitProps: any) => {
+  const onSubmit = async (
+    values: RegisterModel,
+    onSubmitProps: FormikHelpers<RegisterModel>,
+  ) => {
     const { signal } = controller;
 
     try {
-      setError(false);
+      setError(null);
       setIsLoading(true);
       setDisplayButton(false);
 
@@ -53,13 +58,13 @@ export const useRegister = () => {
       }
 
       navigate('/');
-    } catch (error) {
+    } catch (err) {
       setIsLoading(false);
       setDisplayButton(true);
       if (signal.aborted) return;
       setIsError(true);
-      console.log({ error });
-      setError({ error });
+      console.log({ error: err });
+      setError(toHookErrorState(err));
       toast.error('Something went wrong!', errorToastMessageConfig);
       setTimeout(() => {
         setIsError(false);

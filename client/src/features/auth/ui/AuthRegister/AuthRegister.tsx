@@ -131,10 +131,8 @@ const AuthRegister: React.FC<Props> = () => {
           {isLoading && <Spinner sx={{ gridColumn: 'span 4' }} />}
           {isError && (
             <ErrorContent
-              // @ts-ignore
               message={error?.error?.message}
-              // @ts-ignore
-              data={error?.error?.response.data}
+              data={error?.error?.response?.data}
               sx={{ gridColumn: 'span 4' }}
             />
           )}

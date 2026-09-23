@@ -1,10 +1,11 @@
-import { AppStore, PostApiModel } from '@/models';
+import type { AppStore, PostApiModel } from '@/models';
+import { toHookErrorState, type HookErrorState } from '@/shared/lib/types/hook-error';
 import { fetchUserPostsService } from '@/features/feed/api';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 export const useUserPosts = (userId: string) => {
-  const [error, setError] = useState({});
+  const [error, setError] = useState<HookErrorState | null>(null);
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<PostApiModel[]>([]);
@@ -18,15 +19,15 @@ export const useUserPosts = (userId: string) => {
       .then((data) => {
         setIsLoading(true);
         setIsError(false);
-        setError({});
+        setError(null);
         setResults(data);
         setIsLoading(false);
       })
-      .catch((error) => {
+      .catch((err) => {
         setIsLoading(false);
         if (signal.aborted) return;
         setIsError(true);
-        setError({ error });
+        setError(toHookErrorState(err));
       });
 
     return () => controller.abort();
