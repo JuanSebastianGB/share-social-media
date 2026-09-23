@@ -1,6 +1,6 @@
 import type { RequestHandler } from 'express';
 import { matchedData } from 'express-validator';
-import { MONGO_IMAGE_ID } from '../constants/constants.js';
+import { DEFAULT_IMAGE_ID } from '../constants/constants.js';
 import { getCommentService } from '../modules/comments/index.js';
 import {
   countPostsService,
@@ -84,7 +84,7 @@ export const createUserPost: RequestHandler = async (req, res) => {
     const newPost = await createPostService({
       ...body,
       userId: req.userData!._id,
-      fileId: MONGO_IMAGE_ID,
+      fileId: DEFAULT_IMAGE_ID,
     });
     const newData = await getPostService(newPost._id);
     return res.json(newData[0]);
