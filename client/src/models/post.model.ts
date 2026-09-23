@@ -1,39 +1,22 @@
-import { File } from './file.model';
 import { UserApiModel } from './user.model';
 
-export interface Post {
-  _id: string;
-  body: string;
-  userId: string;
-  fileId: string;
-  likes: Map<string, boolean>;
-  comments: string[];
-}
+/**
+ * Server returns `Post.likes` as a map of userId → true. Mirrored from
+ * `server/modules/feed/domain/post.ts`.
+ */
+export type Likes = Record<string, boolean>;
 
-export interface Likes {}
-
+/**
+ * Hydrated post shape returned by `GET /posts` and friends. Mirrored from
+ * `server/modules/feed/application/composition.ts:toLegacyPostRecord` and the
+ * assembler that hydrates `user` and `file`.
+ */
 export interface PostApiModel {
   _id: string;
   body: string;
   likes: Likes;
-  comments: any[];
-  file: File;
+  comments: string[];
+  file: { _id: string; url: string };
   user: UserApiModel;
   type: string;
-}
-
-export interface PostModel {
-  id: string;
-  body: string;
-  likes: Likes;
-  comments: any[];
-  file: File;
-  user: UserApiModel;
-  type: string;
-}
-
-export interface PostFormInterface {
-  userId: string;
-  body: string;
-  myFile: File;
 }
