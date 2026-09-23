@@ -255,3 +255,9 @@ Run in order:
 One work-unit commit per task where it makes sense (T1 alone is its own RED commit; T2+T3 can be one GREEN+wire commit; T4+T5 utilities can be one commit; T6 alone to validate pattern; T7 one commit covering 5 route/controller pairs; T9+T10 one commit for middlewares; T11 one commit; T12+T13 final cleanup).
 
 If the diff exceeds 400 lines or 10 files in any single commit, split. Otherwise, batch by logical unit.
+
+## Work-unit commits
+
+| Commit | Tasks | Files | Notes |
+|--------|-------|-------|-------|
+| `edb2872` | T1 + T2 + T3 + T4 + T5 + T6 | 11 files, +687/-94 | Foundation (registry + utilities + posts migration as pattern validator). 234/234 tests pass; typecheck + lint clean. |
