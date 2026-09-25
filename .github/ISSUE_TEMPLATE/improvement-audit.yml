@@ -1,0 +1,50 @@
+name: Improvement audit
+description: One ranked ticket from a project improvement audit.
+title: "[audit] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        File one improvement from an audit. Every required answer must come from repository evidence.
+  - type: dropdown
+    id: lens
+    attributes:
+      label: Lens
+      description: Primary lens. One lens per ticket.
+      options:
+        - functionality
+        - refactor
+        - tests
+        - optimization
+        - aws
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Repository files or docs that support this ticket. Mark legacy and planned explicitly.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: What changes for users or operators if this ships.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost
+      description: Implementation effort. For the aws lens, include service cost when evidence exists.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk
+      description: What can break, and what this ticket must not change.
+    validations:
+      required: true
