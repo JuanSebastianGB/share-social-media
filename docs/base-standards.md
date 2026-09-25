@@ -37,6 +37,7 @@ For detailed standards and guidelines specific to different areas of the project
 - [Data Model](./data-model.md) — DynamoDB single-table entities and access patterns
 - [API Spec](./api-spec.yml) — OpenAPI 3 contract of record (handlers; server Swagger is stale)
 - [Development Guide](./development_guide.md) — Setup, env, tests (complements existing [development.md](./development.md) and [deployment.md](./deployment.md))
+- [Pull requests](./pull-requests.md) — Issue linkage when opening a pull request. Follow it before `gh pr create`.
 
 ## 4. Project Skills
 
@@ -58,6 +59,7 @@ For detailed standards and guidelines specific to different areas of the project
 - **Node**: engines `>=20`; CI uses Node 20.
 - **No Docker** for application runtime or default CI. **Exception:** Docker is allowed for server integration tests (`test:integration` / DynamoDB Local via Testcontainers).
 - **Commits**: Conventional Commits (`feat/`, `ci/`, `docs/`, …). Branches: `feat/<topic>[-NN-slice]`.
+- **Pull requests**: One pull request targeting `main`. When a GitHub issue exists, the description contains `Closes #<number>` so merge into `main` closes that issue. When no issue exists, open the pull request with a summary and a test plan and leave out a closing keyword. Detail: [pull-requests.md](./pull-requests.md).
 - **CI** (`.github/workflows/ci.yml`): lint, typecheck, server tests, builds, `cdk synth`. **CD**: OIDC deploy on `main`. No Husky.
 - **Prettier** is present (`.prettierrc`) but there is **no format script and no format step in CI**.
 - **ESLint** flat config at repo root; `infra/**` is eslint-ignored.

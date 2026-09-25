@@ -23,6 +23,7 @@ AI specs refers to the documents that explain AI agents how to behave, document,
 | [`docs/development.md`](./development.md) | Existing short monorepo/tooling/test notes | **Do not overwrite** casually; keep in sync with reality |
 | [`docs/deployment.md`](./deployment.md) | CDK, secrets, CI/CD, cost, teardown | **Do not overwrite** casually; authoritative for AWS deploy |
 | [`docs/development_guide.md`](./development_guide.md) | Fuller setup/run/test guide for agents and humans | Complements `development.md`; avoid contradictory commands |
+| [`docs/pull-requests.md`](./pull-requests.md) | How a pull request names its GitHub issue | Mandatory before opening a pull request |
 | [`docs/base-standards.md`](./base-standards.md) | Single source of truth for AI agents | |
 | [`docs/backend-standards.md`](./backend-standards.md) | Server conventions | |
 | [`docs/frontend-standards.md`](./frontend-standards.md) | Client conventions | |

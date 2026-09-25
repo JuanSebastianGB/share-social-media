@@ -80,7 +80,8 @@ User: implement https://github.com/JuanSebastianGB/share-social-media/issues/96
 ## Progress
 
 - Branch: `feat/resource-owner-checks`
-- Next: commit and open the pull request to `main` with `Closes #96`
+- Owner-check commit: `e3836a5`
+- Next: open the pull request to `main` with `Closes #96`
 
 ## Verification evidence
 
