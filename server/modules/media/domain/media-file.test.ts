@@ -69,6 +69,16 @@ describe('MediaFile aggregate', () => {
       expect(file.toSnapshot().url).toBeUndefined();
     });
 
+    test('when ownerId is set — stores it on the snapshot', () => {
+      const file = MediaFile.create({
+        id: fileId,
+        ownerId: '507f1f77bcf86cd799439011',
+        now: '2026-01-01T00:00:00.000Z',
+      });
+
+      expect(file.toSnapshot().ownerId).toBe('507f1f77bcf86cd799439011');
+    });
+
     test('when id is blank — throws InvalidMediaFileError', () => {
       expect(() => MediaFile.create({ id: '   ' })).toThrow(
         InvalidMediaFileError,

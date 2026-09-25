@@ -76,10 +76,11 @@ export async function createCommentOnPostService(input: {
 export async function updateCommentService(
   id: string,
   patch: Record<string, unknown>,
+  callerId: string,
 ) {
-  return updateCommentUseCase(commentRepository, id, patch);
+  return updateCommentUseCase(commentRepository, id, patch, callerId);
 }
 
-export async function deleteCommentService(id: string) {
-  return deleteCommentUseCase(commentRepository, id);
+export async function deleteCommentService(id: string, callerId: string) {
+  return deleteCommentUseCase(commentRepository, id, callerId);
 }

@@ -24,6 +24,8 @@ export type StorageRecord = {
   fileName?: string;
   filename?: string;
   url?: string;
+  /** FILE author, same attribute name as post and comment authors. */
+  userId?: string;
   deleted?: boolean;
   createdAt?: string;
   updatedAt?: string;

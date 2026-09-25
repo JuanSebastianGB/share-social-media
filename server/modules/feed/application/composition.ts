@@ -1,8 +1,10 @@
 import { getUserByIdForAssembler } from '../../identity/index.js';
+import { NotResourceOwnerError } from '../../shared/not-resource-owner-error.js';
 import {
   deleteHardFileService,
   getFileService,
 } from '../../../services/storage.js';
+import type { DeleteResult } from '../../../types/entities.js';
 import type { Post } from '../domain/post.js';
 import type { PostSnapshot } from '../domain/post.js';
 import { DynamoPostRepository } from '../infrastructure/dynamodb-post-repository.js';
@@ -62,10 +64,19 @@ export async function toggleLikePostService(id: string, userId: string) {
   return toLegacyPostRecord(post.toSnapshot());
 }
 
-export async function deletePostService(id: string) {
-  const post = await getPostUseCase(postRepository, assemblerDeps, id);
-  const fileId = post[0]?.fileId;
-  if (fileId) await deleteHardFileService(String(fileId));
+export async function deletePostService(
+  id: string,
+  callerId: string,
+): Promise<DeleteResult> {
+  const post = await postRepository.findById(id);
+  if (!post) {
+    return { acknowledged: true, deletedCount: 0 };
+  }
+  const snapshot = post.toSnapshot();
+  if (snapshot.authorId !== callerId) {
+    throw new NotResourceOwnerError();
+  }
+  if (snapshot.fileId) await deleteHardFileService(String(snapshot.fileId));
   return deletePostUseCase(postRepository, id);
 }
 

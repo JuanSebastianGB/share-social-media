@@ -109,7 +109,6 @@ docs/     Development and deployment guides
 
 ## Backlog (not in this modernization pass)
 
-- Tighten JWT on comments / likes / deletes (currently characterized as open)
 - OAuth providers, websockets, bookmarks
 - UI redesign
 - Cognito Hosted UI / social IdPs

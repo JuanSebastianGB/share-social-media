@@ -177,5 +177,40 @@ describe('Posts characterization', () => {
         }),
       );
     });
+
+    test('returns 403 when the caller is not the author', async () => {
+      const author = await registerUser();
+      const other = await registerUser({ firstName: 'Other' });
+      const created = await request(app)
+        .post('/posts')
+        .set(authHeader(author.token))
+        .send({
+          body: 'owned post',
+          type: 'text',
+        });
+
+      expect(created.status).toBe(200);
+      const fileId = created.body.file._id as string;
+
+      const response = await request(app)
+        .delete(`/posts/${created.body._id}`)
+        .set(authHeader(other.token));
+
+      expect(response.status).toBe(403);
+      expect(response.body).toBe('ERROR_NOT_RESOURCE_OWNER');
+
+      const followUp = await request(app).get(`/posts/${created.body._id}`);
+
+      expect(followUp.status).toBe(200);
+      expect(followUp.body[0]).toEqual(
+        expect.objectContaining({
+          _id: created.body._id,
+          body: 'owned post',
+          file: expect.objectContaining({
+            _id: fileId,
+          }),
+        }),
+      );
+    });
   });
 });

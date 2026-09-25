@@ -10,6 +10,11 @@ process.env.AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 process.env.AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || 'local';
 process.env.AWS_SECRET_ACCESS_KEY =
   process.env.AWS_SECRET_ACCESS_KEY || 'local';
+// ts-jest loads server/app.ts from source, so the fallback ../../docs path
+// walks out of the repo. This file lives one level deeper than tests/setup-env.cjs.
+process.env.OPENAPI_SPEC_PATH =
+  process.env.OPENAPI_SPEC_PATH ||
+  require('node:path').resolve(__dirname, '../../../docs/api-spec.yml');
 // DYNAMODB_ENDPOINT is set after DynamoDB Local container starts.
 
 // Silence app/library noise during integration runs: express-expeditious

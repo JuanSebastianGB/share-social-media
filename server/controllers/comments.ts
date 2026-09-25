@@ -37,12 +37,12 @@ export const updateItem = asyncHandler(async (req: Request, res: Response) => {
     body,
     params: { id },
   } = req;
-  const response = await updateCommentService(id, body);
+  const response = await updateCommentService(id, body, req.userData!._id);
   return res.json(response);
 });
 
 export const deleteItem = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const response = await deleteCommentService(id);
+  const response = await deleteCommentService(id, req.userData!._id);
   return res.json(response);
 });

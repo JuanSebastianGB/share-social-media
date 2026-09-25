@@ -22,6 +22,7 @@ function toItem(snapshot: MediaFileSnapshot): Record<string, unknown> {
     _id: snapshot.id,
     fileName: snapshot.fileName,
     url: snapshot.url,
+    ...(snapshot.ownerId ? { userId: snapshot.ownerId } : {}),
     deleted: snapshot.deleted,
     createdAt: snapshot.createdAt,
     updatedAt: snapshot.updatedAt,
@@ -40,6 +41,14 @@ function readUrl(item: Record<string, unknown>): string | undefined {
   return value === undefined || value === '' ? undefined : value;
 }
 
+function readOwnerId(item: Record<string, unknown>): string | undefined {
+  const value = item.userId;
+  if (typeof value !== 'string' || value.length === 0) {
+    return undefined;
+  }
+  return value;
+}
+
 function fromItem(
   item: Record<string, unknown> | undefined,
   options: { includeDeleted: boolean },
@@ -48,10 +57,12 @@ function fromItem(
   const deleted = item.deleted === true;
   if (!options.includeDeleted && deleted) return null;
 
+  const ownerId = readOwnerId(item);
   return MediaFile.reconstitute({
     id: String(item._id),
     fileName: readFileName(item),
     url: readUrl(item),
+    ...(ownerId !== undefined ? { ownerId } : {}),
     deleted,
     createdAt: String(item.createdAt ?? ''),
     updatedAt: String(item.updatedAt ?? item.createdAt ?? ''),

@@ -179,6 +179,7 @@ public CloudFront/S3/memory URL. Soft delete sets `deleted: true` (reads hide so
 - `_id`: File id (24-hex); default avatar id constant `63cf4d2242c5e33c105a87eb` (`DEFAULT_IMAGE_ID`)
 - `fileName` / `filename`: Original name (both may be present for legacy compat on read; writes use `fileName`)
 - `url`: Public URL string
+- `userId`: Optional owner USER `_id` (domain `ownerId`). Written on `POST /storage` and `POST /posts/file` from `req.userData._id`. Soft-delete fails closed when `userId` is absent or does not match the caller: existing rows, `DEFAULT_IMAGE_ID`, and avatars created by register or profile completion have no `userId` (those uploads happen before a user id exists). There is no backfill. When the post author deletes their post, the attached `fileId` is still hard-deleted, including the shared default image.
 - `deleted`: Boolean (default false)
 - `createdAt` / `updatedAt`: ISO-8601
 
@@ -260,6 +261,7 @@ erDiagram
         string url
         boolean deleted
         string fileName
+        string userId FK
     }
     ITEM {
         string _id PK
@@ -269,6 +271,7 @@ erDiagram
 
     USER ||--o| COGNITO_LINK : "cognitoSub"
     USER ||--o| FILE : "profileImageId"
+    USER ||--o{ FILE : "userId"
     USER ||--o{ POST : "userId"
     USER ||--o{ COMMENT : "userId"
     USER }o--o{ USER : "friends[]"
@@ -283,7 +286,7 @@ erDiagram
 - **Comment linkage is denormalized:** create writes COMMENT item + updates POST.`comments` (Comments BC + Feed attach); deleting a comment does not automatically repair the post array (verify behavior before assuming cascade). See [ADR 0002](./adr/0002-comments-ddd-hexagonal.md).
 - **Identity USER + COGNITO_LINK:** profile and optional Cognito pointer live in the Identity BC (`server/modules/identity/`). See [ADR 0003](./adr/0003-identity-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Social graph `friends[]`:** mutual friendship remains embedded on USER; Social BC (`server/modules/social/`) owns toggle/list mutation via `FriendList`. See [ADR 0005](./adr/0005-social-graph-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
-- **Media FILE metadata:** soft/hard delete and object-store side effects live in the Media BC (`server/modules/media/`). See [ADR 0004](./adr/0004-media-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
+- **Media FILE metadata:** soft/hard delete and object-store side effects live in the Media BC (`server/modules/media/`). Soft-delete requires `userId` to match the caller. See [ADR 0004](./adr/0004-media-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Catalog ITEM demo CRUD:** hard delete only; owned by Catalog BC (`server/modules/catalog/`). See [ADR 0006](./adr/0006-catalog-ddd-hexagonal.md) and [CONTEXT.md](../CONTEXT.md).
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.

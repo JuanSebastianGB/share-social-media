@@ -103,7 +103,7 @@ HTTP request
 
 **Identity BC (done / migrated):** `server/modules/identity/` — domain `User` aggregate (profile fields, dual-mode auth persistence concerns; embedded `friends[]` still on USER snapshots for profile/Feed hydration reads). Controllers call the Identity facade (`modules/identity`); `server/services/auth.ts` / `server/services/users.ts` re-export Identity profile paths for compatibility. Session middleware and Feed assembler use the facade. Identity does **not** own friendship mutation (`User.toggleFriend` removed); Social owns toggle/list. Legacy `server/repositories/users.ts` (and unused `posts.ts`) were removed after the strangler cleanup.
 
-**Media BC (done / migrated):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
+**Media BC (done / migrated):** `server/modules/media/` — domain `MediaFile` aggregate (id, fileName, url, optional ownerId persisted as userId, soft-delete), application use cases, `MediaFileRepository` + `MediaObjectStore` ports, DynamoDB + in-memory adapters and S3 object-store adapter. Controllers call the Media facade (`modules/media`); `server/services/storage.ts` re-exports it for compatibility. Legacy `server/repositories/storage.ts` was removed after the strangler wire.
 
 **Social BC (done / migrated):** `server/modules/social/` — hexagonal DDD; domain `FriendList` aggregate, `FriendListRepository` port, DynamoDB + in-memory adapters, `toggleFriendship` + list-friends composition. Controllers call the Social facade for toggle/list friends (`modules/social`; `services/users.ts` re-exports friends paths). Friends remain `friends[]` on USER items (no `FRIEND#` edges). Safety nets: `users.characterization.test.ts`, Social module unit/property tests, and `social.integration.spec.ts`.
 
@@ -499,7 +499,7 @@ expect(res.body).toBe('ERROR_PASSWORD');
 
 - Middleware: `checkValidJwt` (required user), `checkAuthToken` (profile flow).
 - Role middleware `role(['admin'])` on `POST /items`.
-- **Known gap (characterized):** some mutating comment/like/delete paths historically lacked JWT — verify current route file before changing; keep tests in sync.
+- Comment, like, and delete routes require JWT. Comment update/delete, post delete, and storage soft-delete also require ownership (403 `ERROR_NOT_RESOURCE_OWNER`). Likes do not require ownership.
 
 ### Secrets and Environment Variables
 

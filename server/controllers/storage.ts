@@ -26,14 +26,18 @@ export const createFileUploadedRegister = asyncHandler(
       (req.file as Express.Multer.File & { filename?: string })?.filename ||
       req.file?.originalname ||
       '';
-    const response = await createFileUploadedRegisterService(filename);
+    const response = await createFileUploadedRegisterService(
+      filename,
+      undefined,
+      req.userData!._id,
+    );
     return res.json(response);
   },
 );
 
 export const deleteFile = asyncHandler(async (req: Request, res: Response) => {
   const { id } = matchedData(req);
-  const response = await deleteSoftFileService(id);
+  const response = await deleteSoftFileService(id, req.userData!._id);
   return res.json(response);
 });
 
