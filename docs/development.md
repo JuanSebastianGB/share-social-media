@@ -70,7 +70,7 @@ Seams under test: health, auth, users, posts, comments, Feed domain, Comments do
 
 Known quirks documented by the suite:
 
-- Many mutating routes (comments, like, delete post) do **not** require JWT today — that is characterized, not “fixed,” in this pass.
+- JWT is required on comment, like, and post-delete mutations. Ownership is required for comment update/delete, post delete, and storage soft-delete (403 `ERROR_NOT_RESOURCE_OWNER`). Likes are any signed-in user. Public GETs stay public.
 - Register requires multipart `myFile`; S3 upload is stubbed in tests (`MEDIA_ENDPOINT=memory`).
 - `handleHttpErrors` often returns **403** for business failures.
 

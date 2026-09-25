@@ -4,6 +4,8 @@ export type MediaFileSnapshot = {
   id: string;
   fileName?: string;
   url?: string;
+  /** Present only when a non-empty owner was stored. */
+  ownerId?: string;
   deleted: boolean;
   createdAt: string;
   updatedAt: string;
@@ -13,6 +15,7 @@ export type CreateMediaFileInput = {
   id: string;
   fileName?: string;
   url?: string;
+  ownerId?: string;
   /** Injected clock for deterministic tests. */
   now?: string;
 };
@@ -30,10 +33,12 @@ export class MediaFile {
     }
 
     const now = input.now ?? new Date().toISOString();
+    const ownerId = normalizeOptionalText(input.ownerId);
     return new MediaFile({
       id: input.id,
       fileName: normalizeOptionalText(input.fileName),
       url: normalizeOptionalText(input.url),
+      ...(ownerId !== undefined ? { ownerId } : {}),
       deleted: false,
       createdAt: now,
       updatedAt: now,

@@ -1,4 +1,5 @@
 import { InMemoryCommentRepository } from '../../infrastructure/in-memory-comment-repository.js';
+import { NotResourceOwnerError } from '../../../shared/not-resource-owner-error.js';
 import { createComment } from './create-comment.js';
 import { createCommentOnPost } from './create-comment-on-post.js';
 import { deleteComment } from './delete-comment.js';
@@ -9,6 +10,7 @@ import { updateComment } from './update-comment.js';
 describe('Comments use cases', () => {
   const repo = new InMemoryCommentRepository();
   const authorId = '507f1f77bcf86cd799439011';
+  const otherCallerId = '507f1f77bcf86cd799439099';
   const commentId = '507f1f77bcf86cd799439013';
 
   beforeEach(() => {
@@ -86,9 +88,14 @@ describe('Comments use cases', () => {
   });
 
   test('updateComment — when missing — matchedCount 0', async () => {
-    const result = await updateComment(repo, commentId, {
-      description: 'nope',
-    });
+    const result = await updateComment(
+      repo,
+      commentId,
+      {
+        description: 'nope',
+      },
+      otherCallerId,
+    );
     expect(result).toEqual({
       acknowledged: true,
       matchedCount: 0,
@@ -105,9 +112,14 @@ describe('Comments use cases', () => {
       lastName: 'Lovelace',
     });
 
-    const result = await updateComment(repo, commentId, {
-      description: 'after',
-    });
+    const result = await updateComment(
+      repo,
+      commentId,
+      {
+        description: 'after',
+      },
+      authorId,
+    );
     expect(result).toEqual({
       acknowledged: true,
       matchedCount: 1,
@@ -126,10 +138,15 @@ describe('Comments use cases', () => {
       lastName: 'Lovelace',
     });
 
-    const result = await updateComment(repo, commentId, {
-      firstName: 'Grace',
-      lastName: 'Hopper',
-    });
+    const result = await updateComment(
+      repo,
+      commentId,
+      {
+        firstName: 'Grace',
+        lastName: 'Hopper',
+      },
+      authorId,
+    );
     expect(result).toEqual({
       acknowledged: true,
       matchedCount: 1,
@@ -140,8 +157,30 @@ describe('Comments use cases', () => {
     expect(found?.toSnapshot().lastName).toBe('Hopper');
   });
 
+  test('updateComment — when caller is not the author — throws and leaves description unchanged', async () => {
+    await createComment(repo, {
+      id: commentId,
+      description: 'original',
+      authorId,
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+    });
+
+    await expect(
+      updateComment(
+        repo,
+        commentId,
+        { description: 'hacked' },
+        otherCallerId,
+      ),
+    ).rejects.toBeInstanceOf(NotResourceOwnerError);
+
+    const found = await repo.findById(commentId);
+    expect(found?.toSnapshot().description).toBe('original');
+  });
+
   test('deleteComment — when missing — deletedCount 0', async () => {
-    const result = await deleteComment(repo, commentId);
+    const result = await deleteComment(repo, commentId, otherCallerId);
     expect(result).toEqual({ acknowledged: true, deletedCount: 0 });
   });
 
@@ -154,9 +193,25 @@ describe('Comments use cases', () => {
       lastName: 'Lovelace',
     });
 
-    const result = await deleteComment(repo, commentId);
+    const result = await deleteComment(repo, commentId, authorId);
     expect(result).toEqual({ acknowledged: true, deletedCount: 1 });
     expect(await repo.findById(commentId)).toBeNull();
+  });
+
+  test('deleteComment — when caller is not the author — throws and comment still exists', async () => {
+    await createComment(repo, {
+      id: commentId,
+      description: 'stay',
+      authorId,
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+    });
+
+    await expect(
+      deleteComment(repo, commentId, otherCallerId),
+    ).rejects.toBeInstanceOf(NotResourceOwnerError);
+
+    expect(await repo.findById(commentId)).not.toBeNull();
   });
 
   test('createCommentOnPost — saves, attaches, returns hydrated post[0]', async () => {

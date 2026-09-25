@@ -4,6 +4,7 @@ import { InvalidCommentError } from '../modules/comments/domain/errors.js';
 import { InvalidPostError } from '../modules/feed/domain/errors.js';
 import { InvalidUserError } from '../modules/identity/domain/errors.js';
 import { InvalidMediaFileError } from '../modules/media/domain/errors.js';
+import { NotResourceOwnerError } from '../modules/shared/not-resource-owner-error.js';
 import { InvalidFriendListError } from '../modules/social/domain/errors.js';
 import { errorMapper, HttpStatusError } from './error-mapper.js';
 
@@ -169,6 +170,22 @@ describe('errorMapper', () => {
         makeNext(),
       );
 
+      expect(capture.sink).toEqual([]);
+    });
+  });
+
+  describe('NotResourceOwnerError maps to 403 before domain-error handling', () => {
+    test('403 + ERROR_NOT_RESOURCE_OWNER even when defaultErrorCode is set', () => {
+      const capture = captureConsoleError();
+      pendingRestores.push(capture.restore);
+
+      const { res, calls } = makeRes({
+        defaultErrorCode: 'ERROR_UPDATE_COMMENT',
+      });
+      errorMapper(new NotResourceOwnerError(), makeReq(), res, makeNext());
+
+      expect(calls.status).toEqual([403]);
+      expect(calls.json).toEqual(['ERROR_NOT_RESOURCE_OWNER']);
       expect(capture.sink).toEqual([]);
     });
   });

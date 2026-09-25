@@ -1,5 +1,6 @@
 import { InMemoryMediaFileRepository } from '../../infrastructure/in-memory-media-file-repository.js';
 import { InMemoryMediaObjectStore } from '../../infrastructure/in-memory-media-object-store.js';
+import { NotResourceOwnerError } from '../../../shared/not-resource-owner-error.js';
 import { createDefaultMediaFile } from './create-default-media-file.js';
 import { createMediaFile } from './create-media-file.js';
 import { getMediaFile } from './get-media-file.js';
@@ -11,6 +12,8 @@ describe('Media use cases', () => {
   const repo = new InMemoryMediaFileRepository();
   const objectStore = new InMemoryMediaObjectStore();
   const fileId = '507f1f77bcf86cd799439014';
+  const ownerId = '507f1f77bcf86cd799439011';
+  const otherCallerId = '507f1f77bcf86cd799439099';
 
   beforeEach(() => {
     repo.clear();
@@ -53,8 +56,8 @@ describe('Media use cases', () => {
   });
 
   test('getMediaFile — when soft-deleted — returns null', async () => {
-    await createMediaFile(repo, { id: fileId, fileName: 'gone.png' });
-    await softDeleteMediaFile(repo, fileId);
+    await createMediaFile(repo, { id: fileId, fileName: 'gone.png', ownerId });
+    await softDeleteMediaFile(repo, fileId, ownerId);
     expect(await getMediaFile(repo, fileId)).toBeNull();
   });
 
@@ -66,8 +69,9 @@ describe('Media use cases', () => {
     await createMediaFile(repo, {
       id: '507f1f77bcf86cd799439032',
       fileName: 'two.png',
+      ownerId,
     });
-    await softDeleteMediaFile(repo, '507f1f77bcf86cd799439032');
+    await softDeleteMediaFile(repo, '507f1f77bcf86cd799439032', ownerId);
 
     const listed = await listMediaFiles(repo);
     expect(listed).toHaveLength(1);
@@ -75,15 +79,15 @@ describe('Media use cases', () => {
   });
 
   test('softDeleteMediaFile — when missing — deletedCount 0', async () => {
-    expect(await softDeleteMediaFile(repo, fileId)).toEqual({
+    expect(await softDeleteMediaFile(repo, fileId, ownerId)).toEqual({
       acknowledged: true,
       deletedCount: 0,
     });
   });
 
   test('softDeleteMediaFile — when active — deletedCount 1 and hides from findById', async () => {
-    await createMediaFile(repo, { id: fileId, fileName: 'soft.png' });
-    expect(await softDeleteMediaFile(repo, fileId)).toEqual({
+    await createMediaFile(repo, { id: fileId, fileName: 'soft.png', ownerId });
+    expect(await softDeleteMediaFile(repo, fileId, ownerId)).toEqual({
       acknowledged: true,
       deletedCount: 1,
     });
@@ -93,12 +97,36 @@ describe('Media use cases', () => {
   });
 
   test('softDeleteMediaFile — when already deleted — deletedCount 0', async () => {
-    await createMediaFile(repo, { id: fileId, fileName: 'soft.png' });
-    await softDeleteMediaFile(repo, fileId);
-    expect(await softDeleteMediaFile(repo, fileId)).toEqual({
+    await createMediaFile(repo, { id: fileId, fileName: 'soft.png', ownerId });
+    await softDeleteMediaFile(repo, fileId, ownerId);
+    expect(await softDeleteMediaFile(repo, fileId, ownerId)).toEqual({
       acknowledged: true,
       deletedCount: 0,
     });
+  });
+
+  test('softDeleteMediaFile — when caller is not the owner — throws and leaves the file', async () => {
+    await createMediaFile(repo, { id: fileId, fileName: 'owned.png', ownerId });
+
+    await expect(
+      softDeleteMediaFile(repo, fileId, otherCallerId),
+    ).rejects.toBeInstanceOf(NotResourceOwnerError);
+
+    const found = await repo.findById(fileId);
+    expect(found).not.toBeNull();
+    expect(found?.toSnapshot().deleted).toBe(false);
+  });
+
+  test('softDeleteMediaFile — when file has no owner — throws and leaves the file', async () => {
+    await createMediaFile(repo, { id: fileId, fileName: 'ownerless.png' });
+
+    await expect(
+      softDeleteMediaFile(repo, fileId, ownerId),
+    ).rejects.toBeInstanceOf(NotResourceOwnerError);
+
+    const found = await repo.findById(fileId);
+    expect(found).not.toBeNull();
+    expect(found?.toSnapshot().deleted).toBe(false);
   });
 
   test('hardDeleteMediaFile — when missing — deletedCount 0', async () => {

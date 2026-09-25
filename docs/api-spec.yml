@@ -580,7 +580,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteResult"
         "403":
-          description: Auth, validation, or ERROR_*
+          description: Auth, validation, non-owner ERROR_NOT_RESOURCE_OWNER, or ERROR_*
           content:
             application/json:
               schema:
@@ -708,7 +708,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/UpdateResult"
         "403":
-          description: Auth or ERROR_UPDATE_COMMENT
+          description: Auth, non-owner ERROR_NOT_RESOURCE_OWNER, or ERROR_UPDATE_COMMENT
           content:
             application/json:
               schema:
@@ -729,7 +729,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteResult"
         "403":
-          description: Auth or ERROR_DELETE_COMMENT
+          description: Auth, non-owner ERROR_NOT_RESOURCE_OWNER, or ERROR_DELETE_COMMENT
           content:
             application/json:
               schema:
@@ -887,6 +887,7 @@ paths:
     post:
       tags: [storage]
       summary: Upload file and register metadata
+      description: The created FILE `userId` is the authenticated caller.
       operationId: createStorage
       security:
         - bearerAuth: []
@@ -955,7 +956,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/DeleteResult"
         "403":
-          description: Auth, validation, or ERROR_DELETE_FILE
+          description: Auth, validation, ERROR_DELETE_FILE, or non-owner or ownerless file ERROR_NOT_RESOURCE_OWNER
           content:
             application/json:
               schema:
@@ -1099,6 +1100,9 @@ components:
           type: string
         deleted:
           type: boolean
+        userId:
+          type: string
+          description: Optional owner USER `_id` (domain `ownerId`). Not set on ownerless rows.
         createdAt:
           type: string
           format: date-time

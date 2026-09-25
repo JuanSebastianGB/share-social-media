@@ -84,7 +84,7 @@ This document records the ubiquitous language for the application. Bounded conte
 
 | Term | Meaning |
 |------|---------|
-| MediaFile | Aggregate root for uploaded file metadata. Domain fields: `id`, optional `fileName` / `url`, soft-delete flag `deleted`. Domain `id` ↔ persistence `_id`. |
+| MediaFile | Aggregate root for uploaded file metadata. Domain fields: `id`, optional `fileName` / `url`, optional `ownerId`, soft-delete flag `deleted`. Domain `id` ↔ persistence `_id`. Persistence attribute for `ownerId` is `userId`. |
 | Soft delete | Domain `softDelete` sets `deleted: true` and touches `updatedAt`; idempotent when already deleted. Active reads (`findById` / list / HTTP GET) hide soft-deleted rows. |
 | Hard delete | Application orchestration: best-effort object-store delete, then remove the FILE Dynamo row. Not a domain method. |
 | Object store | S3 (or memory no-op) blob storage. Outside the domain; adapters wrap `utilities/s3Upload` (`deleteMediaObject`, upload middleware sets `req.image.secure_url`). |

@@ -53,6 +53,7 @@ export const createUserPostFile = asyncHandler(async (req: Request, res: Respons
   const savedFileRegister = await createFileUploadedRegisterService(
     filename,
     req.image?.secure_url,
+    req.userData!._id,
   );
   try {
     const body = matchedData(req);
@@ -88,7 +89,7 @@ export const getUserPosts = asyncHandler(async (req: Request, res: Response) => 
 
 export const deletePost = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const response = await deletePostService(id);
+  const response = await deletePostService(id, req.userData!._id);
   res.json(response);
 });
 

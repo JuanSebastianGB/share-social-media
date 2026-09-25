@@ -135,6 +135,34 @@ describe('Comments characterization', () => {
         }),
       );
     });
+
+    test('returns 403 when the caller is not the author', async () => {
+      const { user, postId } = await createPostForUser();
+      const other = await registerUser({ firstName: 'Other' });
+      await createComment(user, postId, 'owned update');
+
+      const list = await request(app).get('/comments');
+      const comment = list.body.find(
+        (c: { description?: string }) => c.description === 'owned update',
+      );
+
+      const response = await request(app)
+        .put(`/comments/${comment._id}`)
+        .set(authHeader(other.token))
+        .send({ description: 'stolen' });
+
+      expect(response.status).toBe(403);
+      expect(response.body).toBe('ERROR_NOT_RESOURCE_OWNER');
+
+      const followUp = await request(app).get(`/comments/${comment._id}`);
+      expect(followUp.status).toBe(200);
+      expect(followUp.body).toEqual(
+        expect.objectContaining({
+          _id: comment._id,
+          description: 'owned update',
+        }),
+      );
+    });
   });
 
   describe('DELETE /comments/:id', () => {
@@ -165,6 +193,33 @@ describe('Comments characterization', () => {
         expect.objectContaining({
           acknowledged: true,
           deletedCount: 1,
+        }),
+      );
+    });
+
+    test('returns 403 when the caller is not the author', async () => {
+      const { user, postId } = await createPostForUser();
+      const other = await registerUser({ firstName: 'Other' });
+      await createComment(user, postId, 'owned delete');
+
+      const list = await request(app).get('/comments');
+      const comment = list.body.find(
+        (c: { description?: string }) => c.description === 'owned delete',
+      );
+
+      const response = await request(app)
+        .delete(`/comments/${comment._id}`)
+        .set(authHeader(other.token));
+
+      expect(response.status).toBe(403);
+      expect(response.body).toBe('ERROR_NOT_RESOURCE_OWNER');
+
+      const followUp = await request(app).get(`/comments/${comment._id}`);
+      expect(followUp.status).toBe(200);
+      expect(followUp.body).toEqual(
+        expect.objectContaining({
+          _id: comment._id,
+          description: 'owned delete',
         }),
       );
     });

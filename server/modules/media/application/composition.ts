@@ -21,6 +21,7 @@ export function toLegacyStorageRecord(
     fileName: snapshot.fileName,
     filename: snapshot.fileName,
     url: snapshot.url,
+    ...(snapshot.ownerId ? { userId: snapshot.ownerId } : {}),
     deleted: snapshot.deleted,
     createdAt: snapshot.createdAt,
     updatedAt: snapshot.updatedAt,
@@ -41,16 +42,18 @@ export async function getFileService(id: string) {
 export async function createFileUploadedRegisterService(
   filename: string,
   url?: string,
+  ownerId?: string,
 ) {
   const file = await createMediaFileUseCase(mediaFileRepository, {
     fileName: filename,
     url,
+    ownerId,
   });
   return toLegacyStorageRecord(file.toSnapshot());
 }
 
-export async function deleteSoftFileService(id: string) {
-  return softDeleteMediaFileUseCase(mediaFileRepository, id);
+export async function deleteSoftFileService(id: string, callerId: string) {
+  return softDeleteMediaFileUseCase(mediaFileRepository, id, callerId);
 }
 
 export async function deleteHardFileService(id: string | unknown) {
