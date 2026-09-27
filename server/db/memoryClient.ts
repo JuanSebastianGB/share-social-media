@@ -312,7 +312,14 @@ export function createMemoryDocClient() {
         ),
       );
 
-      const skSortAttr = parsed.skAttr || 'SK';
+      const indexName = input.IndexName as string | undefined;
+      const indexSortAttr =
+        indexName === 'GSI1'
+          ? 'GSI1SK'
+          : indexName === 'GSI2'
+            ? 'GSI2SK'
+            : undefined;
+      const skSortAttr = parsed.skAttr || indexSortAttr || 'SK';
       const forward = input.ScanIndexForward !== false;
       items.sort((a, b) => {
         const av = String(a[skSortAttr] ?? '');
@@ -320,12 +327,40 @@ export function createMemoryDocClient() {
         return forward ? av.localeCompare(bv) : bv.localeCompare(av);
       });
 
-      const limit = input.Limit as number | undefined;
-      if (limit != null) {
-        items = items.slice(0, limit);
+      const startKey = input.ExclusiveStartKey as Item | undefined;
+      if (startKey?.PK != null && startKey.SK != null) {
+        const index = items.findIndex(
+          (item) => item.PK === startKey.PK && item.SK === startKey.SK,
+        );
+        items = index >= 0 ? items.slice(index + 1) : [];
       }
 
-      return { Items: items.map((i) => ({ ...i })) };
+      let lastEvaluatedKey: Item | undefined;
+      const limit = input.Limit as number | undefined;
+      if (limit != null && items.length > limit) {
+        const page = items.slice(0, limit);
+        const last = page[page.length - 1];
+        if (last) {
+          lastEvaluatedKey = { PK: last.PK, SK: last.SK };
+          if (indexName === 'GSI1') {
+            lastEvaluatedKey.GSI1PK = last.GSI1PK;
+            lastEvaluatedKey.GSI1SK = last.GSI1SK;
+          } else if (indexName === 'GSI2') {
+            lastEvaluatedKey.GSI2PK = last.GSI2PK;
+            lastEvaluatedKey.GSI2SK = last.GSI2SK;
+          }
+        }
+        items = page;
+      }
+
+      const pageItems =
+        input.Select === 'COUNT' ? undefined : items.map((i) => ({ ...i }));
+
+      return {
+        Items: pageItems,
+        Count: items.length,
+        LastEvaluatedKey: lastEvaluatedKey,
+      };
     }
 
     if (name === 'ScanCommand' || name.includes('Scan')) {

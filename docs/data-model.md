@@ -220,7 +220,8 @@ Catalog `CatalogItem` owns create/rename/`active` invariants; persistence stays
 | Get user by email | Query GSI1 `EMAIL#email` + `USER` |
 | Get user by Cognito sub | GetItem link then GetItem user |
 | List users | **Scan** PK begins `USER#` + SK `PROFILE` (legacy) |
-| Global feed post ids | Query GSI1 `FEED` sorted by `GSI1SK` |
+| Global feed post ids | Query GSI1 `FEED` sorted by `GSI1SK` descending, with `Limit` and `ExclusiveStartKey` |
+| Count feed posts | Query GSI1 `FEED` with `Select: COUNT` |
 | Posts for user | Query GSI2 `USER#userId` |
 | Get post / comment / file / item | GetItem on respective PK + `META`/`PROFILE` |
 | List comments / items / files | **Scan** with prefix filter (legacy) |
@@ -291,7 +292,7 @@ erDiagram
 - **Soft delete for files:** `deleted` flag; hard delete used when removing post media.
 - **ISO timestamps** as strings; no DynamoDB TTL configured in app code.
 - **Id strategy** remains Mongo-compatible hex for validator compatibility (`isMongoId`).
-- **Local vs AWS:** `DYNAMODB_ENDPOINT=memory` uses an in-process client that supports PK/SK + GSI1 + GSI2 patterns.
+- **Local vs AWS:** `DYNAMODB_ENDPOINT=memory` uses an in-process client that supports PK/SK + GSI1 + GSI2 patterns, including GSI sort order, `Limit`, `ExclusiveStartKey`, and `Select: COUNT`.
 
 ## Notes
 
