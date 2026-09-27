@@ -16,8 +16,8 @@ The published home Feed was the latest hotspot. Two adapters already sit on this
 
 - Port `queryFeedIds` takes and returns `continuation?: string`.
 - `listFeedPostsPage` threads that string and does not inspect it.
-- Dynamo adapter encodes and decodes the GSI1 key privately, prefixed `dyn:`.
-- In-memory adapter encodes the id it stopped after, prefixed `mem:`, and stops forging `PK` / `SK`.
+- Dynamo adapter serializes the private GSI1 key with `JSON.stringify`.
+- In-memory adapter uses the id it stopped after. A string that is not that id ends the walk.
 - A continuation this adapter did not mint, or cannot decode, ends the walk (empty page, no continuation). It must not restart from the head.
 
 ## Constraints

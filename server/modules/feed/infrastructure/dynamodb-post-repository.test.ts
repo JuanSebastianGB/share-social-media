@@ -56,14 +56,37 @@ describe('DynamoPostRepository feed index', () => {
     );
 
     const first = await repo.queryFeedIds({ limit: 1 });
-    const continuation = first.continuation;
     expect(first.ids).toEqual(['507f1f77bcf86cd799439002']);
-    expect(typeof continuation).toBe('string');
-    expect(continuation).not.toContain('GSI1');
-    expect(continuation).not.toContain('PK');
-    expect(continuation).not.toContain('SK');
+    const key: unknown = JSON.parse(String(first.continuation));
+    expect(key).toEqual({
+      PK: 'POST#507f1f77bcf86cd799439002',
+      SK: 'META',
+      GSI1PK: 'FEED',
+      GSI1SK: 'POST#2026-03-01T00:00:00.000Z#507f1f77bcf86cd799439002',
+    });
 
-    const second = await repo.queryFeedIds({ limit: 1, continuation });
+    const second = await repo.queryFeedIds({
+      limit: 1,
+      continuation: first.continuation,
+    });
     expect(second.ids).toEqual(['507f1f77bcf86cd799439001']);
+    expect(second.continuation).toBeUndefined();
+  });
+
+  test('a continuation that is not an index key ends the walk', async () => {
+    await repo.save(
+      Post.create({
+        id: '507f1f77bcf86cd799439002',
+        body: 'new',
+        authorId: '507f1f77bcf86cd799439012',
+        now: '2026-03-01T00:00:00.000Z',
+      }),
+    );
+
+    const page = await repo.queryFeedIds({
+      limit: 1,
+      continuation: '507f1f77bcf86cd799439002',
+    });
+    expect(page).toEqual({ ids: [] });
   });
 });

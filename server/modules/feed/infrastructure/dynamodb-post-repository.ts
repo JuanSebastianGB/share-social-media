@@ -28,8 +28,6 @@ type FeedIndexKey = {
   GSI1SK: string;
 };
 
-const DYNAMO_CURSOR_PREFIX = 'dyn:';
-
 function toItem(snapshot: PostSnapshot): Record<string, unknown> {
   const createdAt = snapshot.createdAt;
   return {
@@ -233,19 +231,12 @@ function toFeedIndexKey(key: unknown): FeedIndexKey | undefined {
 }
 
 function encodeContinuation(key: FeedIndexKey): string {
-  return `${DYNAMO_CURSOR_PREFIX}${Buffer.from(JSON.stringify(key)).toString(
-    'base64url',
-  )}`;
+  return JSON.stringify(key);
 }
 
 function decodeContinuation(continuation: string): FeedIndexKey | undefined {
-  if (!continuation.startsWith(DYNAMO_CURSOR_PREFIX)) return undefined;
   try {
-    const raw = Buffer.from(
-      continuation.slice(DYNAMO_CURSOR_PREFIX.length),
-      'base64url',
-    ).toString('utf8');
-    return toFeedIndexKey(JSON.parse(raw) as unknown);
+    return toFeedIndexKey(JSON.parse(continuation));
   } catch {
     return undefined;
   }

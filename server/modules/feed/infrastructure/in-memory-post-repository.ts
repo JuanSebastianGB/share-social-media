@@ -5,8 +5,6 @@ import type {
   PostRepository,
 } from '../application/ports/post-repository.js';
 
-const MEMORY_CURSOR_PREFIX = 'mem:';
-
 /**
  * In-memory PostRepository for unit tests and local fakes.
  */
@@ -38,9 +36,9 @@ export class InMemoryPostRepository implements PostRepository {
     const ordered = this.orderedFeed();
     let start = 0;
     if (input.continuation !== undefined) {
-      const afterId = decodeContinuation(input.continuation);
-      if (afterId === undefined) return { ids: [] };
-      const index = ordered.findIndex((snapshot) => snapshot.id === afterId);
+      const index = ordered.findIndex(
+        (snapshot) => snapshot.id === input.continuation,
+      );
       start = index >= 0 ? index + 1 : ordered.length;
     }
     const page = ordered.slice(start, start + input.limit);
@@ -48,9 +46,7 @@ export class InMemoryPostRepository implements PostRepository {
     const hasMore = start + page.length < ordered.length;
     return {
       ids: page.map((snapshot) => snapshot.id),
-      ...(hasMore && last
-        ? { continuation: encodeContinuation(last.id) }
-        : {}),
+      ...(hasMore && last ? { continuation: last.id } : {}),
     };
   }
 
@@ -81,29 +77,5 @@ export class InMemoryPostRepository implements PostRepository {
 
   clear(): void {
     this.posts.clear();
-  }
-}
-
-function encodeContinuation(afterId: string): string {
-  return `${MEMORY_CURSOR_PREFIX}${Buffer.from(
-    JSON.stringify({ afterId }),
-  ).toString('base64url')}`;
-}
-
-function decodeContinuation(continuation: string): string | undefined {
-  if (!continuation.startsWith(MEMORY_CURSOR_PREFIX)) return undefined;
-  try {
-    const raw = Buffer.from(
-      continuation.slice(MEMORY_CURSOR_PREFIX.length),
-      'base64url',
-    ).toString('utf8');
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return undefined;
-    }
-    const afterId = (parsed as { afterId?: unknown }).afterId;
-    return typeof afterId === 'string' ? afterId : undefined;
-  } catch {
-    return undefined;
   }
 }
