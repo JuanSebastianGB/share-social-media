@@ -18,9 +18,15 @@ import { Post } from '../domain/post.js';
 import type { PostSnapshot } from '../domain/post.js';
 import type {
   FeedIdPage,
-  FeedPageCursor,
   PostRepository,
 } from '../application/ports/post-repository.js';
+
+type FeedIndexKey = {
+  PK: string;
+  SK: string;
+  GSI1PK: string;
+  GSI1SK: string;
+};
 
 function toItem(snapshot: PostSnapshot): Record<string, unknown> {
   const createdAt = snapshot.createdAt;
@@ -108,30 +114,38 @@ export class DynamoPostRepository implements PostRepository {
 
   async listFeedIds(): Promise<string[]> {
     const ids: string[] = [];
-    let exclusiveStartKey: FeedPageCursor | undefined;
+    let continuation: string | undefined;
     do {
       const page = await this.queryFeedIds({
         limit: FEED_DRAIN_LIMIT,
-        exclusiveStartKey,
+        continuation,
       });
       ids.push(...page.ids);
-      exclusiveStartKey = page.lastEvaluatedKey;
-    } while (exclusiveStartKey);
+      continuation = page.continuation;
+    } while (continuation);
     return ids;
   }
 
   async queryFeedIds(input: {
     limit: number;
-    exclusiveStartKey?: FeedPageCursor;
+    continuation?: string;
   }): Promise<FeedIdPage> {
-    const result = await queryFeedIndex(input);
+    let exclusiveStartKey: FeedIndexKey | undefined;
+    if (input.continuation !== undefined) {
+      exclusiveStartKey = decodeContinuation(input.continuation);
+      if (!exclusiveStartKey) return { ids: [] };
+    }
+    const result = await queryFeedIndex({
+      limit: input.limit,
+      exclusiveStartKey,
+    });
     const ids = (result.Items || [])
       .map((item) => String((item as { _id?: string })._id ?? ''))
       .filter(Boolean);
-    const lastEvaluatedKey = toFeedCursor(result.LastEvaluatedKey);
+    const indexKey = toFeedIndexKey(result.LastEvaluatedKey);
     return {
       ids,
-      ...(lastEvaluatedKey ? { lastEvaluatedKey } : {}),
+      ...(indexKey ? { continuation: encodeContinuation(indexKey) } : {}),
     };
   }
 
@@ -153,14 +167,14 @@ export class DynamoPostRepository implements PostRepository {
 
   async count(): Promise<number> {
     let total = 0;
-    let exclusiveStartKey: FeedPageCursor | undefined;
+    let exclusiveStartKey: FeedIndexKey | undefined;
     do {
       const result = await queryFeedIndex({
         countOnly: true,
         exclusiveStartKey,
       });
       total += result.Count ?? 0;
-      exclusiveStartKey = toFeedCursor(result.LastEvaluatedKey);
+      exclusiveStartKey = toFeedIndexKey(result.LastEvaluatedKey);
     } while (exclusiveStartKey);
     return total;
   }
@@ -171,7 +185,7 @@ const FEED_DRAIN_LIMIT = 100;
 function feedQueryInput(input: {
   limit?: number;
   countOnly?: boolean;
-  exclusiveStartKey?: FeedPageCursor;
+  exclusiveStartKey?: FeedIndexKey;
 }): QueryCommandInput {
   return {
     TableName: TABLE_NAME,
@@ -188,7 +202,7 @@ function feedQueryInput(input: {
 }
 
 function exclusiveStartKey(
-  cursor: FeedPageCursor,
+  cursor: FeedIndexKey,
 ): NonNullable<QueryCommandInput['ExclusiveStartKey']> {
   return {
     PK: cursor.PK,
@@ -198,7 +212,7 @@ function exclusiveStartKey(
   };
 }
 
-function toFeedCursor(key: unknown): FeedPageCursor | undefined {
+function toFeedIndexKey(key: unknown): FeedIndexKey | undefined {
   if (!key || typeof key !== 'object') return undefined;
   const record = key as Record<string, unknown>;
   const PK = record.PK;
@@ -216,10 +230,22 @@ function toFeedCursor(key: unknown): FeedPageCursor | undefined {
   return { PK, SK, GSI1PK, GSI1SK };
 }
 
+function encodeContinuation(key: FeedIndexKey): string {
+  return JSON.stringify(key);
+}
+
+function decodeContinuation(continuation: string): FeedIndexKey | undefined {
+  try {
+    return toFeedIndexKey(JSON.parse(continuation));
+  } catch {
+    return undefined;
+  }
+}
+
 function queryFeedIndex(input: {
   limit?: number;
   countOnly?: boolean;
-  exclusiveStartKey?: FeedPageCursor;
+  exclusiveStartKey?: FeedIndexKey;
 }) {
   return getDocClient().send(new QueryCommand(feedQueryInput(input)));
 }

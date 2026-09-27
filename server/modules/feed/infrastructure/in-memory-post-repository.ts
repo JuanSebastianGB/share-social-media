@@ -1,9 +1,7 @@
-import { GSI, SK, postPk, postSortKey } from '../../../db/keys.js';
 import { Post } from '../domain/post.js';
 import type { PostSnapshot } from '../domain/post.js';
 import type {
   FeedIdPage,
-  FeedPageCursor,
   PostRepository,
 } from '../application/ports/post-repository.js';
 
@@ -33,14 +31,13 @@ export class InMemoryPostRepository implements PostRepository {
 
   async queryFeedIds(input: {
     limit: number;
-    exclusiveStartKey?: FeedPageCursor;
+    continuation?: string;
   }): Promise<FeedIdPage> {
     const ordered = this.orderedFeed();
     let start = 0;
-    const cursor = input.exclusiveStartKey;
-    if (cursor) {
+    if (input.continuation !== undefined) {
       const index = ordered.findIndex(
-        (snapshot) => feedCursor(snapshot).PK === cursor.PK,
+        (snapshot) => snapshot.id === input.continuation,
       );
       start = index >= 0 ? index + 1 : ordered.length;
     }
@@ -49,7 +46,7 @@ export class InMemoryPostRepository implements PostRepository {
     const hasMore = start + page.length < ordered.length;
     return {
       ids: page.map((snapshot) => snapshot.id),
-      lastEvaluatedKey: hasMore && last ? feedCursor(last) : undefined,
+      ...(hasMore && last ? { continuation: last.id } : {}),
     };
   }
 
@@ -81,13 +78,4 @@ export class InMemoryPostRepository implements PostRepository {
   clear(): void {
     this.posts.clear();
   }
-}
-
-function feedCursor(snapshot: PostSnapshot): FeedPageCursor {
-  return {
-    PK: postPk(snapshot.id),
-    SK: SK.META,
-    GSI1PK: GSI.FEED,
-    GSI1SK: postSortKey(snapshot.createdAt, snapshot.id),
-  };
 }
