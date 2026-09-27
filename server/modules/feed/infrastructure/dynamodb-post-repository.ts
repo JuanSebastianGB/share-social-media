@@ -142,7 +142,7 @@ export class DynamoPostRepository implements PostRepository {
     const ids = (result.Items || [])
       .map((item) => String((item as { _id?: string })._id ?? ''))
       .filter(Boolean);
-    const indexKey = toFeedIndexKey(result.LastEvaluatedKey);
+    const indexKey = toFeedIndexKey(readLastEvaluatedKey(result));
     return {
       ids,
       ...(indexKey ? { continuation: encodeContinuation(indexKey) } : {}),
@@ -174,7 +174,7 @@ export class DynamoPostRepository implements PostRepository {
         exclusiveStartKey,
       });
       total += result.Count ?? 0;
-      exclusiveStartKey = toFeedIndexKey(result.LastEvaluatedKey);
+      exclusiveStartKey = toFeedIndexKey(readLastEvaluatedKey(result));
     } while (exclusiveStartKey);
     return total;
   }
@@ -210,6 +210,10 @@ function exclusiveStartKey(
     GSI1PK: cursor.GSI1PK,
     GSI1SK: cursor.GSI1SK,
   };
+}
+
+function readLastEvaluatedKey(result: object): unknown {
+  return 'LastEvaluatedKey' in result ? result.LastEvaluatedKey : undefined;
 }
 
 function toFeedIndexKey(key: unknown): FeedIndexKey | undefined {
