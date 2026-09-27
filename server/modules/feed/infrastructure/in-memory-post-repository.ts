@@ -1,11 +1,11 @@
-import { GSI, SK, postPk, postSortKey } from '../../../db/keys.js';
 import { Post } from '../domain/post.js';
 import type { PostSnapshot } from '../domain/post.js';
 import type {
   FeedIdPage,
-  FeedPageCursor,
   PostRepository,
 } from '../application/ports/post-repository.js';
+
+const MEMORY_CURSOR_PREFIX = 'mem:';
 
 /**
  * In-memory PostRepository for unit tests and local fakes.
@@ -33,15 +33,14 @@ export class InMemoryPostRepository implements PostRepository {
 
   async queryFeedIds(input: {
     limit: number;
-    exclusiveStartKey?: FeedPageCursor;
+    continuation?: string;
   }): Promise<FeedIdPage> {
     const ordered = this.orderedFeed();
     let start = 0;
-    const cursor = input.exclusiveStartKey;
-    if (cursor) {
-      const index = ordered.findIndex(
-        (snapshot) => feedCursor(snapshot).PK === cursor.PK,
-      );
+    if (input.continuation !== undefined) {
+      const afterId = decodeContinuation(input.continuation);
+      if (afterId === undefined) return { ids: [] };
+      const index = ordered.findIndex((snapshot) => snapshot.id === afterId);
       start = index >= 0 ? index + 1 : ordered.length;
     }
     const page = ordered.slice(start, start + input.limit);
@@ -49,7 +48,9 @@ export class InMemoryPostRepository implements PostRepository {
     const hasMore = start + page.length < ordered.length;
     return {
       ids: page.map((snapshot) => snapshot.id),
-      lastEvaluatedKey: hasMore && last ? feedCursor(last) : undefined,
+      ...(hasMore && last
+        ? { continuation: encodeContinuation(last.id) }
+        : {}),
     };
   }
 
@@ -83,11 +84,26 @@ export class InMemoryPostRepository implements PostRepository {
   }
 }
 
-function feedCursor(snapshot: PostSnapshot): FeedPageCursor {
-  return {
-    PK: postPk(snapshot.id),
-    SK: SK.META,
-    GSI1PK: GSI.FEED,
-    GSI1SK: postSortKey(snapshot.createdAt, snapshot.id),
-  };
+function encodeContinuation(afterId: string): string {
+  return `${MEMORY_CURSOR_PREFIX}${Buffer.from(
+    JSON.stringify({ afterId }),
+  ).toString('base64url')}`;
+}
+
+function decodeContinuation(continuation: string): string | undefined {
+  if (!continuation.startsWith(MEMORY_CURSOR_PREFIX)) return undefined;
+  try {
+    const raw = Buffer.from(
+      continuation.slice(MEMORY_CURSOR_PREFIX.length),
+      'base64url',
+    ).toString('utf8');
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return undefined;
+    }
+    const afterId = (parsed as { afterId?: unknown }).afterId;
+    return typeof afterId === 'string' ? afterId : undefined;
+  } catch {
+    return undefined;
+  }
 }

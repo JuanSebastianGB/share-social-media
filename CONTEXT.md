@@ -20,7 +20,7 @@ This document records the ubiquitous language for the application. Bounded conte
 | Post | Aggregate root for feed content. Owns body, author, media reference, likes, and comment id list. |
 | Author | The user id that owns a Post (`userId`). |
 | Like | Embedded map entry `userId → true` on a Post. Not a separate entity. |
-| Feed | Global chronological list of posts via DynamoDB GSI1 (`GSI1PK = FEED`). |
+| Feed | Global chronological list of Posts, newest first. |
 | Comment id | Identifier of a Comment record stored in `Post.comments[]`. Owned by the Comments BC; Feed only stores the id list. |
 
 ## Feed invariants (domain)

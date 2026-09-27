@@ -1,7 +1,4 @@
-import type {
-  FeedPageCursor,
-  PostRepository,
-} from '../ports/post-repository.js';
+import type { PostRepository } from '../ports/post-repository.js';
 import type { HydratedPost, PostAssemblerDeps } from '../read/post-assembler.js';
 import { assemblePost, matchesSearch } from '../read/post-assembler.js';
 
@@ -67,11 +64,11 @@ export async function listFeedPostsPage(
 
   const posts: HydratedPost[] = [];
   const needed = start + limit;
-  let cursor: FeedPageCursor | undefined;
+  let continuation: string | undefined;
   do {
     const page = await repo.queryFeedIds({
       limit: needed - posts.length,
-      exclusiveStartKey: cursor,
+      continuation,
     });
     if (page.ids.length === 0) break;
     for (const id of page.ids) {
@@ -82,8 +79,8 @@ export async function listFeedPostsPage(
         return posts.slice(start, start + limit);
       }
     }
-    cursor = page.lastEvaluatedKey;
-  } while (cursor);
+    continuation = page.continuation;
+  } while (continuation);
 
   return posts.slice(start, start + limit);
 }
