@@ -15,7 +15,6 @@ flowchart LR
   APIGW --> Lambda[Express_Lambda]
   Lambda --> DDB[DynamoDB]
   Lambda --> MediaS3
-  Lambda --> SM[Secrets_Manager]
   Lambda -.->|verify access JWT| Cognito
 ```
 
