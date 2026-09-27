@@ -52,8 +52,11 @@ Delegated writer. Trigger: port, page module, Dynamo adapter, and in-memory adap
 ## Checks
 
 - 2026-09-27: 8 passed / 3 suites (the three files in T1). Verified again after the writer returned.
-- Skipped: full server suite, typecheck, commit. No work-unit commit, so RDD review was not run.
+- Skipped: full server suite, typecheck.
+- Work-unit commit: `fc3a3bd` `refactor(server): hide the feed page cursor inside the adapters`.
+- Rollback boundary: the Post repository port, `listFeedPostsPage`, both feed adapters, their continuation tests, the Feed glossary line, and this task note.
+- Runtime harness: N/A. The change stays behind the existing HTTP page contract. No new route.
 
 ## Progress
 
-Branch `feat/feed-page-opaque-cursor` from `origin/main`. `CONTEXT.md` Feed glossary sharpened. T1 done. Next: commit if you want it.
+Branch `feat/feed-page-opaque-cursor` from `origin/main`. T1 committed as `fc3a3bd`. Next: pull request.
