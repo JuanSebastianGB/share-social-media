@@ -52,7 +52,7 @@ Deployed Lambda does not read `JWT_SECRET` or `PUBLIC_URL`. Those stay local-onl
 
 CDK injects `TABLE_NAME`, `MEDIA_BUCKET`, `MEDIA_BASE_URL`, `COGNITO_USER_POOL_ID`, and `COGNITO_CLIENT_ID` as Lambda environment variables. `AWS_REGION` is set by Lambda itself.
 
-CDK's old secret used RemovalPolicy RETAIN by default. After this deploy, CloudFormation drops it from the stack and leaves the secret in the account. Delete that leftover secret in the console if you do not want the monthly charge.
+The earlier API stack secret (`AppSecretFAB5164C`) was removed by a stack update on 2026-09-21. CloudFormation recorded `DELETE_COMPLETE` for that resource, so it was not retained. This CDK version defaults `secretsmanager.Secret` to `RemovalPolicy.DESTROY` when `removalPolicy` is omitted. The secret is gone, and this app has no Secrets Manager charge.
 
 ## Deploy manually
 
@@ -129,7 +129,7 @@ Manual client rebuild with a hard-coded URL is only needed for local/prod experi
 
 - HTTP API + Lambda: pay per request; free tier often covers light demos.
 - S3 + CloudFront: pennies for low traffic; S3 buckets use `DESTROY` + `autoDeleteObjects` for non-prod teardown.
-- The API stack no longer creates a Secrets Manager secret. CDK's old secret used RemovalPolicy RETAIN by default. After this deploy, CloudFormation drops it from the stack and leaves the secret in the account. Delete that leftover secret in the console if you do not want the monthly charge.
+- The API stack does not create a Secrets Manager secret. The earlier secret (`AppSecretFAB5164C`) reached `DELETE_COMPLETE` on 2026-09-21, so this app has no Secrets Manager charge.
 - DynamoDB on-demand: free tier / pay-per-request for light demos.
 - S3 media + site storage: pay per GB / request (pennies at demo scale).
 

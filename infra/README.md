@@ -58,7 +58,7 @@ Server verifies Cognito access tokens with `aws-jwt-verify` when `COGNITO_*` are
 
 The API stack does not create a Secrets Manager secret. There is no `APP_SECRET_ARN` and no `AppSecretArn` output. Deployed Lambda does not read `JWT_SECRET` or `PUBLIC_URL`. Those stay local-only for HS256 when Cognito env is unset.
 
-CDK's old secret used RemovalPolicy RETAIN by default. After this deploy, CloudFormation drops it from the stack and leaves the secret in the account. Delete that leftover secret in the console if you do not want the monthly charge.
+The earlier API stack secret (`AppSecretFAB5164C`) was removed by a stack update on 2026-09-21. CloudFormation recorded `DELETE_COMPLETE` for that resource, so it was not retained. This CDK version defaults `secretsmanager.Secret` to `RemovalPolicy.DESTROY` when `removalPolicy` is omitted. The secret is gone, and this app has no Secrets Manager charge.
 
 ## Static site
 
