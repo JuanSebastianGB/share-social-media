@@ -3,7 +3,7 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
-  ScanCommand,
+  type QueryCommandInput,
 } from '@aws-sdk/lib-dynamodb';
 import { getDocClient } from '../../../db/client.js';
 import {
@@ -16,7 +16,11 @@ import {
 } from '../../../db/keys.js';
 import { Post } from '../domain/post.js';
 import type { PostSnapshot } from '../domain/post.js';
-import type { PostRepository } from '../application/ports/post-repository.js';
+import type {
+  FeedIdPage,
+  FeedPageCursor,
+  PostRepository,
+} from '../application/ports/post-repository.js';
 
 function toItem(snapshot: PostSnapshot): Record<string, unknown> {
   const createdAt = snapshot.createdAt;
@@ -103,19 +107,32 @@ export class DynamoPostRepository implements PostRepository {
   }
 
   async listFeedIds(): Promise<string[]> {
-    const doc = getDocClient();
-    const result = await doc.send(
-      new QueryCommand({
-        TableName: TABLE_NAME,
-        IndexName: 'GSI1',
-        KeyConditionExpression: 'GSI1PK = :pk',
-        ExpressionAttributeValues: { ':pk': GSI.FEED },
-        ScanIndexForward: false,
-      }),
-    );
-    return (result.Items || [])
+    const ids: string[] = [];
+    let exclusiveStartKey: FeedPageCursor | undefined;
+    do {
+      const page = await this.queryFeedIds({
+        limit: FEED_DRAIN_LIMIT,
+        exclusiveStartKey,
+      });
+      ids.push(...page.ids);
+      exclusiveStartKey = page.lastEvaluatedKey;
+    } while (exclusiveStartKey);
+    return ids;
+  }
+
+  async queryFeedIds(input: {
+    limit: number;
+    exclusiveStartKey?: FeedPageCursor;
+  }): Promise<FeedIdPage> {
+    const result = await queryFeedIndex(input);
+    const ids = (result.Items || [])
       .map((item) => String((item as { _id?: string })._id ?? ''))
       .filter(Boolean);
+    const lastEvaluatedKey = toFeedCursor(result.LastEvaluatedKey);
+    return {
+      ids,
+      ...(lastEvaluatedKey ? { lastEvaluatedKey } : {}),
+    };
   }
 
   async listUserPostIds(authorId: string): Promise<string[]> {
@@ -135,18 +152,74 @@ export class DynamoPostRepository implements PostRepository {
   }
 
   async count(): Promise<number> {
-    const doc = getDocClient();
-    const result = await doc.send(
-      new ScanCommand({
-        TableName: TABLE_NAME,
-        FilterExpression: 'begins_with(#pk, :prefix) AND #sk = :sk',
-        ExpressionAttributeNames: { '#pk': 'PK', '#sk': 'SK' },
-        ExpressionAttributeValues: {
-          ':prefix': 'POST#',
-          ':sk': SK.META,
-        },
-      }),
-    );
-    return result.Items?.length ?? 0;
+    let total = 0;
+    let exclusiveStartKey: FeedPageCursor | undefined;
+    do {
+      const result = await queryFeedIndex({
+        countOnly: true,
+        exclusiveStartKey,
+      });
+      total += result.Count ?? 0;
+      exclusiveStartKey = toFeedCursor(result.LastEvaluatedKey);
+    } while (exclusiveStartKey);
+    return total;
   }
+}
+
+const FEED_DRAIN_LIMIT = 100;
+
+function feedQueryInput(input: {
+  limit?: number;
+  countOnly?: boolean;
+  exclusiveStartKey?: FeedPageCursor;
+}): QueryCommandInput {
+  return {
+    TableName: TABLE_NAME,
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'GSI1PK = :pk',
+    ExpressionAttributeValues: { ':pk': GSI.FEED },
+    ScanIndexForward: false,
+    ...(input.limit != null ? { Limit: input.limit } : {}),
+    ...(input.countOnly ? { Select: 'COUNT' as const } : {}),
+    ...(input.exclusiveStartKey
+      ? { ExclusiveStartKey: exclusiveStartKey(input.exclusiveStartKey) }
+      : {}),
+  };
+}
+
+function exclusiveStartKey(
+  cursor: FeedPageCursor,
+): NonNullable<QueryCommandInput['ExclusiveStartKey']> {
+  return {
+    PK: cursor.PK,
+    SK: cursor.SK,
+    GSI1PK: cursor.GSI1PK,
+    GSI1SK: cursor.GSI1SK,
+  };
+}
+
+function toFeedCursor(key: unknown): FeedPageCursor | undefined {
+  if (!key || typeof key !== 'object') return undefined;
+  const record = key as Record<string, unknown>;
+  const PK = record.PK;
+  const SK = record.SK;
+  const GSI1PK = record.GSI1PK;
+  const GSI1SK = record.GSI1SK;
+  if (
+    typeof PK !== 'string' ||
+    typeof SK !== 'string' ||
+    typeof GSI1PK !== 'string' ||
+    typeof GSI1SK !== 'string'
+  ) {
+    return undefined;
+  }
+  return { PK, SK, GSI1PK, GSI1SK };
+}
+
+function queryFeedIndex(input: {
+  limit?: number;
+  countOnly?: boolean;
+  exclusiveStartKey?: FeedPageCursor;
+}) {
+  return getDocClient().send(new QueryCommand(feedQueryInput(input)));
 }

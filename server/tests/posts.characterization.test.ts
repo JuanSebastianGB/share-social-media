@@ -10,6 +10,107 @@ describe('Posts characterization', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
     });
+
+    test('returns pages of two posts that partition the hydrated feed', async () => {
+      const user = await registerUser();
+      const createdIds: string[] = [];
+      for (const body of [
+        'feed-page-a',
+        'feed-page-b',
+        'feed-page-c',
+        'feed-page-d',
+        'feed-page-e',
+      ]) {
+        const created = await request(app)
+          .post('/posts')
+          .set(authHeader(user.token))
+          .send({ body, type: 'text' });
+        expect(created.status).toBe(200);
+        createdIds.push(created.body._id as string);
+      }
+
+      const pages: string[][] = [];
+      for (let page = 1; page <= 4; page += 1) {
+        const response = await request(app).get('/posts').query({ page });
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+        pages.push(
+          (response.body as { _id: string }[]).map((post) => post._id),
+        );
+      }
+
+      expect(pages[0]).toHaveLength(2);
+      expect(pages[1]).toHaveLength(2);
+      expect(pages[2]).toHaveLength(1);
+      expect(pages[3]).toHaveLength(0);
+
+      const seen = pages.flat();
+      expect(new Set(seen).size).toBe(createdIds.length);
+      expect([...seen].sort()).toEqual([...createdIds].sort());
+    });
+
+    test('search filters by body and user fields before the page slice', async () => {
+      const ada = await registerUser({
+        firstName: 'Ada98',
+        lastName: 'Lovelace',
+        location: 'Paris98',
+      });
+      const bob = await registerUser({
+        firstName: 'Bob98',
+        lastName: 'Stone',
+        location: 'Lima98',
+      });
+
+      const alphaIds: string[] = [];
+      for (const body of ['alpha98 one', 'alpha98 two']) {
+        const created = await request(app)
+          .post('/posts')
+          .set(authHeader(ada.token))
+          .send({ body, type: 'text' });
+        expect(created.status).toBe(200);
+        alphaIds.push(created.body._id as string);
+      }
+      const third = await request(app)
+        .post('/posts')
+        .set(authHeader(bob.token))
+        .send({ body: 'alpha98 three', type: 'text' });
+      expect(third.status).toBe(200);
+      alphaIds.push(third.body._id as string);
+
+      const lima = await request(app)
+        .post('/posts')
+        .set(authHeader(bob.token))
+        .send({ body: 'unrelated note', type: 'text' });
+      expect(lima.status).toBe(200);
+
+      const byBody = await request(app).get('/posts').query({ search: 'alpha98' });
+      const byBodyPage2 = await request(app)
+        .get('/posts')
+        .query({ search: 'alpha98', page: 2 });
+      const byName = await request(app).get('/posts').query({ search: 'Ada98' });
+      const byLocation = await request(app)
+        .get('/posts')
+        .query({ search: 'Lima98' });
+
+      expect(byBody.status).toBe(200);
+      expect(byBodyPage2.status).toBe(200);
+      const matchedIds = [
+        ...(byBody.body as { _id: string }[]),
+        ...(byBodyPage2.body as { _id: string }[]),
+      ].map((post) => post._id);
+      expect(byBody.body).toHaveLength(2);
+      expect(byBodyPage2.body).toHaveLength(1);
+      expect([...matchedIds].sort()).toEqual([...alphaIds].sort());
+
+      expect(
+        (byName.body as { _id: string }[]).map((post) => post._id).sort(),
+      ).toEqual(alphaIds.slice(0, 2).sort());
+      expect(
+        (byLocation.body as { _id: string }[])
+          .map((post) => post._id)
+          .sort(),
+      ).toEqual([lima.body._id as string, third.body._id as string].sort());
+    });
   });
 
   describe('POST /posts (JSON path — no multipart upload)', () => {

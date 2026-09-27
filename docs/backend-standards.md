@@ -354,7 +354,7 @@ No URL versioning (`/v1`). No HATEOAS.
 
 - **Repository pattern** with DocumentClient commands.
 - Prefer **Get/Query** over **Scan**. Scans exist for users/comments/items/storage lists — treat as **legacy / demo-scale only**; do not add new Scan-based list APIs without an index plan.
-- Feed: Query GSI1 with `GSI1PK = FEED`.
+- Feed: Query GSI1 with `GSI1PK = FEED`. Page with `Limit` and `ExclusiveStartKey`. Count with `Select: COUNT` on that index, not a Scan.
 - User posts: Query GSI2 with `GSI2PK = USER#userId`.
 - Email lookup: Query GSI1 with `EMAIL#email` / `USER`.
 - Cognito link: GetItem on `COGNITO#sub` / `LINK`.
@@ -470,7 +470,9 @@ expect(res.body).toBe('ERROR_PASSWORD');
 ### Query Optimization
 
 - Use GSI1 feed and GSI2 per-user post indexes.
-- Hydration (`hydratePost`) does sequential Gets — acceptable at demo scale; avoid calling it in nested loops for unbounded lists without pagination awareness.
+- Home feed page: Query GSI1 `FEED` newest-first. Skip posts whose file, author, or profile image is missing; those skips do not take a page slot. Stop once `start + limit` hydrated posts exist.
+- Non-empty `search` still reads the whole feed index. The match uses hydrated `body`, `firstName`, `lastName`, and `location`, so a limited query would drop later matches. Search paging is a follow-up.
+- Hydration does sequential Gets — acceptable at demo scale.
 - Pagination page size is currently **2** — changing it is a product/API change; update client infinite scroll assumptions.
 
 ### Concurrency Patterns
